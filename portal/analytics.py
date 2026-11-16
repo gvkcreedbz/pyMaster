@@ -5,7 +5,7 @@ All heuristics are transparent and local. They never block anything; they only c
 from __future__ import annotations
 
 import re
-from collections import Counter, defaultdict
+from collections import Counter, OrderedDict, defaultdict
 from datetime import date, timedelta
 
 from . import content, db
@@ -71,29 +71,49 @@ def classify_bloom(text: str) -> str:
     return "understand"
 
 
+_STASH: "OrderedDict[str, list]" = OrderedDict()      # question text -> reasons, picked up by ex_tutor when the answer starts
+_STASH_MAX = 64
+
+
+def pop_reasons(text: str) -> list | None:
+    """Reasons computed for this exact question text by the last score_question() call (or None)."""
+    return _STASH.pop((text or "").strip(), None)
+
+
 def score_question(text: str, *, day_no: int | None, has_code: bool, has_selection: bool,
-                   attempted_first: bool, prior: list[str], source: str = "typed") -> dict:
-    """Score 0-100. 'valid' = specific, thoughtful and not a repeat."""
+                   attempted_first: bool, prior: list[str], source: str = "typed", remember: bool = True) -> dict:
+    """Score 0-100. 'valid' = specific, thoughtful and not a repeat.
+
+    Also returns ``reasons``: a list of {points, text} explaining where the score came from (the points add up to
+    the score before it is clamped to 0-100). ``remember=False`` (live coach) keeps them out of the stash."""
     t = (text or "").strip()
     words = len(re.findall(r"\w+", t))
     qtype, bloom = classify_type(t), classify_bloom(t)
     flags: list[str] = []
     tips: list[str] = []
+    reasons: list[dict] = []
+
+    def why(points: int, msg: str) -> None:
+        reasons.append({"points": points, "text": msg})
 
     if source == "quick":      # one-click prompts: tracked, but not graded (they are not your wording)
-        return {"quality": None, "qtype": qtype, "bloom": bloom, "valid": 1, "duplicate": 0, "flags": ["quick-action"], "tips": []}
+        return {"quality": None, "qtype": qtype, "bloom": bloom, "valid": 1, "duplicate": 0, "flags": ["quick-action"],
+                "tips": [], "reasons": [{"points": 0, "text": "A quick-action button, so it is logged but not graded."}]}
 
     score = 30
+    why(30, "Every typed question starts at 30.")
     if words < 3:
-        score -= 20; flags.append("too-short")
+        score -= 20; flags.append("too-short"); why(-20, "Very short (under 3 words); a few more words help.")
     elif words < 6:
-        score -= 5
+        score -= 5; why(-5, "Quite short (under 6 words).")
     elif words <= 45:
-        score += 10
+        score += 10; why(10, "A good length: enough detail without rambling.")
     else:
-        score += 4; flags.append("long")
+        score += 4; flags.append("long"); why(4, "Long and detailed (consider splitting it into two questions).")
     r_hits = len(set(m.group(0).lower() for m in REASONING.finditer(t)))
-    score += min(15, r_hits * 8)
+    if r_hits:
+        pts = min(15, r_hits * 8)
+        score += pts; why(pts, "Uses reasoning words (why, difference, what if, where is it used).")
 
     concept_terms = set()
     if day_no and (d := content.day(day_no)):
@@ -101,29 +121,29 @@ def score_question(text: str, *, day_no: int | None, has_code: bool, has_selecti
     names_code = bool(re.search(r"`[^`]+`|\b\w+\(\)|\b[a-z_]+\.[a-z_]+\b", t))
     names_concept = bool(_tokens(t) & concept_terms)
     if names_code or names_concept:
-        score += 15; flags.append("specific")
+        score += 15; flags.append("specific"); why(15, "Names the exact thing you mean (a function, a line or today's concept).")
     else:
         tips.append("Name the exact thing you mean (a function, a line, or a concept from today's lesson).")
     if has_code or has_selection:
-        score += 10
+        score += 10; why(10, "Includes your code or a highlighted selection.")
     if OWN_THINKING.search(t):
-        score += 15; flags.append("shows-own-thinking")
+        score += 15; flags.append("shows-own-thinking"); why(15, "Shows your own thinking (\"I think\", \"I expected\").")
     else:
         tips.append("Add what you already think (\"I think X because…\") so I can correct your model, not just give an answer.")
     if attempted_first:
-        score += 10; flags.append("tried-first")
+        score += 10; flags.append("tried-first"); why(10, "You ran your code recently before asking.")
     elif qtype in ("debug", "howto", "review", "confirm") and not has_code:
         tips.append("Try it first and paste your code or the error. Questions asked after an attempt teach you far more.")
     if qtype == "debug":
         if re.search(r"(Error|Traceback)", t) or has_code:
-            score += 10
+            score += 10; why(10, "A debugging question that includes the error or your code.")
         else:
-            score -= 10; flags.append("no-error-text")
+            score -= 10; flags.append("no-error-text"); why(-10, "A debugging question without the error text or your code.")
             tips.append("Paste the full error message; the last line usually names the bug.")
     if VAGUE.match(t):
-        score -= 25; flags.append("vague")
+        score -= 25; flags.append("vague"); why(-25, "Too general to answer well (for example just \"help\").")
     if GIVE_ANSWER.search(t):
-        score -= 15; flags.append("asks-for-answer")
+        score -= 15; flags.append("asks-for-answer"); why(-15, "Asks for the answer instead of a hint.")
         tips.append("Ask for a hint instead of the answer. You will remember what you work out yourself.")
     if qtype == "usage":
         flags.append("real-world")
@@ -135,12 +155,97 @@ def score_question(text: str, *, day_no: int | None, has_code: bool, has_selecti
         if toks and pt and len(toks & pt) / len(toks | pt) >= 0.75:
             duplicate = 1; flags.append("repeat")
             tips.append("You asked something very similar recently. Check your notes or scroll the chat history first.")
-            score -= 30
+            score -= 30; why(-30, "Very similar to a question you asked in the last week.")
             break
     score = max(0, min(100, score))
     valid = int(score >= 45 and "vague" not in flags and not duplicate)
+    if remember and t:
+        _STASH[t] = reasons
+        while len(_STASH) > _STASH_MAX:
+            _STASH.popitem(last=False)
     return {"quality": score, "qtype": qtype, "bloom": bloom, "valid": valid, "duplicate": duplicate,
-            "flags": flags, "tips": tips[:2]}
+            "flags": flags, "tips": tips[:2], "reasons": reasons}
+
+
+def quality_label(score: int | None) -> str:
+    if score is None:
+        return "quick action"
+    return "great question" if score >= 70 else "good question" if score >= 45 else "could be sharper"
+
+
+def reasons_from_flags(row: dict) -> list[dict]:
+    """Best-effort reasons for questions stored before reasons were persisted (built from the stored flags)."""
+    if row.get("quality") is None:
+        return [{"points": 0, "text": "A quick-action button, so it is logged but not graded."}]
+    fl = set(json_list(row.get("flags")))
+    table = [("specific", 15, "Names the exact thing you mean."), ("shows-own-thinking", 15, "Shows your own thinking."),
+             ("tried-first", 10, "You ran your code recently before asking."), ("real-world", 0, "Asks about real-world use."),
+             ("too-short", -20, "Very short (under 3 words)."), ("vague", -25, "Too general to answer well."),
+             ("asks-for-answer", -15, "Asks for the answer instead of a hint."), ("no-error-text", -10, "No error text or code included."),
+             ("repeat", -30, "Very similar to a recent question."), ("long", 4, "Long and detailed.")]
+    out = [{"points": p, "text": m} for k, p, m in table if k in fl]
+    out.append({"points": 0, "text": f"Final score {row['quality']} (older question: shown from its saved flags)."})
+    return out
+
+
+def json_list(v) -> list:
+    import json
+    try:
+        r = json.loads(v) if isinstance(v, str) else (v or [])
+        return r if isinstance(r, list) else []
+    except ValueError:
+        return []
+
+
+def coach_tips(text: str, res: dict, *, has_code: bool, has_selection: bool) -> list[str]:
+    """Gentle, rule-based nudges for the live coach (at most 2). Empty once the question is already good."""
+    t = (text or "").strip()
+    if not t or (res.get("quality") or 0) >= 70:
+        return []
+    fl, qtype = set(res.get("flags") or []), res.get("qtype")
+    out: list[str] = []
+    if qtype in ("debug", "howto", "review", "confirm") and not (has_code or has_selection):
+        out.append("Add the code you tried (tick \"include my code\" or paste it).")
+    if qtype == "debug" and "no-error-text" in fl:
+        out.append("Paste the error message; its last line usually names the problem.")
+    if qtype == "debug" and "shows-own-thinking" not in fl:
+        out.append("Say what you expected to happen and what happened instead.")
+    if "vague" in fl or "too-short" in fl:
+        out.append("Add a few more words: what are you trying to do, and where are you stuck?")
+    if "specific" not in fl:
+        out.append("Name the exact function, line or idea you mean.")
+    if "shows-own-thinking" not in fl:
+        out.append("Add what you think the answer is, and why. I can then fix the part that is off.")
+    if "asks-for-answer" in fl:
+        out.append("A hint first helps you remember it longer. You can always ask for more.")
+    if "repeat" in fl:
+        out.append("You asked something very similar recently; scroll the chat above first.")
+    seen, uniq = set(), []
+    for x in out:
+        if x not in seen:
+            seen.add(x); uniq.append(x)
+    return uniq[:2]
+
+
+# ---- manual overrides (the learner can mark a question 'valid' or 'low') ---------------------------------------
+def overrides() -> dict[int, str]:
+    """question id -> 'valid' | 'low'. Table is created by ex_tutor.setup(); absent table means no overrides."""
+    try:
+        return {r["question_id"]: r["override"] for r in
+                db.rows("SELECT question_id, override FROM question_reasons WHERE override IN ('valid','low')")}
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def apply_override(q: dict, verdict: str | None) -> dict:
+    """Return q with the learner's verdict applied (valid -> valid & quality >= 45; low -> not valid & quality <= 44)."""
+    q["override"] = verdict
+    if verdict and q.get("quality") is not None:
+        if verdict == "valid":
+            q["valid"], q["quality"] = 1, max(q["quality"], 45)
+        else:
+            q["valid"], q["quality"] = 0, min(q["quality"], 44)
+    return q
 
 
 # ---- progress model ----------------------------------------------------------------------------
@@ -264,7 +369,10 @@ def welcome(sid: str | None = None, prog: dict | None = None, st: dict | None = 
 def today_stats() -> dict:
     t = db.today()
     secs = db.one("SELECT COALESCE(SUM(seconds),0) s FROM activity WHERE date=?", (t,))["s"]
-    q = db.one("SELECT COUNT(*) c, COALESCE(SUM(valid),0) v FROM questions WHERE date=? AND source!='quick'", (t,))
+    typed_today = db.rows("SELECT id, valid FROM questions WHERE date=? AND source!='quick'", (t,))
+    ov = overrides()
+    q = {"c": len(typed_today),
+         "v": sum(1 if ov.get(r["id"]) == "valid" else 0 if ov.get(r["id"]) == "low" else (r["valid"] or 0) for r in typed_today)}
     qa = db.one("SELECT COUNT(*) c FROM questions WHERE date=?", (t,))["c"]
     a = db.one("SELECT COUNT(*) c, COALESCE(SUM(passed),0) p FROM attempts WHERE date=?", (t,))
     return {"minutes": round(secs / 60, 1), "questions": qa, "typed_questions": q["c"], "valid_questions": q["v"],
@@ -276,6 +384,10 @@ def insights() -> dict:
     prog = day_progress()
     st = streak_info()
     qs = db.rows("SELECT * FROM questions ORDER BY id")
+    ov = overrides()
+    for q in qs:                                   # the learner's own 'valid' / 'low' verdicts win over the heuristic
+        if q["id"] in ov:
+            apply_override(q, ov[q["id"]])
     typed = [q for q in qs if q["source"] != "quick" and q["quality"] is not None]
     # time series (last 35 calendar days)
     t = date.today()

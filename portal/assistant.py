@@ -14,8 +14,14 @@ import os
 import re
 from typing import Iterator
 
-from . import content, db
-from .kb import GENERIC_USAGE, KB, VISUALS
+from . import content, db, track
+
+if track.IS_JAVA:
+    from . import java_assist as _jl
+    from .kb_java import GENERIC_USAGE, KB, VISUALS
+else:
+    _jl = None
+    from .kb import GENERIC_USAGE, KB, VISUALS
 
 QUICK = {
     "where_used": "Where and how is this used in the real world? Who uses it, in what kind of project, and what does it look like there?",
@@ -27,9 +33,12 @@ QUICK = {
     "hint": "Give me the next hint for the exercise I'm on, without giving away the full answer.",
     "recap": "Give me a quick 2-minute recap of this lesson.",
     "visual": "Show me a visual: draw a diagram that explains this code (or idea) step by step.",
+    # not shown as buttons; sent by the "Want more?" chip and the "Show the answer anyway" button (see ex_tutor.py)
+    "more": "Go deeper on your last answer, with a fuller explanation and a worked example.",
+    "answer_anyway": "Show me the full answer for this exercise. I would like to see it now.",
 }
 
-SYSTEM = """You are **Py Master Tutor**, a warm, sharp Python mentor sitting beside the lesson in a 30-day course.
+_SYSTEM = """You are **Py Master Tutor**, a warm, sharp Python mentor sitting beside the lesson in a 30-day course.
 The learner began with zero coding knowledge and wants to get well beyond intermediate, aiming at data/AI work and automation/backend work.
 
 How to teach:
@@ -41,6 +50,36 @@ How to teach:
 - Use Markdown with fenced ```python code blocks. Never invent library features; if unsure, say so.
 - When asked for a visual / diagram / "show me", answer with a ```mermaid block (flowchart TD/LR, sequenceDiagram or similar; short quoted labels, no HTML except <br/>) followed by 3-5 plain-language bullets that walk through it. For code that changes data, also give a small table of how the variables change line by line.
 - This is chat only: do NOT create files, run commands or use tools. Just answer."""
+SYSTEM = _SYSTEM
+if track.IS_JAVA:
+    SYSTEM = (_SYSTEM.replace("Py Master Tutor", "Java Master Tutor").replace("Python", "Java")
+              .replace("```python", "```java")
+              .replace("data/AI work and automation/backend work", "back-end and enterprise software work"))
+_FENCE = track.T["fence"]
+
+
+def _tx():
+    """The tutor-extras module (try-first gate, answer style, run context). A problem there never stops an answer."""
+    try:
+        from . import ex_tutor
+        return ex_tutor
+    except Exception:  # noqa: BLE001
+        return None
+
+
+_STYLE_CONCISE = (
+    "ANSWER STYLE = CONCISE. This overrides the length and structure rules above, including the 5-part 'where is this used' format. "
+    "Give a direct answer in 3-6 short lines (at most ~120 words), then exactly ONE tiny runnable example, no filler, no preamble, "
+    "no closing offers. The app adds its own 'Want more?' button, so do not ask whether they want more.")
+_STYLE_DETAILED = (
+    "ANSWER STYLE = DETAILED. A fuller explanation with a line-by-line walk-through is welcome (plain words, under ~300 words).")
+_VERIFIED = (
+    "Never present output as real unless it came from actually running the code. If you show output, label it 'expected output'. "
+    "The learner can press 'Run it' under any example to see the real output, so keep examples short, self-contained and runnable.")
+
+
+def style_block(style: str) -> str:
+    return (_STYLE_CONCISE if style == "concise" else _STYLE_DETAILED) + " " + _VERIFIED
 
 
 # ---- configuration -----------------------------------------------------------------------------
@@ -88,12 +127,20 @@ def build_context(ctx: dict) -> str:
         failing = db.rows("SELECT check_id, name FROM checks WHERE day_no=? AND last_status='FAIL' LIMIT 6", (n,))
         if failing:
             parts.append("Currently failing checks: " + ", ".join(f"{f['check_id']} {f['name']}" for f in failing))
+        tx = _tx()
+        if tx:
+            try:
+                block = tx.context_block(n, bool(ctx.get("output")))
+                if block:
+                    parts.append(block)
+            except Exception:  # noqa: BLE001
+                pass
     if ctx.get("tab"):
         parts.append(f"Learner is on the '{ctx['tab']}' tab.")
     if ctx.get("selection"):
         parts.append("TEXT/CODE THE LEARNER HIGHLIGHTED:\n" + ctx["selection"][:1500])
     if ctx.get("code"):
-        parts.append("LEARNER'S CURRENT CODE:\n```python\n" + ctx["code"][:4500] + "\n```")
+        parts.append(f"LEARNER'S CURRENT CODE:\n```{_FENCE}\n" + ctx["code"][:4500] + "\n```")
     if ctx.get("output"):
         parts.append("LAST RUN OUTPUT:\n```\n" + ctx["output"][-1500:] + "\n```")
     return "\n\n".join(parts)
@@ -150,7 +197,7 @@ def _cursor(history: list[dict], user_msg: str, context: str) -> Iterator[str]:
     ws.mkdir(parents=True, exist_ok=True)
     convo = "\n".join(f"{'Learner' if m['role'] == 'user' else 'Tutor'}: {m['content'][:1200]}" for m in history[-6:])
     prompt = f"{SYSTEM}\n\n=== CONTEXT ===\n{context}\n\n=== CONVERSATION SO FAR ===\n{convo or '(none)'}\n\n=== LEARNER NOW ===\n{user_msg}"
-    agent = Agent.create(model=model("cursor"), api_key=key("cursor"), name="Python tutor",
+    agent = Agent.create(model=model("cursor"), api_key=key("cursor"), name=f"{track.T['short']} tutor",
                          local=LocalAgentOptions(cwd=str(ws)))
     try:
         run = agent.send(prompt)
@@ -280,6 +327,8 @@ def _entry_where(e: dict) -> str:
 
 
 def _decode_error(text: str) -> str | None:
+    if _jl:
+        return _jl.decode_error(text)
     m = re.search(r"\b([A-Z]\w*(?:Error|Exception|Iteration))\b", text)
     if not m:
         return None
@@ -298,6 +347,8 @@ def _decode_error(text: str) -> str | None:
 
 
 def static_review(code: str) -> list[str]:
+    if _jl:
+        return _jl.static_review(code)
     notes = []
     try:
         tree = ast.parse(code)
@@ -330,6 +381,8 @@ def static_review(code: str) -> list[str]:
 def _looks_code(text: str) -> bool:
     if not text.strip():
         return False
+    if _jl:
+        return _jl.looks_code(text)
     from . import visual
     if visual.looks_like_sql(text):
         return True
@@ -372,13 +425,93 @@ def visual_answer(question: str, ctx: dict, concepts: list[dict]) -> str:
             "Or name the idea: *variables, lists, loops, dicts, functions, classes, pandas groupby, SQL, APIs…*")
 
 
+_MORE = "\n\n<!--tutor:more-->"       # the page turns this marker into the single "Want more?" chip
+
+
+def _sentences(s: str, k: int) -> str:
+    parts = re.split(r"(?<=[.!?])\s+", s.strip())
+    return " ".join(parts[:k])
+
+
+def _bullets(s: str, k: int = 3) -> list[str]:
+    items = [re.sub(r"^\s*[-*]\s*", "", ln).strip() for ln in s.splitlines() if ln.strip().startswith(("-", "*"))]
+    return [_first_sentence(i) for i in (items or [s.strip()])[:k] if i]
+
+
+def _first_block(how: str) -> str:
+    """The first fenced example of a KB entry, whole (never cut, so the page's Run it button gets runnable code)."""
+    m = re.search(r"```[^\n]*\n.*?```", how, re.S)
+    return m.group(0) if m else ""
+
+
+def _concise_entry(e: dict, intent: str) -> str:
+    """3-6 lines + one tiny example + the 'Want more?' marker."""
+    name, ex = e["name"], _first_block(e["how"])
+    if intent == "where_used":
+        bl = "\n".join(f"- {b}" for b in _bullets(e["where"], 3))
+        body = (f"### {name}: where it's used\n\n{_first_sentence(e['what'])}\n\n**Where you'll meet it**\n{bl}\n\n{ex}\n\n"
+                f"**Watch out:** {_first_sentence(e['pitfall'])}")
+    elif intent == "explain_simple":
+        body = f"### {name}, simply\n\n{_sentences(e['what'], 2)}\n\n{ex}"
+    elif intent == "example":
+        body = f"### A realistic example: {name}\n\n{ex}\n\n**Level it up:** {_first_sentence(e['nxt'])}"
+    elif intent == "why":
+        body = f"### Why {name} works this way\n\n{_first_sentence(e['what'])}\n\n**The gotcha that shows it:** {_first_sentence(e['pitfall'])}\n\n{ex}"
+    else:
+        used = _bullets(e["where"], 1)
+        body = f"### {name}\n\n{_sentences(e['what'], 2)}\n\n{ex}" + (f"\n\n**Used for:** {used[0]}" if used else "")
+    return body.strip() + _MORE
+
+
+def _is_solution_request(question: str, quick_id: str | None, ctx: dict, history_today: list[dict]) -> bool:
+    """Explicit 'show me the answer' for a practice exercise (the offline tutor answers it with the reference solution)."""
+    if quick_id == "answer_anyway" or ctx.get("gate_override"):
+        return True
+    tx = _tx()
+    if not tx or quick_id or not tx.is_solution_request(question):
+        return False
+    if any((m.get("meta") or {}).get("quiz_q") for m in history_today[-2:]):
+        return False
+    return bool(ctx.get("tab") == "practice" or ctx.get("exercise_id"))
+
+
+def _solution_answer(d: dict, ctx: dict) -> str:
+    ex = next((e for e in d["exercises"] if e["id"] == ctx.get("exercise_id")), None)
+    tx = _tx()
+    code = tx.solution_excerpt(d, ex["id"]) if (tx and ex) else None
+    if not code:
+        return ("The full reference solution is behind the **Solution** button on the Practice tab (opening it is logged, never blocked). "
+                "Tell me which exercise you mean and I can give a hint instead.")
+    att = db.one("SELECT COUNT(*) c FROM attempts WHERE day_no=? AND kind='practice'", (d["n"],))["c"]
+    db.log_event(ctx.get("sid"), "solution_view", d["n"], {"attempts_before": att, "via": "tutor"})
+    return (f"### Reference answer: {ex['id']} · {ex['title']}\n\n```{_FENCE}\n{code}\n```\n\n"
+            "Read it line by line and say each line aloud in plain words. Then close it and rewrite it from memory; that is where it sticks.")
+
+
+def _run_note(n: int | None) -> str:
+    tx = _tx()
+    try:
+        return tx.run_note(n) if tx else ""
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def offline_answer(question: str, quick_id: str | None, ctx: dict, history_today: list[dict]) -> str:
     n = ctx.get("day_no")
     d = content.day(n) if n else None
     sel, code, output = ctx.get("selection") or "", ctx.get("code") or "", ctx.get("output") or ""
     intent = detect_intent(question, quick_id)
+    tx = _tx()
+    style = tx.answer_style(ctx) if tx else "detailed"
+    if quick_id == "more":                          # the "Want more?" chip: same topic, full detail
+        style = "detailed"
+    if intent in ("more", "answer_anyway"):
+        intent = detect_intent(question, None)
     if re.match(r"^\s*(hi|hello|hey|thanks|thank you|ok|okay|cool)\b[\s!.]*$", question, re.I):
         return "Hi! Ask me anything about this lesson. Try **“where would I actually use this?”** or highlight some code and use a quick action below."
+    if d and _is_solution_request(question, quick_id, ctx, history_today):
+        return _solution_answer(d, ctx)
+    concise = style == "concise"
     concepts = find_concepts(question + " " + sel, sel, code, n)
     if not concepts and intent != "concept":      # "where is this used?" with no topic named -> today's main idea
         concepts = day_concepts(n)[:1]
@@ -415,10 +548,14 @@ def offline_answer(question: str, quick_id: str | None, ctx: dict, history_today
         tail = "\n\nStill stuck? Ask once more and I'll point you to the solution view."
         if idx >= len(hints) - 2 and used >= 3:
             tail = "\n\nThe full solution is in the **Solution** button on the Practice tab. Opening it is logged, so try one more time first."
-        return head + h + tail
+        note = _run_note(n)
+        return head + h + (f"\n\n{note}" if note else "") + tail
 
     if intent == "recap" and d:
         c = ", ".join(f"`{x}`" for x in d["concepts"][:6])
+        if concise:
+            return (f"### Day {n} recap: {d['title']}\n**Goal:** {d['goal']}\n\n**Key ideas:** {c}\n\n"
+                    f"Say **quiz me** and I'll check what stuck." + _MORE)
         return (f"### Day {n} recap: {d['title']}\n**Goal:** {d['goal']}\n\n**The idea in the real world:** {d['scenario'][:420]}\n\n"
                 f"**Key ideas:** {c}\n\nSay **quiz me** and I'll check what stuck.")
 
@@ -436,9 +573,26 @@ def offline_answer(question: str, quick_id: str | None, ctx: dict, history_today
 
     if intent == "debug":
         dec = _decode_error(question + "\n" + output)
+        note = _run_note(n)
+        if not dec and n and tx:                      # nothing pasted: decode the error from the learner's actual last runs
+            try:
+                top = (tx.learner_context(n) or {}).get("top_error")
+                dec = _decode_error(top) if top and not top.startswith("compile error") else None
+            except Exception:  # noqa: BLE001
+                dec = None
         out = ["### Let's debug it\n"]
         if dec:
             out.append(dec + "\n")
+        if note:
+            out.append(note + "\n")
+        if concise:
+            out.append("**Next:** read the **last line** of the error, jump to the **line number** just above it, and `print()` "
+                       "the values on that line to see what they really hold.")
+            if concepts:
+                out.append(f"\n**Common trap here ({concepts[0]['name']}):** {_first_sentence(concepts[0]['pitfall'])}")
+            if not (output or code or note):
+                out.append("\nPaste the full error (or run your code first) and I'll be more specific.")
+            return "\n".join(out) + _MORE
         out.append("**A 4-step routine that works every time**\n1. Read the **last line** of the error: it names the type of problem.\n2. Look at the **line number** above it (and the line before if that one looks fine).\n3. `print()` the variables on that line to see what they *really* hold.\n4. Shrink the problem: test with the smallest input that still fails.")
         if concepts:
             out.append(f"\n**Common trap here ({concepts[0]['name']}):** {concepts[0]['pitfall']}")
@@ -448,10 +602,14 @@ def offline_answer(question: str, quick_id: str | None, ctx: dict, history_today
 
     if not concepts:
         sc = d["scenario"][:360] if d else ""
+        if concise:
+            return "I'm not sure which idea you mean. Highlight the exact line or word in the lesson, or name the function or concept."
         return ("I'm not sure which idea you mean. Try highlighting the exact line or word in the lesson, or name the function/concept.\n\n"
                 + (f"**Today's scenario:** {sc}\n\n" if sc else "") + GENERIC_USAGE)
 
     e = concepts[0]
+    if concise:
+        return _concise_entry(e, intent if intent in ("where_used", "explain_simple", "example", "why") else "concept")
     extra = ""
     if len(concepts) > 1 and intent in ("where_used", "concept"):
         extra = "\n\n*Related:* " + ", ".join(f"{c['name']}" for c in concepts[1:]) + ". Ask about any of them."
@@ -473,23 +631,41 @@ def offline_stream(question, quick_id, ctx, history_today) -> tuple[Iterator[str
     meta = {}
     if isinstance(res, dict):
         meta, res = res["meta"], res["text"]
-    def gen():
-        import time
-        words = re.split(r"(\s+)", res)
-        buf = ""
-        for w in words:
-            buf += w
-            if len(buf) >= 18:
-                yield buf; buf = ""
-                time.sleep(0.012)
-        if buf:
-            yield buf
-    return gen(), meta
+    return _chunks(res), meta
+
+
+def _chunks(res: str) -> Iterator[str]:
+    import time
+    words = re.split(r"(\s+)", res)
+    buf = ""
+    for w in words:
+        buf += w
+        if len(buf) >= 18:
+            yield buf; buf = ""
+            time.sleep(0.012)
+    if buf:
+        yield buf
 
 
 # ---- entry point -------------------------------------------------------------------------------
 def stream(question: str, quick_id: str | None, ctx: dict, history: list[dict]) -> Iterator[dict]:
     """Yields {'t':'meta'|'delta'|'note', ...}. Falls through the provider chain."""
+    tx = _tx()
+    style = "detailed"
+    if tx:
+        try:
+            tx.persist_reasons(question)                              # explainable score: attach the reasons to the stored question
+            gate = tx.gate_decision(question, quick_id, ctx, history)  # try-first: a hint step before an untried exercise's answer
+            if gate["action"] == "gate":
+                yield {"t": "meta", "provider": "offline", "model": "try-first hint", "answer_meta": gate["meta"]}
+                for chunk in _chunks(gate["text"]):
+                    yield {"t": "delta", "x": chunk}
+                return
+            style = tx.answer_style(ctx)
+        except Exception:  # noqa: BLE001 - extras must never stop an answer
+            pass
+    if quick_id == "more":
+        style = "detailed"
     st = status()
     order: list[str] = []
     if st["pref"] != "offline":
@@ -497,12 +673,19 @@ def stream(question: str, quick_id: str | None, ctx: dict, history: list[dict]) 
             order.append(st["pref"])
         order += [p for p in available() if p not in order]
     context = build_context(ctx)
+    ai_question = question
+    if quick_id == "more":
+        ai_question = "Go deeper on your previous answer about this: " + question
+    elif quick_id == "answer_anyway" or ctx.get("gate_override"):
+        context += "\n\nThe learner chose to see the full answer now. Give it, then explain it briefly."
+    if order:
+        context = style_block(style) + "\n\n" + context
     history_msgs = [{"role": m["role"], "content": m["content"]} for m in history]
     for p in order:
         started = False
         try:
             yield {"t": "meta", "provider": p, "model": model(p)}
-            for chunk in PROVIDERS[p](history_msgs, question, context):
+            for chunk in PROVIDERS[p](history_msgs, ai_question, context):
                 started = True
                 yield {"t": "delta", "x": chunk}
             return
@@ -519,7 +702,7 @@ def stream(question: str, quick_id: str | None, ctx: dict, history: list[dict]) 
 
 
 def reflect_prompt(summary: dict) -> str:
-    return ("Here is analytics about a beginner's Python learning (JSON). Write a short, encouraging but honest reflection "
+    return (f"Here is analytics about a beginner's {track.T['short']} learning (JSON). Write a short, encouraging but honest reflection "
             "(max 220 words): what their question patterns say about how they think, 2 strengths, 2 specific things to try "
             "next, and one learning habit to adjust. No bullet overload.\n\n" + json.dumps(summary, ensure_ascii=False)[:6000])
 

@@ -1,0 +1,26 @@
+{
+  "id": "java-live-order-tracker",
+  "title": "Live Order Tracker (Java)",
+  "emoji": "🛵",
+  "kind": "Real-time backend",
+  "tagline": "One person changes something, everyone watching sees it instantly: delivery, ride-hailing, booking apps. Java 21 edition.",
+  "stack": ["Java 21", "HttpServer", "HttpClient", "Server-Sent Events", "records", "sealed interfaces", "enum state machine", "ConcurrentHashMap", "HTML + JS"],
+  "patterns": ["State machine", "Pub/Sub", "Idempotency", "Repository", "App factory + DI"],
+  "level": "Intermediate",
+  "minutes": 45,
+  "demo": "Demo.java",
+  "files": ["Server.java", "Json.java", "Demo.java"],
+  "expect": [
+    "201 order-1 placed",
+    "200 same id? true",
+    "422 invalid fields: [customer, items]",
+    "[sse] snapshot  status=placed  history=[placed]",
+    "kitchen -> out_for_delivery  http 200   customer screen got: out_for_delivery",
+    "hub watchers left after the stream ended: 0",
+    "409 cannot go from delivered to preparing",
+    "8 simultaneous taps -> {200=1, 409=7}",
+    "placed -> accepted -> preparing -> out_for_delivery -> delivered",
+    "delivered 2, dropped 3, queued 2",
+    "non-daemon threads left running: 0"
+  ]
+}

@@ -1,5 +1,5 @@
 // "Show me": step through code line by line (variables, call stack, objects with arrows) or see a flowchart / SQL order diagram.
-import { $, $$, api, esc, modal, store, toast } from './util.js';
+import { $, $$, api, esc, modal, store, toast, TRK } from './util.js';
 import { draw } from './diagram.js';
 
 const looksSql = t => /^\s*(--[^\n]*\n\s*)*(select|with|insert|update|delete|create|alter|drop)\b/i.test(t);
@@ -8,7 +8,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export function openVisualizer({ code, lang, dayNo }) {
   code = (code || '').replace(/\s+$/, '');
   if (!code.trim()) return toast('Write or select some code first, then press Visualize.');
-  const sql = lang === 'sql' || (lang !== 'python' && looksSql(code));
+  const sql = lang === 'sql' || (lang !== TRK.fence && looksSql(code));
   const tabs = sql ? [['sql', 'Query order']] : [['step', 'Step through'], ['flow', 'Flow chart']];
 
   modal(`<div class="vz">
@@ -27,7 +27,7 @@ export function openVisualizer({ code, lang, dayNo }) {
         stop(); stop = () => {};
         $$('#vz-tabs button', m).forEach(b => b.classList.toggle('on', b.dataset.t === id));
         if (id === 'step') stop = await stepView(body, m, code, dayNo);
-        else await diagramView(body, code, id === 'sql' ? 'sql' : 'python', dayNo);
+        else await diagramView(body, code, id === 'sql' ? 'sql' : TRK.fence, dayNo);
       };
       $('#vz-tabs', m).onclick = e => { const t = e.target.dataset.t; if (t) go(t); };
       go(tabs[0][0]);
@@ -80,7 +80,7 @@ async function stepView(body, modalEl, code, dayNo, stdin = '') {
 
   // syntax-highlight each source line
   $$('.vz-l .tx', body).forEach((el, n) => {
-    if (window.CodeMirror?.runMode) CodeMirror.runMode(lines[n] || ' ', 'python', el); else el.textContent = lines[n] || ' ';
+    if (window.CodeMirror?.runMode) CodeMirror.runMode(lines[n] || ' ', TRK.cm_mode, el); else el.textContent = lines[n] || ' ';
   });
 
   const cellOf = v => v.ref ? `<span class="refdot" data-ref="${v.ref}"></span>` : `<span class="pv k-${esc(v.k)}">${esc(v.p)}</span>`;

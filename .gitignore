@@ -9,3 +9,10 @@ PY_backups/
 *.db
 *.db-wal
 *.db-shm
+.tools/
+java/lib/*.jar
+portal/data-java/
+
+_wip_extensions/
+*.class
+_out/

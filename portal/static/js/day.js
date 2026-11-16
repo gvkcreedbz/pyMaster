@@ -1,4 +1,4 @@
-import { $, $$, api, esc, md, enhance, toast, modal, editor, debounce, fmtDate, fmtMin, store } from './util.js';
+import { $, $$, api, esc, md, enhance, toast, modal, editor, debounce, fmtDate, fmtMin, store, TRK } from './util.js';
 import { S, hooks } from './state.js';
 import { mountRunner } from './runpanel.js';
 import * as tutor from './tutor.js';
@@ -11,7 +11,7 @@ export function resetDay() { cur = { n: 0, d: null }; }
 function codeTools(runner, cm, dayNo) {
   const add = (html, title, fn) => { const b = document.createElement('button'); b.className = 'btn ghost sm'; b.innerHTML = html; b.title = title; b.onclick = fn; runner.slot.appendChild(b); };
   add('&#128065; Visualize', 'Step through this code and see it as a diagram (selects only the highlighted part if you highlighted something)',
-    () => openVisualizer({ code: cm.somethingSelected() ? cm.getSelection() : cm.getValue(), lang: 'python', dayNo }));
+    () => openVisualizer({ code: cm.somethingSelected() ? cm.getSelection() : cm.getValue(), lang: TRK.fence, dayNo }));
   add('&#8674; Playground', 'Copy this code into the playground pane',
     () => document.dispatchEvent(new CustomEvent('pm:try', { detail: { code: cm.getValue() } })));
 }
@@ -28,6 +28,7 @@ export async function renderDay(root, n, tab = 'learn') {
   }
   S.dayNo = n; S.area = 'day';
   shell(root, cur.d, tab);
+  document.dispatchEvent(new CustomEvent('pm:dayrendered', { detail: { dayNo: n, tab, root } }));
 }
 
 function shell(root, d, tab) {
@@ -167,7 +168,7 @@ function practice(body, d, label) {
       $('[data-x]', m).onclick = close;
       $('[data-ok]', m).onclick = async () => {
         const r = await api(`/day/${d.n}/solution?session_id=${store.sid}`);
-        m.innerHTML = `<h3>Reference solution · Day ${d.n}</h3><p class="sub small">Compare with yours: what did it do differently? Ask the tutor “why did they do it this way?”</p><div class="md">${md('```python\n' + r.solution + '\n```', true)}</div><div class="row" style="justify-content:flex-end"><button class="btn" data-x>Close</button></div>`;
+        m.innerHTML = `<h3>Reference solution · Day ${d.n}</h3><p class="sub small">Compare with yours: what did it do differently? Ask the tutor “why did they do it this way?”</p><div class="md">${md('```' + TRK.fence + '\n' + r.solution + '\n```', true)}</div><div class="row" style="justify-content:flex-end"><button class="btn" data-x>Close</button></div>`;
         enhance(m, { tryIt: false }); $('[data-x]', m).onclick = close;
       };
     }, wide: true,

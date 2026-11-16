@@ -1,4 +1,4 @@
-import { $, $$, api, esc, modal, store, toast, fmtMin } from './util.js';
+import { $, $$, api, esc, md, enhance, modal, store, toast, fmtMin, TRK } from './util.js';
 import { S, hooks } from './state.js';
 import * as layout from './layout.js';
 import * as sync from './sync.js';
@@ -21,9 +21,10 @@ const LOGO = '<img class="logo" src="/static/logo.svg" alt="" width="26" height=
 function buildTopbar() {
   $('#topbar').innerHTML = `
     <button class="iconbtn menu" id="btn-menu" title="Menu: days, insights, library">&#9776;</button>
-    <a class="brand" href="#/" title="Home">${LOGO}<span>Py Master</span></a>
+    <a class="brand" href="#/" title="Home">${LOGO}<span>${TRK.name}</span></a>
     <div class="ptoggles" id="ptoggles"></div>
     <span class="grow"></span>
+    <span id="topbar-extras" class="topx"></span>
     <button class="searchbtn" id="btn-search" title="Search everything (Ctrl+P, or press /)"><span>&#128269;</span><span class="lbl">Search</span><kbd>Ctrl P</kbd></button>
     <span class="timechip" title="Active time today (tracked while you're working)"><i></i><b id="todaytime">0m</b><span>today</span></span>
     <button class="iconbtn" id="btn-settings" title="Assistant &amp; settings">&#9881;</button>
@@ -53,7 +54,7 @@ function paintSide() {
   const nav = [['#/', '&#8962;', 'Home'], ['#/insights', '&#9684;', 'Insights'], ['#/library', '&#10081;', 'Library'], ['#/blueprints', '&#129513;', 'Blueprints']];
   const on = h => (h === '#/' ? hash === '#/' || hash === '' || hash.startsWith('#/day') : hash.startsWith(h));
   $('#side').innerHTML = `
-    <div class="row"><div class="brand">${LOGO}<span>Py Master</span></div><span class="grow"></span><button class="iconbtn" id="side-x" title="Close (Esc)">&#10005;</button></div>
+    <div class="row"><div class="brand">${LOGO}<span>${TRK.name}</span></div><span class="grow"></span><button class="iconbtn" id="side-x" title="Close (Esc)">&#10005;</button></div>
     <nav class="nav">${nav.map(([h, i, l]) => `<a href="${h}" class="${on(h) ? 'on' : ''}"><span class="ico">${i}</span>${l}</a>`).join('')}
       <button class="navbtn" id="nav-play"><span class="ico">&#9654;</span>Playground<span class="small muted" style="margin-left:auto">beside the lesson</span></button></nav>
     <div class="pathmap"><h6>Your path</h6>${o.weeks.map(w => `<div class="wk"><span class="l">W${w.n}</span>${o.days.filter(d => d.n >= w.from && d.n <= w.to).map(d =>
@@ -151,6 +152,7 @@ async function route() {
   S.baseArea = S.area;
   if (PANE === 'lesson') sync.send('nav', { hash });
   paintSide();
+  document.dispatchEvent(new CustomEvent('pm:route', { detail: { hash, area: S.area, dayNo: S.dayNo } }));
 }
 window.addEventListener('hashchange', route);
 sync.on('nav', m => {
@@ -232,6 +234,19 @@ initPalette({
   },
 });
 
+// ---- extensions (portal/static/js/extras/*.js, listed by /api/extras; contract in portal/ext.py) -------------------
+async function loadExtras() {
+  let list = [];
+  try {
+    const r = await api('/extras'); list = r.js || [];
+    for (const href of r.css || []) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '/static/css/extras/' + href; document.head.appendChild(l); }
+  } catch { return; }
+  const ctx = { api, $, $$, esc, md, enhance, toast, modal, store, TRK, S, hooks, layout, tutor, openVisualizer, openSettings, openPalette, PANE };
+  for (const name of list) {
+    try { const m = await import('/static/js/extras/' + name); await m.init?.(ctx); }
+    catch (e) { console.warn('extension ' + name + ' failed', e); }       // a broken extension never stops the app
+  }
+}
 // ---- boot -----------------------------------------------------------------------------------------------
 (async function boot() {
   buildTopbar();
@@ -245,4 +260,5 @@ initPalette({
   if (!PANE || PANE === 'lesson') await route();
   layout.apply();
   beat();
+  await loadExtras();
 })();

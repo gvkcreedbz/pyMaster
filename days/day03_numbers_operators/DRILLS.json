@@ -1,0 +1,215 @@
+{
+  "day": 3,
+  "drills": [
+    {
+      "id": "d03-parsons",
+      "type": "parsons",
+      "title": "A tiny function box",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them with the arrow buttons) so the program prints the number of months in 2 years. Two lines do not belong.",
+      "lines": [
+        "def emi_months(years):",
+        "months = years * 12",
+        "return months",
+        "print(emi_months(2))"
+      ],
+      "indent": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "distractors": [
+        "print(months)",
+        "return years ** 12"
+      ],
+      "explain": "A function body is indented under its def line. return hands the result back to whoever called the function, so print(emi_months(2)) can show it. The call comes after the definition.",
+      "concepts": [
+        "def / return",
+        "indentation"
+      ],
+      "output": "24"
+    },
+    {
+      "id": "d03-fill",
+      "type": "fill",
+      "title": "Pick the operator",
+      "viz": true,
+      "prompt": "Fill in the operators and the number so the program prints the goal output.",
+      "code": [
+        "print(7 ___ 2)",
+        "print(7 ___ 2)",
+        "print(2 ___ 3)",
+        "print(divmod(125, ___))"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "//"
+          ]
+        },
+        {
+          "answers": [
+            "%"
+          ]
+        },
+        {
+          "answers": [
+            "**"
+          ]
+        },
+        {
+          "answers": [
+            "60"
+          ]
+        }
+      ],
+      "explain": "// drops the decimals (7 // 2 is 3), % is the remainder (1), ** is the power (8). divmod(125, 60) returns (2, 5): 2 hours and 5 minutes.",
+      "concepts": [
+        "//, %, **",
+        "divmod"
+      ],
+      "output": [
+        "3",
+        "1",
+        "8",
+        "(2, 5)"
+      ]
+    },
+    {
+      "id": "d03-predict",
+      "type": "predict",
+      "title": "Numbers surprise",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "print(7 / 2)",
+        "print(7 // 2)",
+        "print(round(2.5), round(3.5))",
+        "print(0.1 + 0.2 == 0.3)",
+        "print(2 + 3 * 4 ** 2)",
+        "x = 5",
+        "x += 5",
+        "print(x)"
+      ],
+      "explain": "/ always gives a decimal. round() sends .5 to the nearest even number (2 and 4). Decimals are stored in binary, so 0.1 + 0.2 is not exactly 0.3. ** goes before *, which goes before +.",
+      "concepts": [
+        "/ vs //",
+        "round()",
+        "float gotcha",
+        "order of operations"
+      ],
+      "expected": [
+        "3.5",
+        "3",
+        "2 4",
+        "False",
+        "50",
+        "10"
+      ]
+    },
+    {
+      "id": "d03-bug",
+      "type": "bug",
+      "title": "The power trap",
+      "viz": true,
+      "prompt": "The area of the square should be 16, but the program prints something else. Click the faulty line and choose the fix.",
+      "code": [
+        "side = 4",
+        "area = side ^ 2",
+        "perimeter = side * 4",
+        "print(\"Area:\", area)",
+        "print(\"Perimeter:\", perimeter)"
+      ],
+      "bug_lines": [
+        2
+      ],
+      "answer": 0,
+      "options": [
+        "area = side ** 2",
+        "area = side ^ 2.0",
+        "area = side * 2",
+        "area = side // 2"
+      ],
+      "fixed_code": [
+        "side = 4",
+        "area = side ** 2",
+        "perimeter = side * 4",
+        "print(\"Area:\", area)",
+        "print(\"Perimeter:\", perimeter)"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "Area: 6\nPerimeter: 16"
+      },
+      "explain": "^ is not a power in Python: it is a different operation (bitwise XOR), so 4 ^ 2 gives 6 without any error. The power operator is **.",
+      "concepts": [
+        "** vs ^",
+        "silent bugs"
+      ],
+      "output": [
+        "Area: 16",
+        "Perimeter: 16"
+      ]
+    },
+    {
+      "id": "d03-review",
+      "type": "review",
+      "title": "Review the AI's delivery summary",
+      "prompt": "An AI assistant wrote this summary. It runs, but two things are wrong or fragile. Tick them.",
+      "code": [
+        "price = 19.99",
+        "qty = 3",
+        "subtotal = price * qty",
+        "gst = subtotal * 18 / 100",
+        "total = subtotal + gst",
+        "print(\"Total: Rs.\", total)",
+        "minutes = 125",
+        "hours = minutes / 60",
+        "mins = minutes % 60",
+        "print(f\"Delivery in {hours}h {mins}m\")"
+      ],
+      "issues": [
+        {
+          "id": "unrounded-money",
+          "text": "The total is printed without rounding, so it can show float noise like 70.76459999",
+          "why": "Money should be shown with two decimals, for example f\"{total:.2f}\" or round(total, 2).",
+          "lines": [
+            6
+          ]
+        },
+        {
+          "id": "true-division",
+          "text": "hours = minutes / 60 gives 2.0833..., not whole hours",
+          "why": "/ always returns a float. For whole hours use minutes // 60 (or divmod(minutes, 60)).",
+          "lines": [
+            8
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "percent-wrong",
+          "text": "% is the wrong operator for the remainder",
+          "why": "% is exactly the remainder operator: 125 % 60 is 5."
+        },
+        {
+          "id": "int-float-mix",
+          "text": "Multiplying a float by an int (price * qty) raises an error",
+          "why": "Python mixes int and float freely. The result is a float."
+        },
+        {
+          "id": "order",
+          "text": "gst is computed before subtotal exists",
+          "why": "subtotal is assigned on line 3, before gst uses it on line 4."
+        }
+      ],
+      "explain": "Generated code often does the maths right but shows or splits numbers badly. Always ask: is this the right division (/ vs //) and is a money value formatted for people?",
+      "concepts": [
+        "/ vs //",
+        "formatting money",
+        "reviewing numeric code"
+      ]
+    }
+  ]
+}

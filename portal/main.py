@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response, StreamingRes
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import analytics, assistant, content, db, review, runner, search, visual
+from . import analytics, assistant, content, db, ext, review, runner, search, track, visual
 
 STATIC = Path(__file__).resolve().parent / "static"
 
@@ -22,12 +22,13 @@ STATIC = Path(__file__).resolve().parent / "static"
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     db.init()
+    ext.setup()
     content.load_days()
     runner.prepare()
     yield
 
 
-app = FastAPI(title="Py Master", docs_url=None, redoc_url=None, lifespan=lifespan)
+app = FastAPI(title=track.T["name"], docs_url=None, redoc_url=None, lifespan=lifespan)
 
 
 # ---- local-only guard: blocks DNS-rebinding and cross-site POSTs against localhost -------------
@@ -152,7 +153,7 @@ def overview(sid: str | None = None):
     return {
         "days": days, "weeks": [{"n": w, "title": t, "sub": s, "from": a, "to": b} for w, t, s, a, b in content.WEEKS],
         "welcome": welcome, "today": analytics.today_stats(), "assistant": assistant.status(),
-        "start_date": start.isoformat(), "today_date": date.today().isoformat(),
+        "start_date": start.isoformat(), "today_date": date.today().isoformat(), "track": track.public(),
         "recommendations": analytics.recommendations(prog, {}, [], st, welcome),
     }
 
@@ -558,7 +559,25 @@ def export():
 # ---- static ----------------------------------------------------------------------------------------------
 @app.get("/")
 def index():
-    return FileResponse(STATIC / "index.html")
+    """index.html with the track (Python/Java) baked in: title, editor mode script, and window.TRACK for the JS."""
+    page = (STATIC / "index.html").read_text(encoding="utf-8")
+    t = track.public()
+    page = (page.replace("<title>Py Master</title>", f"<title>{t['name']}</title>")
+            .replace("/static/vendor/python.js", f"/static/vendor/{t['cm_file']}")
+            .replace("<!--TRACK-->", f"<script>window.TRACK={json.dumps(t)};</script>"))
+    return Response(page, media_type="text/html")
 
 
+@app.get("/api/track")
+def track_info():
+    return track.public()
+
+
+@app.get("/api/extras")
+def extras():
+    """Front-end extension modules (static/js/extras/*.js) that app.js should load."""
+    return {"js": ext.js_files(), "css": ext.css_files()}
+
+
+ext.mount(app)
 app.mount("/static", StaticFiles(directory=STATIC), name="static")

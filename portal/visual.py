@@ -11,13 +11,16 @@ import time
 import uuid
 from pathlib import Path
 
-from . import runner
+from . import jviz, runner, track
 
 HARNESS = Path(__file__).resolve().parent / "tracer_harness.py"
+JTRACER = Path(__file__).resolve().parent / "jtracer" / "JTracer.java"
 
 
 # ---- step-through trace --------------------------------------------------------------------------
 def trace(code: str, stdin: str = "", max_steps: int = 250, timeout: int = 12) -> dict:
+    if track.IS_JAVA:                                  # the Java course steps through Java (JDI tracer), not Python
+        return _java_trace(code, stdin, max_steps, max(timeout, 45))
     try:
         ast.parse(code)
     except SyntaxError as e:
@@ -264,9 +267,14 @@ def sql_diagram(sql: str) -> str:
 
 def diagram(code: str, lang: str | None = None) -> dict:
     lang = (lang or "").lower()
-    if lang == "sql" or (lang not in ("python", "py") and looks_like_sql(code) and not _is_python(code)):
+    is_java = lang == "java" or (track.IS_JAVA and lang not in ("python", "py", "sql"))
+    code_is_prog = jviz.looks_like_java(code) if is_java else _is_python(code)
+    if lang == "sql" or (lang not in ("python", "py", "java") and looks_like_sql(code) and not code_is_prog):
         return {"kind": "sql", "mermaid": sql_diagram(code),
                 "caption": "SQL runs in this order (not top to bottom): tables first, then filters, then grouping, then the columns you see."}
+    if is_java:
+        return {"kind": "flow", "mermaid": jviz.flowchart(code),
+                "caption": "Follow the arrows from Start. Diamonds are decisions or loops; rounded boxes are start / end / return."}
     return {"kind": "flow", "mermaid": flowchart(code),
             "caption": "Follow the arrows from Start. Diamonds are decisions or loops; rounded boxes are start / end / return."}
 
@@ -277,3 +285,53 @@ def _is_python(code: str) -> bool:
     except SyntaxError:
         return False
     return not all(isinstance(n, ast.Expr) and isinstance(n.value, ast.Name) for n in tree.body)
+
+def _is_javaish(code: str) -> bool:
+    return bool(re.search(r"\b(class|static\s+void\s+main|System\.out|public\s+static|String\[\])", code))
+
+
+_jt_lock = __import__("threading").Lock()
+
+
+def _java_trace(code: str, stdin: str, max_steps: int, timeout: int) -> dict:
+    """Step through a Java program with the JDI tracer (portal/jtracer/JTracer.java)."""
+    java, javac = track.jtool("java"), track.jtool("javac")
+    if not java or not javac:
+        return {"ok": False, "error": "No JDK found. Install JDK 21 (see java/SETUP.md).", "steps": []}
+    if not JTRACER.is_file():
+        return {"ok": False, "error": "The Java tracer is not installed (portal/jtracer/JTracer.java is missing).", "steps": []}
+    runner.prepare()
+    wd = runner.WORK / "days" / "_play"
+    cls_dir = runner.WORK / "jtracer_cls"
+    with _jt_lock:                                          # compile the tracer once, reuse afterwards
+        stamp = cls_dir / "JTracer.class"
+        if not stamp.is_file() or stamp.stat().st_mtime < JTRACER.stat().st_mtime:
+            cls_dir.mkdir(parents=True, exist_ok=True)
+            _o, rc, _t = runner.sandbox.run([javac, "--add-modules", "jdk.jdi", "-encoding", "UTF-8", "-d", str(cls_dir), str(JTRACER)],
+                                             cwd=str(wd), timeout=60, env=runner.clean_env())
+            if rc != 0:
+                return {"ok": False, "error": "Could not build the tracer: " + _o[-300:], "steps": []}
+    tag = uuid.uuid4().hex[:8]
+    target = wd / f"Trace{tag}.java"
+    target.write_text(code, encoding="utf-8")
+    stdin_file = wd / f"Trace{tag}.in"
+    stdin_file.write_text(stdin or "", encoding="utf-8")
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            result = Path(tmp) / "trace.json"
+            t0 = time.time()
+            out, rc, timed_out = runner.sandbox.run(
+                [java, "--add-modules", "jdk.jdi", "-cp", str(cls_dir), "JTracer", str(target), str(max_steps), str(result), str(stdin_file)],
+                cwd=str(wd), timeout=timeout, env=runner.clean_env())
+            if timed_out:
+                return {"ok": False, "error": f"Stopped after {timeout}s. Is there a loop that never ends?", "steps": []}
+            if not result.is_file():
+                return {"ok": False, "error": (out or "tracer failed")[-400:], "steps": []}
+            data = json.loads(result.read_text(encoding="utf-8"))
+    finally:
+        target.unlink(missing_ok=True)
+        stdin_file.unlink(missing_ok=True)
+    data["ok"] = True
+    data["ms"] = int((time.time() - t0) * 1000)
+    data["source"] = code
+    return data

@@ -1,0 +1,23 @@
+{
+  "id": "java-site-watcher",
+  "title": "Site & Price Watcher (Java)",
+  "emoji": "🔭",
+  "kind": "Automation + monitoring",
+  "tagline": "Scheduled jobs that remember, alert only on change, and survive a bad day on the internet. Java 21 edition.",
+  "stack": ["scheduler tick", "plugin registry", "regex", "SHA-256", "atomic JSON state", "java.time.Clock", "ScheduledExecutorService (production only)"],
+  "patterns": ["Plugin registry", "Circuit breaker", "Observer", "Atomic persistence", "Injected clock"],
+  "level": "Intermediate",
+  "minutes": 45,
+  "demo": "Demo.java",
+  "files": ["Target.java", "Reading.java", "Fetcher.java", "Check.java", "Checks.java", "CircuitBreaker.java", "Notifier.java", "StateStore.java", "Watcher.java", "Production.java", "Demo.java"],
+  "expect": [
+    "plugins registered in the registry: [content, price, uptime]",
+    "laptop-price: price dropped 15%: 1299 -> 1099",
+    "payments-api is failing: 3 failures in a row (SocketTimeoutException: connection timed out)",
+    "payments-api recovered: the check works again",
+    "docs-page changed",
+    "4 alerts in 40 minutes",
+    "after restart, laptop-price last seen = 1089.0",
+    "temp folder removed: true"
+  ]
+}

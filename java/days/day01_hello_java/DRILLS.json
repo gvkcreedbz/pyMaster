@@ -1,0 +1,215 @@
+{
+  "day": 1,
+  "drills": [
+    {
+      "id": "d01-parsons",
+      "type": "parsons",
+      "title": "Build a first program",
+      "viz": true,
+      "prompt": "Arrange the lines into a runnable program. Two lines do not belong. (The editor indents by braces for you.)",
+      "lines": [
+        "class Hello {",
+        "public static void main(String[] args) {",
+        "System.out.println(\"Welcome to Chai Point\");",
+        "System.out.println(\"One masala chai, please\");",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "public void main(String[] args) {",
+        "System.out.println(\"Hi\")"
+      ],
+      "explain": "Java wants every program inside a class, and the computer starts at main. Statements end with ;, blocks sit between { and }, and main must be public static void main(String[] args).",
+      "concepts": [
+        "class and main",
+        "println",
+        "braces and semicolons"
+      ],
+      "output": [
+        "Welcome to Chai Point",
+        "One masala chai, please"
+      ]
+    },
+    {
+      "id": "d01-fill",
+      "type": "fill",
+      "title": "Printing tricks",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the program prints the goal output.",
+      "code": [
+        "System.out.___(\"Loading\");",
+        "System.out.println(\"...done\");",
+        "System.out.___(\"%d-%d-%d%n\", 2026, 11, 16);",
+        "System.out.println(\"=\".___(20));"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "print",
+            "printf"
+          ]
+        },
+        {
+          "answers": [
+            "printf",
+            "format"
+          ]
+        },
+        {
+          "answers": [
+            "repeat"
+          ]
+        }
+      ],
+      "explain": "print writes without a new line, so the next println continues on the same line. printf fills %d (whole number) and %n (new line). \"=\".repeat(20) repeats a text 20 times.",
+      "concepts": [
+        "print vs println",
+        "printf",
+        "repeat"
+      ],
+      "output": [
+        "Loading...done",
+        "2026-11-16",
+        "===================="
+      ]
+    },
+    {
+      "id": "d01-predict",
+      "type": "predict",
+      "title": "Text or number?",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "System.out.println(2 + 3);",
+        "System.out.println(\"2 + 3\");",
+        "System.out.println(\"Line 1\\nLine 2\");",
+        "System.out.print(\"Loading\");",
+        "System.out.println(\"...done\");"
+      ],
+      "explain": "Numbers are added (5) but text in quotes is shown as written. \\n starts a new line. print leaves the cursor on the same line, so ...done continues after Loading.",
+      "concepts": [
+        "println",
+        "print",
+        "\\n"
+      ],
+      "expected": [
+        "5",
+        "2 + 3",
+        "Line 1",
+        "Line 2",
+        "Loading...done"
+      ]
+    },
+    {
+      "id": "d01-bug",
+      "type": "bug",
+      "title": "Java is case-sensitive",
+      "viz": true,
+      "prompt": "This program does not compile. Click the line the compiler complains about, then choose the fix.",
+      "code": [
+        "class Cafe {",
+        "    public static void main(String[] args) {",
+        "        System.out.println(\"Welcome to Chai Point\");",
+        "        system.out.println(\"One masala chai, please\");",
+        "        System.out.println(\"Total: \" + 60);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        4
+      ],
+      "answer": 0,
+      "options": [
+        "System.out.println(\"One masala chai, please\");",
+        "System.Out.println(\"One masala chai, please\");",
+        "system.out.printline(\"One masala chai, please\");",
+        "System.out.println(\"One masala chai, please\")"
+      ],
+      "fixed_code": [
+        "class Cafe {",
+        "    public static void main(String[] args) {",
+        "        System.out.println(\"Welcome to Chai Point\");",
+        "        System.out.println(\"One masala chai, please\");",
+        "        System.out.println(\"Total: \" + 60);",
+        "    }",
+        "}"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "package system does not exist"
+      },
+      "explain": "System is a class, so it starts with a capital S. The compiler reads system as an unknown package and says so, pointing at the line number. Fix the first compiler error first.",
+      "concepts": [
+        "compile errors",
+        "case sensitivity",
+        "System.out"
+      ],
+      "output": [
+        "Welcome to Chai Point",
+        "One masala chai, please",
+        "Total: 60"
+      ]
+    },
+    {
+      "id": "d01-review",
+      "type": "review",
+      "title": "Review the AI's receipt printer",
+      "prompt": "An AI assistant wrote this receipt printer. It compiles, but tick the real problems (there are two).",
+      "code": [
+        "class Receipt {",
+        "    public static void main(String[] args) {",
+        "        System.out.println(\"Chai Point\");",
+        "        System.out.println(\"Masala chai: \" + 30);",
+        "        System.out.println(\"Filter coffee: \" + 50);",
+        "        System.out.println(\"Total: \" + 30 + 50);",
+        "        System.out.println(\"Thank you!\");",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "concat-total",
+          "text": "The total line prints Total: 3050 instead of 80",
+          "why": "\"Total: \" + 30 is text, and + 50 then glues 50 on as text. Add first: \"Total: \" + (30 + 50).",
+          "lines": [
+            6
+          ]
+        },
+        {
+          "id": "dup-prices",
+          "text": "The prices are typed again in the total, so they can drift apart",
+          "why": "Keep each price in one variable and reuse it, so the lines and the total always agree.",
+          "lines": [
+            4,
+            5,
+            6
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "needs-public",
+          "text": "class Receipt must be declared public to run",
+          "why": "java Receipt.java runs a non-public class too. public is only required when the file name must match."
+        },
+        {
+          "id": "println-no-newline",
+          "text": "println does not move to a new line",
+          "why": "println does end the line; print is the one that does not."
+        },
+        {
+          "id": "main-return",
+          "text": "main must return a number",
+          "why": "main is void: it returns nothing."
+        }
+      ],
+      "explain": "With text, + joins left to right: \"Total: \" + 30 + 50 builds the text first. When reviewing generated code, look at every + that mixes text and numbers.",
+      "concepts": [
+        "string concatenation",
+        "reading code critically"
+      ]
+    }
+  ]
+}

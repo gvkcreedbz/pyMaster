@@ -1,6 +1,6 @@
 // The assistant, docked at the bottom. It always sees what you're looking at (lesson, code, selection, run output),
 // even when the lesson / playground are in other windows (context is gathered over the sync channel).
-import { $, api, esc, md, enhance, toast, store } from './util.js';
+import { $, api, esc, md, enhance, toast, store, TRK } from './util.js';
 import * as layout from './layout.js';
 import * as sync from './sync.js';
 
@@ -179,7 +179,7 @@ async function loadThread() {
 }
 
 function empty() {
-  const where = ctx.dayNo ? `this lesson (Day ${ctx.dayNo})` : 'anything Python';
+  const where = ctx.dayNo ? `this lesson (Day ${ctx.dayNo})` : `anything ${TRK.short}`;
   $('#msgs').innerHTML = `<div class="empty-t"><div class="big">&#10022;</div>
     <b>I'm reading ${where} with you.</b><p class="small">Highlight any line and tap <b>Where &amp; how is this used?</b>, or ask for a <b>visual</b> of any code. You can also just ask in your own words.</p></div>`;
 }

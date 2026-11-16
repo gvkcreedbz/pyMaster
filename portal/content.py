@@ -12,18 +12,15 @@ from datetime import date, timedelta
 from functools import lru_cache
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-DAYS_DIR = ROOT / "days"
-SOL_DIR = ROOT / "solutions"
-DATASETS = ROOT / "datasets"
+from . import track
+
+ROOT = track.ROOT                      # the course root of the active track (project root, or java/)
+DAYS_DIR = track.DAYS_DIR
+SOL_DIR = track.SOL_DIR
+DATASETS = track.DATASETS
 DEFAULT_START = date(2026, 11, 16)
 
-WEEKS = [
-    (1, "Foundations", "Think in code: variables, decisions, loops", 1, 7),
-    (2, "Data & functions", "Collections, functions, JSON-shaped data", 8, 14),
-    (3, "Real-world tools", "Files, errors, modules, objects", 15, 21),
-    (4, "Pro toolkit", "Testing, pandas, APIs, SQL, FastAPI", 22, 30),
-]
+WEEKS = track.T["weeks"]
 
 
 def week_of(n: int) -> int:
@@ -44,7 +41,8 @@ def strip_html(s: str) -> str:
     return html.unescape(s).strip()
 
 
-_EX_HEADER = re.compile(r"^\s*#\s+(L\d-\d)\s+\|\s+(.+?)\s+\(Level\s+(\d)")
+_EX_HEADER = track.EX_HEADER
+_CMT = track.T["comment"]
 
 
 def parse_exercises(practice_text: str) -> list[dict]:
@@ -56,8 +54,8 @@ def parse_exercises(practice_text: str) -> list[dict]:
         if m:
             desc = []
             j = i + 1
-            while j < len(lines) and lines[j].lstrip().startswith("#") and not re.match(r"^\s*#\s*-{5,}", lines[j]):
-                desc.append(re.sub(r"^\s*#\s?", "", lines[j]).rstrip())
+            while j < len(lines) and lines[j].lstrip().startswith(_CMT) and not track.SEPARATOR.match(lines[j]):
+                desc.append(track.COMMENT_PREFIX.sub("", lines[j], count=1).rstrip())
                 j += 1
             out.append({
                 "id": m.group(1), "title": m.group(2).strip(), "level": int(m.group(3)),
@@ -92,7 +90,7 @@ FALLBACK_CONCEPTS = {
 
 
 def solution_only(text: str) -> str:
-    parts = re.findall(r"#\s*>>>\s*SOLUTION[^\n]*\n(.*?)#\s*<<<\s*SOLUTION", text, flags=re.S)
+    parts = track.SOLUTION_BLOCK.findall(text)
     return "\n".join(p.rstrip() + "\n" for p in parts).strip() + "\n" if parts else text
 
 
@@ -108,12 +106,12 @@ def load_days() -> dict[int, dict]:
         concepts = [c.strip().strip("`") for c in re.findall(r"^###\s+(?:\d+\.\d+\s+)?(.+)$", lesson, flags=re.M)]
         quiz_m = re.search(r"^##\s+\d+\.\s+[^\n]*?(?:Quiz|Review Test)[^\n]*\n(.*?)(?=^##\s|\Z)", lesson, flags=re.M | re.S)
         questions = parse_numbered(quiz_m.group(1)) if quiz_m else {}
-        answers = parse_numbered(read(SOL_DIR / f"day{n:02d}_answers.md"))
+        answers = parse_numbered(read(SOL_DIR / track.T["answers"].format(n=n)))
         hints = [strip_html(h) for h in re.findall(r"<details>\s*<summary>Hint \d[^<]*</summary>(.*?)</details>", lesson, flags=re.S)]
         if not concepts:
             concepts = FALLBACK_CONCEPTS.get(n, [])
-        practice = read(folder / "practice.py")
-        sol = read(SOL_DIR / f"day{n:02d}_solution.py")
+        practice = read(folder / track.T["practice"])
+        sol = read(SOL_DIR / track.T["solution"].format(n=n))
         extras = sorted(p.name for p in folder.glob("*.md") if p.name != "LESSON.md")
         days[n] = {
             "n": n,
@@ -130,10 +128,10 @@ def load_days() -> dict[int, dict]:
             "hints": hints,
             "exercises": parse_exercises(practice),
             "practice": practice,
-            "examples": read(folder / "examples.py"),
+            "examples": read(folder / track.T["examples"]),
             "solution": solution_only(sol),
             "extras": extras,
-            "is_project": n in (7, 14, 21, 29, 30),
+            "is_project": n in track.T["project_days"],
         }
     return days
 
@@ -173,9 +171,9 @@ def library_doc(doc_id: str) -> str | None:
 
 
 # ---- blueprints: full-stack reference projects + the pattern catalog ---------------------------------------------
-BP_DIR = ROOT / "blueprints"
+BP_DIR = track.BP_DIR
 BP_PATTERNS = {"id": "patterns", "title": "Pattern catalog", "emoji": "🧩", "kind": "Reusable shapes",
-               "tagline": "16 patterns behind real Python back-ends, each with code you can paste and where to spot it.",
+               "tagline": f"16 patterns behind real {track.T['short']} back-ends, each with code you can paste and where to spot it.",
                "stack": [], "patterns": [], "level": "All", "minutes": 25, "demo": None, "files": [], "folder": ""}
 
 

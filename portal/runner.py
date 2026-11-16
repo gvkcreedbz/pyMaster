@@ -12,12 +12,12 @@ import sys
 import threading
 import time
 
-from . import content, db
+from . import content, db, sandbox, track
 
 WORK = db.DATA_DIR / "work"
 MAX_OUT = 20000
 TIMEOUT = int(os.environ.get("PORTAL_RUN_TIMEOUT", "25"))
-SLOW_DAYS = {25, 26, 27, 28, 29, 30}  # pandas/matplotlib import time
+
 
 
 _prep_lock = threading.Lock()
@@ -75,28 +75,26 @@ def execute(code: str, *, day_no: int | None, filename: str, stdin: str = "") ->
     wd.mkdir(parents=True, exist_ok=True)
     path = wd / filename
     env = clean_env()
-    limit = TIMEOUT * (2 if day_no in SLOW_DAYS else 1)
+    limit = TIMEOUT * (2 if day_no in track.T["slow_days"] else 1)
     t0 = time.time()
-    timed_out = False
     with file_lock(path):
         path.write_text(code, encoding="utf-8")
         try:
-            p = subprocess.run([sys.executable, "-u", str(path)], cwd=str(wd), input=stdin, capture_output=True,
-                               text=True, encoding="utf-8", errors="replace", timeout=limit, env=env, check=False)
-            out = (p.stdout or "") + (("\n" + p.stderr) if p.stderr else "")
-            rc = p.returncode
-        except subprocess.TimeoutExpired as e:
-            timed_out = True
-            raw = e.stdout or ""
-            out = (raw.decode("utf-8", "replace") if isinstance(raw, bytes) else raw) + \
-                  f"\n\n⏱ Stopped after {limit}s. Is there a loop that never ends (while True without break)?"
-            rc = -1
+            cmd = track.run_cmd(str(path))
+        except FileNotFoundError as e:
+            return {"output": str(e), "ok": False, "returncode": 127, "ms": 0, "timed_out": False, "hint": "Java is not installed yet."}
+        out, rc, timed_out = sandbox.run(cmd, cwd=str(wd), stdin=stdin, timeout=limit, env=env)
+    if timed_out:
+        out += f"\n\n⏱ Stopped after {limit}s. Is there a loop that never ends ({'while (true)' if track.IS_JAVA else 'while True'} without break)?"
     ms = int((time.time() - t0) * 1000)
     if len(out) > MAX_OUT:
         out = out[:MAX_OUT] + "\n… output truncated …"
     hint = None
-    if "EOFError" in out and not stdin.strip():
-        hint = "Your program called input(). Type the answers in the Input box (one line per input() call) and run again."
+    if not stdin.strip():
+        if "EOFError" in out:
+            hint = "Your program called input(). Type the answers in the Input box (one line per input() call) and run again."
+        elif "NoSuchElementException" in out and "Scanner" in code:
+            hint = "Your program reads from the keyboard (Scanner). Type the answers in the Input box (one line per read) and run again."
     return {"output": out.rstrip(), "ok": rc == 0, "returncode": rc, "ms": ms, "timed_out": timed_out, "hint": hint}
 
 
@@ -104,24 +102,35 @@ _LAUNCH = "import sys, runpy; sys.path.insert(0, '.'); runpy.run_path(sys.argv[1
 
 
 def run_blueprint_demo(bid: str) -> dict | None:
-    """Run a blueprint's demo.py from a fresh private copy (so a demo can never touch the originals)."""
+    """Run a blueprint's demo from a fresh private copy (so a demo can never touch the originals)."""
     bp = content.load_blueprints().get(bid)
     if not bp or not bp.get("demo"):
         return None
     src, dst = content.BP_DIR / bp["folder"], WORK / "blueprints" / bp["folder"]
     with file_lock(dst):
-        shutil.copytree(src, dst, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.db"))
+        shutil.copytree(src, dst, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.db", "*.class", "_out"))
         t0 = time.time()
-        timed_out = False
-        try:
-            p = subprocess.run([sys.executable, "-u", "-c", _LAUNCH, bp["demo"]], cwd=str(dst), capture_output=True,
-                               text=True, encoding="utf-8", errors="replace", timeout=TIMEOUT, env=clean_env(), check=False)
-            out = (p.stdout or "") + (("\n" + p.stderr) if p.stderr else "")
-            rc = p.returncode
-        except subprocess.TimeoutExpired as e:
-            timed_out, rc = True, -1
-            raw = e.stdout or ""
-            out = (raw.decode("utf-8", "replace") if isinstance(raw, bytes) else raw) + f"\n\n⏱ Stopped after {TIMEOUT}s."
+        out, rc, timed_out = "", 0, False
+        env = clean_env()
+        if track.IS_JAVA:
+            javac, java = track.jtool("javac"), track.jtool("java")
+            if not javac or not java:
+                return {"output": "No JDK found. Install JDK 21 (see java/SETUP.md).", "ok": False, "returncode": 127,
+                        "ms": 0, "timed_out": False, "hint": "Java is not installed yet."}
+            outdir = dst / "_out"
+            shutil.rmtree(outdir, ignore_errors=True)
+            outdir.mkdir(parents=True, exist_ok=True)
+            srcs = sorted(p.name for p in dst.glob("*.java"))
+            cout, crc, cto = sandbox.run([javac, "-encoding", "UTF-8", "-d", str(outdir), *srcs], cwd=str(dst), timeout=TIMEOUT * 2, env=env)
+            if crc != 0:
+                out, rc, timed_out = "Compile error:\n" + cout, crc, cto
+            else:
+                cls = bp["demo"].rsplit(".", 1)[0]
+                out, rc, timed_out = sandbox.run([java, *track.JAVA_FLAGS, "-cp", str(outdir), cls], cwd=str(dst), timeout=TIMEOUT, env=env)
+        else:
+            out, rc, timed_out = sandbox.run([sys.executable, "-u", "-c", _LAUNCH, bp["demo"]], cwd=str(dst), timeout=TIMEOUT, env=env)
+        if timed_out:
+            out += f"\n\n⏱ Stopped after {TIMEOUT}s."
     if len(out) > MAX_OUT:
         out = out[:MAX_OUT] + "\n… output truncated …"
     hint = None
@@ -130,20 +139,19 @@ def run_blueprint_demo(bid: str) -> dict | None:
     return {"output": out.rstrip(), "ok": rc == 0, "returncode": rc, "ms": int((time.time() - t0) * 1000),
             "timed_out": timed_out, "hint": hint}
 
-
 def run_practice(day_no: int, code: str, stdin: str = "") -> dict:
-    res = execute(code, day_no=day_no, filename="practice.py", stdin=stdin)
+    res = execute(code, day_no=day_no, filename=track.T["practice"], stdin=stdin)
     parsed = db.record_attempt(day_no, "practice", res["output"], res["ok"], res["ms"], res["timed_out"], len(code))
     return {**res, **parsed}
 
 
 def run_examples(day_no: int, code: str, stdin: str = "") -> dict:
-    res = execute(code, day_no=day_no, filename="examples.py", stdin=stdin)
+    res = execute(code, day_no=day_no, filename=track.T["examples"], stdin=stdin)
     db.record_attempt(day_no, "examples", "", res["ok"], res["ms"], res["timed_out"], len(code))
     return {**res, "results": [], "passed": None, "total": None}
 
 
 def run_playground(code: str, stdin: str = "") -> dict:
-    res = execute(code, day_no=None, filename="play.py", stdin=stdin)
+    res = execute(code, day_no=None, filename=track.T["play"], stdin=stdin)
     db.record_attempt(0, "playground", "", res["ok"], res["ms"], res["timed_out"], len(code))
     return {**res, "results": [], "passed": None, "total": None}

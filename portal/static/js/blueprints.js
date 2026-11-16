@@ -1,5 +1,5 @@
 // Blueprints: three real-world full-stack projects + the pattern catalog. Guide (diagrams) | Code | Run the demo.
-import { $, $$, api, md, enhance, esc, store } from './util.js';
+import { $, $$, api, md, enhance, esc, store, TRK } from './util.js';
 import { S } from './state.js';
 import * as tutor from './tutor.js';
 
@@ -41,8 +41,8 @@ function overview(root, items) {
   const projects = items.filter(i => i.id !== 'patterns'), pat = items.find(i => i.id === 'patterns');
   root.innerHTML = `<div class="fade-in">
     <div class="hero"><div class="eyebrow">After the basics: how real systems are built</div>
-      <h2>Blueprints: full-stack Python, explained</h2>
-      <p class="sub" style="max-width:62ch;margin-top:6px">Three real-time style projects (a live backend, a data + AI pipeline, an automation service). Each one has an architecture diagram, the data model, the exact Python features used and the days that taught them, a runnable reference implementation, what breaks in production, and milestones to build it yourself.</p></div>
+      <h2>Blueprints: full-stack ${TRK.short}, explained</h2>
+      <p class="sub" style="max-width:62ch;margin-top:6px">Three real-time style projects (a live backend, a data + AI pipeline, an automation service). Each one has an architecture diagram, the data model, the exact ${TRK.short} features used and the days that taught them, a runnable reference implementation, what breaks in production, and milestones to build it yourself.</p></div>
     <div class="bp-grid">${projects.map(p => `
       <a class="card bp-card" href="#/blueprints/${p.id}">
         <div class="bp-emoji">${p.emoji}</div>
@@ -56,7 +56,7 @@ function overview(root, items) {
     ${pat ? `<a class="card pad bp-patterns" href="#/blueprints/patterns"><div class="bp-emoji">${pat.emoji}</div><div style="flex:1"><h3>${esc(pat.title)}</h3><p class="sub">${esc(pat.tagline)}</p></div><span class="btn sm">Open &rarr;</span></a>` : ''}
     <div class="card pad" style="margin-top:18px"><h3 style="margin-bottom:8px">How to use a blueprint</h3>
       <ol class="small" style="margin:0;padding-left:20px;line-height:1.8;color:var(--ink-2)">
-        <li><b>Guide:</b> read the picture first (big idea), then the data model, then the Python table.</li>
+        <li><b>Guide:</b> read the picture first (big idea), then the data model, then the ${TRK.short} table.</li>
         <li><b>Run the demo:</b> watch the system behave; every line it prints is explained in the guide.</li>
         <li><b>Code:</b> read the file top to bottom; press <b>&#9654; Try</b> to load it into the playground and change things.</li>
         <li><b>Ask the assistant</b> (Ctrl+K) about any part: highlight code and press <b>Where is this used?</b></li>
@@ -82,7 +82,7 @@ async function code(body, meta, my) {
     const r = await api(`/blueprints/${meta.id}/file/${encodeURIComponent(f)}`);
     if (my !== S.seq) return;
     const src = $('#bp-src', body);
-    src.innerHTML = `<div class="md" style="max-width:none"><pre><code class="language-python"></code></pre></div>`;
+    src.innerHTML = `<div class="md" style="max-width:none"><pre><code class="language-${TRK.fence}"></code></pre></div>`;
     $('code', src).textContent = r.text;
     enhance(src, { visualize: false });
   };

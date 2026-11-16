@@ -15,7 +15,9 @@ from contextlib import contextmanager
 from datetime import date, datetime
 from pathlib import Path
 
-DATA_DIR = Path(os.environ.get("PORTAL_DATA", Path(__file__).resolve().parent / "data"))
+from . import track  # noqa: E402
+
+DATA_DIR = Path(os.environ.get("PORTAL_DATA", track.T["data_dir"]))
 DB_PATH = DATA_DIR / "progress.db"
 _lock = threading.RLock()
 

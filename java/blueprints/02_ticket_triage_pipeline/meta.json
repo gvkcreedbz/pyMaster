@@ -1,0 +1,22 @@
+{
+  "id": "java-ticket-triage-pipeline",
+  "title": "Ticket Triage Pipeline (Java)",
+  "emoji": "🧠",
+  "kind": "Data + AI pipeline",
+  "tagline": "Messy CSV in, clean decisions out, with an AI model that is allowed to be slow, wrong or down.",
+  "stack": ["Java 21", "streams", "records", "sealed interfaces", "Optional", "Function (LLM adapter)", "in-memory store"],
+  "patterns": ["Pipeline of lazy streams", "Strategy (sealed)", "Fallback chain", "Retry + backoff + jitter", "Idempotent upsert"],
+  "level": "Intermediate",
+  "minutes": 45,
+  "demo": "Demo.java",
+  "files": ["Pipeline.java", "Demo.java"],
+  "expect": [
+    "stream built, rows read so far: 0",
+    "{rejected_bad_id=1, rejected_duplicate=1, rejected_empty=1, rows_in=10}",
+    "#9  Kim    bug      by llm",
+    "AI calls made: 4 | retried after backoff: 2 | AI failures handled: 1",
+    "\"urgent_ids\": [1, 2, 3]",
+    "total before: 7 | total after: 7",
+    "rows identical after the second run: true"
+  ]
+}

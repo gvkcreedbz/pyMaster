@@ -22,6 +22,7 @@ export function mountRunner(host, { kind, dayNo, getCode, onResult, label }) {
       paint(r);
       status.textContent = `${(r.ms / 1000).toFixed(2)}s`;
       onResult?.(r);
+      document.dispatchEvent(new CustomEvent('pm:runresult', { detail: { kind, dayNo: dayNo || 0, result: r, code: getCode() } }));
     } catch (e) {
       res.innerHTML = `<pre class="out err">${esc(e.message)}</pre>`; status.textContent = '';
     } finally { btn.disabled = false; }

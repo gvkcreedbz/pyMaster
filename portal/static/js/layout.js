@@ -1,7 +1,7 @@
 // The workspace: lesson | playground side by side, the assistant docked at the bottom.
 // Panes can be resized (drag the gutters), maximised, hidden, swapped, and popped out into their own window
 // (button, or drag a pane's tab out of the browser window, like detaching a Chrome tab).
-import { $, $$, toast, store } from './util.js';
+import { $, $$, toast, store, TRK } from './util.js';
 import * as sync from './sync.js';
 
 export const PANE = (() => {
@@ -203,7 +203,7 @@ export function init() {
     $$('[data-act=pop]').forEach(b => { b.innerHTML = '&#8690;'; b.title = 'Dock back into the main window'; });
     window.addEventListener('pagehide', () => sync.send('pane-closed', { id: PANE }));
     sync.send('pane-alive', { id: PANE });
-    document.title = NAMES[PANE] + ' · Py Master';
+    document.title = NAMES[PANE] + ' · ' + TRK.name;
     if (PANE === 'tutor') pane('tutor').classList.remove('collapsed');
   } else {
     dragGutter($('#gut-v'), 'col-resize',

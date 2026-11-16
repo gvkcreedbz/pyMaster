@@ -1,0 +1,240 @@
+{
+  "day": 3,
+  "drills": [
+    {
+      "id": "d03-parsons",
+      "type": "parsons",
+      "title": "Round to two decimals",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Arrange the lines so the program prints the total rounded to 2 decimals. The two declarations can go in either order. Two lines do not belong.",
+      "lines": [
+        "double price = 19.987;",
+        "int items = 3;",
+        "double total = Math.round(price * items * 100) / 100.0;",
+        "System.out.println(\"Total: \" + total);"
+      ],
+      "distractors": [
+        "double total = Math.round(price * items * 100) / 100;",
+        "System.out.println(\"Total: \" + Total);"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3
+        ]
+      ],
+      "explain": "Math.round(x * 100) / 100.0 rounds to 2 decimals. The 100.0 matters: dividing by the int 100 would throw the decimals away again. Variables are declared before they are used.",
+      "concepts": [
+        "Math.round",
+        "int vs double division"
+      ],
+      "output": "Total: 59.96"
+    },
+    {
+      "id": "d03-fill",
+      "type": "fill",
+      "title": "Operators, casts and Math",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the program prints the goal output.",
+      "code": [
+        "System.out.println(7 ___ 2);",
+        "System.out.println(7 ___ 2);",
+        "System.out.println((___) 3.99);",
+        "System.out.println(Math.___(4.2));"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "/"
+          ]
+        },
+        {
+          "answers": [
+            "%"
+          ]
+        },
+        {
+          "answers": [
+            "int"
+          ],
+          "options": [
+            "int",
+            "double",
+            "String"
+          ]
+        },
+        {
+          "answers": [
+            "ceil"
+          ]
+        }
+      ],
+      "explain": "int / int drops the decimals (3). % is the remainder (1). Casting to int cuts 3.99 down to 3 without rounding. Math.ceil rounds up and returns a double (5.0).",
+      "concepts": [
+        "int division",
+        "%",
+        "casting",
+        "Math.ceil"
+      ],
+      "output": [
+        "3",
+        "1",
+        "3",
+        "5.0"
+      ]
+    },
+    {
+      "id": "d03-predict",
+      "type": "predict",
+      "title": "Numbers surprise",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "System.out.println(7 / 2);",
+        "System.out.println(7 / 2.0);",
+        "System.out.println((double) 7 / 2);",
+        "System.out.println((int) 3.99);",
+        "System.out.println(Math.round(2.5) + \" \" + Math.round(-2.5));",
+        "System.out.println(0.1 + 0.2 == 0.3);",
+        "int big = Integer.MAX_VALUE;",
+        "System.out.println(big + 1);"
+      ],
+      "explain": "int / int stays an int (3); one double makes it 3.5. A cast cuts decimals (3). Math.round rounds .5 up (3 and -2). Decimals are stored in binary so 0.1 + 0.2 is not 0.3. An int that passes its ceiling wraps around to a negative number.",
+      "concepts": [
+        "int division",
+        "casting",
+        "Math.round",
+        "double gotcha",
+        "overflow"
+      ],
+      "expected": [
+        "3",
+        "3.5",
+        "3.5",
+        "3",
+        "3 -2",
+        "false",
+        "-2147483648"
+      ]
+    },
+    {
+      "id": "d03-bug",
+      "type": "bug",
+      "title": "The int division trap",
+      "viz": true,
+      "prompt": "The BMI of 70 kg and 175 cm should be about 22.9, but the program prints something else. Click the faulty line and choose the fix.",
+      "code": [
+        "class Bmi {",
+        "    public static void main(String[] args) {",
+        "        int weightKg = 70;",
+        "        int heightCm = 175;",
+        "        double heightM = heightCm / 100;",
+        "        double bmi = weightKg / (heightM * heightM);",
+        "        System.out.println(\"BMI: \" + Math.round(bmi * 10) / 10.0);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        5
+      ],
+      "answer": 0,
+      "options": [
+        "double heightM = heightCm / 100.0;",
+        "double heightM = (double) (heightCm / 100);",
+        "double heightM = heightCm * 100;",
+        "int heightM = heightCm / 100.0;"
+      ],
+      "fixed_code": [
+        "class Bmi {",
+        "    public static void main(String[] args) {",
+        "        int weightKg = 70;",
+        "        int heightCm = 175;",
+        "        double heightM = heightCm / 100.0;",
+        "        double bmi = weightKg / (heightM * heightM);",
+        "        System.out.println(\"BMI: \" + Math.round(bmi * 10) / 10.0);",
+        "    }",
+        "}"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "BMI: 70.0"
+      },
+      "explain": "heightCm / 100 is int divided by int, so Java drops the .75 and gets 1 before storing it in a double. Make one side a double (100.0). Casting after the division is too late.",
+      "concepts": [
+        "int division",
+        "silent bugs",
+        "double"
+      ],
+      "output": "BMI: 22.9"
+    },
+    {
+      "id": "d03-review",
+      "type": "review",
+      "title": "Review the AI's box planner",
+      "prompt": "An AI assistant wrote this planner. It compiles and runs, but tick the real problems (there are two).",
+      "code": [
+        "class Planner {",
+        "    public static void main(String[] args) {",
+        "        double total = 1250;",
+        "        int people = 4;",
+        "        double share = total / people;",
+        "        int items = 7;",
+        "        int perBox = 2;",
+        "        double boxes = items / perBox;",
+        "        long phone = 9876543210L;",
+        "        int views = Integer.MAX_VALUE;",
+        "        views = views + 1;",
+        "        System.out.println(share + \" \" + boxes + \" \" + views);",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "int-division",
+          "text": "boxes is 3.0, not 3.5 (or 4 boxes needed), because items / perBox is an int division",
+          "why": "Both operands are int, so the decimals are dropped before the result goes into a double. Use items / (double) perBox, or Math.ceil for whole boxes.",
+          "lines": [
+            8
+          ]
+        },
+        {
+          "id": "overflow",
+          "text": "views goes past the int ceiling and wraps around to a negative number",
+          "why": "Integer.MAX_VALUE + 1 overflows silently to -2147483648. Use a long when a counter can pass about 2 billion.",
+          "lines": [
+            10,
+            11
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "share-loses",
+          "text": "share loses its decimals because people is an int",
+          "why": "total is a double, so total / people is a double division."
+        },
+        {
+          "id": "long-phone",
+          "text": "phone must be an int because the number has no decimals",
+          "why": "9876543210 is too big for an int. long (with the L suffix) is the right choice."
+        },
+        {
+          "id": "concat-error",
+          "text": "Joining a double and a text with + is a compile error",
+          "why": "+ with a text converts the other side to text. It compiles and works."
+        }
+      ],
+      "explain": "Silent numeric bugs are the classic weakness of generated code: the program compiles and prints something plausible. Check every / between ints and every counter that can grow large.",
+      "concepts": [
+        "int division",
+        "overflow",
+        "reviewing numeric code"
+      ]
+    }
+  ]
+}

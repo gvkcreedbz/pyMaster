@@ -1,0 +1,214 @@
+{
+  "day": 2,
+  "drills": [
+    {
+      "id": "d02-parsons",
+      "type": "parsons",
+      "title": "Order total with a format",
+      "viz": true,
+      "faded": true,
+      "prompt": "Arrange the lines and choose the missing format so the total prints with two decimals. The two assignments can go in either order.",
+      "lines": [
+        "qty = 3",
+        "price = 120",
+        "total = qty * price",
+        "print(f\"Total: Rs. {total:___}\")"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            ".2f"
+          ],
+          "options": [
+            ".2f",
+            "2f",
+            ",",
+            "d"
+          ]
+        }
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3
+        ]
+      ],
+      "explain": "A variable must exist before you use it, so total comes after qty and price (which can come in either order). In an f-string, :.2f after the value means two decimal places.",
+      "concepts": [
+        "variables",
+        "f-strings",
+        ":.2f"
+      ],
+      "output": "Total: Rs. 360.00"
+    },
+    {
+      "id": "d02-fill",
+      "type": "fill",
+      "title": "Convert and format",
+      "viz": true,
+      "prompt": "Fill the blanks: convert the text to a whole number, then format two numbers.",
+      "code": [
+        "age_text = \"25\"",
+        "age = ___(age_text)",
+        "print(age + 1)",
+        "print(f\"{3.14159:___}\")",
+        "print(f\"{1234567:___}\")"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "int"
+          ]
+        },
+        {
+          "answers": [
+            ".2f"
+          ]
+        },
+        {
+          "answers": [
+            ","
+          ]
+        }
+      ],
+      "explain": "input() and text in quotes are str. int() turns \"25\" into the number 25 so age + 1 is 26. In f-strings :.2f gives two decimals and :, adds thousands separators.",
+      "concepts": [
+        "int()",
+        "f-strings",
+        "types"
+      ],
+      "output": [
+        "26",
+        "3.14",
+        "1,234,567"
+      ]
+    },
+    {
+      "id": "d02-predict",
+      "type": "predict",
+      "title": "Copies and text maths",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "x = 10",
+        "y = x",
+        "x = 20",
+        "print(y)",
+        "qty = \"3\"",
+        "print(qty * 2)",
+        "print(\"5\" + \"3\")",
+        "print(5 + 3)"
+      ],
+      "explain": "y = x copies the value 10, so changing x later does not change y. A text \"3\" times 2 repeats the text: 33. + joins two texts (\"53\") but adds two numbers (8).",
+      "concepts": [
+        "variables are copies",
+        "str vs int",
+        "operators on text"
+      ],
+      "expected": [
+        "10",
+        "33",
+        "53",
+        "8"
+      ]
+    },
+    {
+      "id": "d02-bug",
+      "type": "bug",
+      "title": "The f is missing",
+      "viz": true,
+      "prompt": "The program runs without an error but prints the wrong thing. Click the faulty line and choose the fix.",
+      "code": [
+        "name = \"Aarav\"",
+        "qty = 3",
+        "price = 349.5",
+        "total = qty * price",
+        "print(\"Hi {name}, your total is Rs. {total:.2f}\")"
+      ],
+      "bug_lines": [
+        5
+      ],
+      "answer": 0,
+      "options": [
+        "print(f\"Hi {name}, your total is Rs. {total:.2f}\")",
+        "print(f\"Hi {name}, your total is Rs. {total}\")",
+        "print(\"Hi\", name, \"your total is Rs.\", total:.2f)",
+        "print(\"Hi {name}, your total is Rs. {total:.2f}\".format())"
+      ],
+      "fixed_code": [
+        "name = \"Aarav\"",
+        "qty = 3",
+        "price = 349.5",
+        "total = qty * price",
+        "print(f\"Hi {name}, your total is Rs. {total:.2f}\")"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "Hi {name}, your total is Rs. {total:.2f}"
+      },
+      "explain": "Without the f before the opening quote, Python prints the curly braces literally. Only an f-string looks inside { } and replaces the names with their values.",
+      "concepts": [
+        "f-strings",
+        "common mistakes"
+      ],
+      "output": "Hi Aarav, your total is Rs. 1048.50"
+    },
+    {
+      "id": "d02-review",
+      "type": "review",
+      "title": "Review the AI's bill splitter",
+      "prompt": "An AI assistant wrote this bill splitter. Tick the real problems (there are two).",
+      "code": [
+        "bill = input(\"Bill amount: \")",
+        "friends = input(\"How many friends? \")",
+        "share = bill / friends",
+        "print(f\"Each pays Rs. {share:.2f}\")"
+      ],
+      "issues": [
+        {
+          "id": "text-input",
+          "text": "input() returns text, so bill / friends fails with a TypeError",
+          "why": "Both values are str. Convert first: bill = float(input(...)) and friends = int(input(...)).",
+          "lines": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "id": "zero-friends",
+          "text": "Nothing prevents friends being 0, which divides by zero",
+          "why": "Dividing by 0 raises ZeroDivisionError. Check the value (an if, from Day 5) or ask again before dividing.",
+          "lines": [
+            3
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "fmt-in-fstring",
+          "text": "A format like :.2f is not allowed inside an f-string",
+          "why": "It is the standard way to control decimals in an f-string."
+        },
+        {
+          "id": "prompt-arg",
+          "text": "input() cannot take a prompt text",
+          "why": "input(\"...\") shows the text as a prompt. That is the normal use."
+        },
+        {
+          "id": "var-names",
+          "text": "Variable names such as bill must be written in capitals",
+          "why": "Python style is lower snake_case; capitals are only a convention for constants."
+        }
+      ],
+      "explain": "AI assistants often forget that input() always gives text and rarely guard against bad input. Checking types and edge cases such as zero is the first thing to look for in generated code.",
+      "concepts": [
+        "input() is text",
+        "int()/float()",
+        "edge cases"
+      ]
+    }
+  ]
+}
