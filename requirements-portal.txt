@@ -1,0 +1,4 @@
+# Everything the learning portal needs (it also installs the course libraries so the
+# Playground and Days 25-30 run inside the portal exactly like on your own machine).
+-r requirements-week4.txt
+cursor-sdk

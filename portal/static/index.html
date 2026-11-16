@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Py Master</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <script>document.documentElement.dataset.theme = localStorage.getItem('pj-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');</script>
+  <link rel="stylesheet" href="/static/vendor/codemirror.css">
+  <link rel="stylesheet" href="/static/app.css">
+  <link rel="stylesheet" href="/static/workspace.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar" id="topbar"></header>
+
+    <div class="work" id="work">
+      <div class="toprow" id="toprow">
+        <section class="pane" id="pane-lesson" data-pane="lesson">
+          <div class="phead">
+            <div class="ptab" title="Drag out of the window to open it on its own. Double-click to maximise."><span class="pico">&#128214;</span><span class="ptitle" id="title-lesson">Lesson</span></div>
+            <div class="pacts">
+              <button class="pbtn" data-act="max" title="Maximise / restore">&#10530;</button>
+              <button class="pbtn" data-act="pop" title="Open in its own window">&#10697;</button>
+            </div>
+          </div>
+          <main class="pbody main" id="main"><div class="main-inner" id="view"></div></main>
+        </section>
+
+        <div class="gut gut-v" id="gut-v" role="separator" aria-orientation="vertical" title="Drag to resize · double-click to reset"></div>
+
+        <section class="pane" id="pane-play" data-pane="play">
+          <div class="phead">
+            <div class="ptab" title="Drag out of the window to open it on its own. Double-click to maximise."><span class="pico">&#9654;</span><span class="ptitle">Playground</span></div>
+            <div class="pacts">
+              <button class="pbtn" data-act="max" title="Maximise / restore">&#10530;</button>
+              <button class="pbtn" data-act="pop" title="Open in its own window">&#10697;</button>
+              <button class="pbtn" data-act="close" title="Hide the playground">&#10005;</button>
+            </div>
+          </div>
+          <div class="pbody pg" id="pg"></div>
+        </section>
+      </div>
+
+      <div class="gut gut-h hide" id="gut-h" role="separator" aria-orientation="horizontal" title="Drag to resize · double-click to reset"></div>
+
+      <section class="pane tutor collapsed" id="pane-tutor" data-pane="tutor"></section>
+      <div class="allgone" id="allgone"></div>
+    </div>
+  </div>
+
+  <aside class="side drawer" id="side" aria-label="Navigation"></aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="selpop" id="selpop"></div>
+  <div class="toasts" id="toasts"></div>
+  <div id="modal-root"></div>
+
+  <script src="/static/vendor/codemirror.js"></script>
+  <script src="/static/vendor/python.js"></script>
+  <script src="/static/vendor/runmode.js"></script>
+  <script src="/static/vendor/matchbrackets.js"></script>
+  <script src="/static/vendor/closebrackets.js"></script>
+  <script src="/static/vendor/marked.js"></script>
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

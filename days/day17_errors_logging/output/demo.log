@@ -1,0 +1,10 @@
+2026-11-16 17:09:29,695 INFO order 77 placed
+2026-11-16 17:09:29,695 WARNING stock is low
+2026-11-16 17:09:29,695 ERROR withdrawal failed
+Traceback (most recent call last):
+  File "C:\Users\C8T9C7\Desktop\desk\TESTING-AI\PY\days\day17_errors_logging\examples.py", line 64, in <module>
+    withdraw(100, 500)
+    ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\C8T9C7\Desktop\desk\TESTING-AI\PY\days\day17_errors_logging\examples.py", line 41, in withdraw
+    raise InsufficientFundsError(f"Need Rs. {amount - balance} more")
+InsufficientFundsError: Need Rs. 400 more

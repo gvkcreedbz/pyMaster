@@ -1,0 +1,8 @@
+{
+  "currency": "INR",
+  "symbol": "₹",
+  "limits": {
+    "daily": 20000,
+    "per_txn": 5000
+  }
+}

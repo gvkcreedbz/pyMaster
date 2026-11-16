@@ -1,0 +1,301 @@
+order_id,order_date,region,category,product,quantity,unit_price,discount_pct,payment_method
+ORD1108,2026-01-02,West,Electronics,Smartwatch,4,3499,15,NetBanking
+ORD1127,2026-01-02,East,Fashion,Cotton Kurta,3,899,10,NetBanking
+ORD1160,2026-01-02,East,Fashion,Running Shoes,2,2999,0,COD
+ORD1067,2026-01-03,North,Grocery,Olive Oil 1L,4,799,0,Card
+ORD1219,2026-01-03,North,Home,Water Bottle,1,399,0,Card
+ORD1285,2026-01-03,South,Electronics,Smartwatch,4,3499,15,NetBanking
+ORD1075,2026-01-04,East,Home,Water Bottle,3,399,5,NetBanking
+ORD1020,2026-01-10,North,Fashion,Backpack,3,1499,0,Card
+ORD1158,2026-01-11,North,Electronics,Smartwatch,3,3499,0,Card
+ORD1114,2026-01-14,North,Fashion,Cotton Kurta,2,899,15,UPI
+ORD1161,2026-01-14,South,Grocery,Basmati Rice 5kg,1,649,0,Card
+ORD1217,2026-01-15,East,Fashion,Running Shoes,1,2999,15,COD
+ORD1002,2026-01-17,North,Electronics,Bluetooth Speaker,1,2299,0,Card
+ORD1026,2026-01-17,East,Grocery,Basmati Rice 5kg,1,649,10,Card
+ORD1274,2026-01-17,North,Grocery,Olive Oil 1L,2,799,0,NetBanking
+ORD1218,2026-01-20,East,Grocery,Olive Oil 1L,4,799,15,Card
+ORD1186,2026-01-22,West,Electronics,Bluetooth Speaker,1,2299,5,UPI
+ORD1164,2026-01-23,East,Home,Table Lamp,4,699,15,UPI
+ORD1226,2026-01-23,East,Fashion,Running Shoes,5,2999,0,Card
+ORD1230,2026-01-25,East,Fashion,Cotton Kurta,3,899,0,COD
+ORD1260,2026-01-26,East,Grocery,Basmati Rice 5kg,4,649,10,NetBanking
+ORD1046,2026-01-27,North,Home,Cushion Set,4,599,0,UPI
+ORD1273,2026-01-27,West,Fashion,Running Shoes,2,2999,10,NetBanking
+ORD1120,2026-01-28,South,Home,Water Bottle,5,399,0,NetBanking
+ORD1037,2026-01-30,North,Home,Table Lamp,2,699,0,UPI
+ORD1236,2026-01-30,North,Home,Cushion Set,4,599,0,Card
+ORD1074,2026-02-01,South,Home,Water Bottle,4,399,5,UPI
+ORD1300,2026-02-01,South,Electronics,Wireless Earbuds,5,1999,10,Card
+ORD1225,2026-02-04,East,Electronics,Power Bank,2,1299,15,UPI
+ORD1007,2026-02-05,North,Fashion,Running Shoes,2,2999,0,UPI
+ORD1059,2026-02-05,East,Fashion,Backpack,5,1499,0,UPI
+ORD1248,2026-02-07,West,Grocery,Green Tea,4,249,15,COD
+ORD1256,2026-02-07,North,Fashion,Backpack,2,1499,5,NetBanking
+ORD1251,2026-02-10,East,Fashion,Cotton Kurta,2,899,15,COD
+ORD1078,2026-02-12,West,Home,Air Fryer,2,4999,5,Card
+ORD1093,2026-02-13,South,Electronics,Smartwatch,4,3499,5,Card
+ORD1171,2026-02-13,North,Electronics,Wireless Earbuds,4,1999,0,COD
+ORD1135,2026-02-16,West,Fashion,Running Shoes,1,2999,15,UPI
+ORD1146,2026-02-16,East,Fashion,Running Shoes,3,2999,15,NetBanking
+ORD1005,2026-02-17,West,Fashion,Denim Jacket,1,2199,0,COD
+ORD1145,2026-02-19,North,Fashion,Running Shoes,3,2999,5,UPI
+ORD1284,2026-02-21,West,Grocery,Basmati Rice 5kg,3,649,15,NetBanking
+ORD1101,2026-02-22,North,Grocery,Almonds 500g,5,549,0,NetBanking
+ORD1189,2026-02-24,South,Electronics,Bluetooth Speaker,4,2299,10,NetBanking
+ORD1151,2026-02-25,South,Home,Cushion Set,4,599,0,COD
+ORD1283,2026-02-25,South,Fashion,Running Shoes,2,2999,0,Card
+ORD1015,2026-02-26,South,Electronics,Wireless Earbuds,2,1999,15,NetBanking
+ORD1220,2026-02-26,East,Grocery,Almonds 500g,2,549,0,UPI
+ORD1048,2026-02-27,North,Home,Air Fryer,2,4999,10,UPI
+ORD1083,2026-02-28,South,Grocery,Almonds 500g,4,549,15,COD
+ORD1084,2026-02-28,South,Fashion,Running Shoes,3,2999,0,UPI
+ORD1024,2026-03-03,South,Home,Water Bottle,2,399,0,COD
+ORD1038,2026-03-03,South,Grocery,Almonds 500g,5,549,10,UPI
+ORD1086,2026-03-03,North,Electronics,Power Bank,3,1299,10,NetBanking
+ORD1184,2026-03-03,North,Fashion,Cotton Kurta,4,899,15,NetBanking
+ORD1122,2026-03-04,North,Home,Water Bottle,5,399,0,Card
+ORD1112,2026-03-05,West,Fashion,Backpack,3,1499,15,NetBanking
+ORD1131,2026-03-06,East,Home,Air Fryer,1,4999,5,UPI
+ORD1022,2026-03-07,West,Electronics,Smartwatch,5,3499,0,COD
+ORD1267,2026-03-07,North,Fashion,Denim Jacket,4,2199,0,COD
+ORD1047,2026-03-08,East,Electronics,Power Bank,2,1299,15,NetBanking
+ORD1249,2026-03-08,West,Grocery,Olive Oil 1L,5,799,0,UPI
+ORD1147,2026-03-09,East,Grocery,Olive Oil 1L,5,799,10,COD
+ORD1044,2026-03-10,East,Fashion,Denim Jacket,1,2199,0,Card
+ORD1245,2026-03-13,South,Electronics,Smartwatch,4,3499,0,COD
+ORD1111,2026-03-14,North,Grocery,Green Tea,1,249,0,COD
+ORD1013,2026-03-15,East,Home,Water Bottle,2,399,0,COD
+ORD1132,2026-03-15,West,Home,Air Fryer,2,4999,0,NetBanking
+ORD1177,2026-03-15,West,Electronics,Smartwatch,1,3499,0,UPI
+ORD1222,2026-03-15,East,Electronics,Smartwatch,4,3499,0,COD
+ORD1192,2026-03-16,East,Grocery,Basmati Rice 5kg,2,649,0,Card
+ORD1281,2026-03-16,East,Home,Cushion Set,1,599,0,UPI
+ORD1065,2026-03-17,North,Grocery,Olive Oil 1L,1,799,0,NetBanking
+ORD1203,2026-03-18,East,Fashion,Cotton Kurta,1,899,10,Card
+ORD1194,2026-03-19,West,Fashion,Cotton Kurta,1,899,5,NetBanking
+ORD1275,2026-03-19,West,Fashion,Backpack,2,1499,5,NetBanking
+ORD1124,2026-03-20,West,Home,Air Fryer,3,4999,10,COD
+ORD1214,2026-03-24,East,Fashion,Denim Jacket,4,2199,10,Card
+ORD1010,2026-03-25,West,Grocery,Olive Oil 1L,4,799,0,Card
+ORD1051,2026-03-25,South,Grocery,Olive Oil 1L,4,799,0,Card
+ORD1034,2026-03-26,West,Home,Air Fryer,1,4999,5,COD
+ORD1209,2026-03-26,West,Grocery,Olive Oil 1L,1,799,5,COD
+ORD1250,2026-03-26,South,Grocery,Green Tea,3,249,15,Card
+ORD1033,2026-03-27,West,Electronics,Smartwatch,4,3499,5,Card
+ORD1277,2026-03-30,West,Home,Cushion Set,5,599,0,COD
+ORD1115,2026-03-31,West,Fashion,Denim Jacket,5,2199,15,NetBanking
+ORD1138,2026-03-31,North,Grocery,Olive Oil 1L,5,799,5,Card
+ORD1162,2026-03-31,East,Fashion,Denim Jacket,1,2199,0,NetBanking
+ORD1176,2026-04-03,East,Fashion,Denim Jacket,3,2199,0,COD
+ORD1233,2026-04-03,East,Electronics,Bluetooth Speaker,3,2299,0,UPI
+ORD1227,2026-04-04,South,Home,Water Bottle,1,399,15,NetBanking
+ORD1223,2026-04-06,North,Grocery,Almonds 500g,5,549,0,UPI
+ORD1291,2026-04-06,North,Home,Cushion Set,3,599,0,Card
+ORD1129,2026-04-07,South,Home,Cushion Set,5,599,5,Card
+ORD1097,2026-04-09,East,Grocery,Basmati Rice 5kg,1,649,15,Card
+ORD1278,2026-04-09,South,Fashion,Backpack,3,1499,10,COD
+ORD1211,2026-04-10,East,Fashion,Backpack,5,1499,5,NetBanking
+ORD1268,2026-04-12,West,Fashion,Running Shoes,5,2999,0,UPI
+ORD1082,2026-04-13,North,Electronics,Smartwatch,5,3499,0,Card
+ORD1228,2026-04-14,North,Electronics,Power Bank,2,1299,0,COD
+ORD1121,2026-04-15,East,Home,Air Fryer,5,4999,0,COD
+ORD1183,2026-04-15,East,Electronics,Wireless Earbuds,2,1999,0,COD
+ORD1257,2026-04-15,East,Home,Water Bottle,5,399,0,COD
+ORD1045,2026-04-18,East,Fashion,Cotton Kurta,2,899,15,COD
+ORD1050,2026-04-18,South,Electronics,Power Bank,1,1299,0,NetBanking
+ORD1027,2026-04-20,South,Fashion,Backpack,5,1499,10,NetBanking
+ORD1073,2026-04-20,North,Home,Table Lamp,4,699,5,COD
+ORD1181,2026-04-21,North,Home,Cushion Set,3,599,5,UPI
+ORD1263,2026-04-21,East,Home,Table Lamp,1,699,0,COD
+ORD1076,2026-04-23,East,Grocery,Almonds 500g,4,549,5,UPI
+ORD1297,2026-04-23,South,Fashion,Running Shoes,4,2999,0,NetBanking
+ORD1215,2026-04-24,West,Home,Air Fryer,3,4999,0,NetBanking
+ORD1054,2026-04-25,North,Fashion,Running Shoes,2,2999,5,COD
+ORD1174,2026-04-25,North,Grocery,Almonds 500g,3,549,10,COD
+ORD1149,2026-04-26,West,Electronics,Smartwatch,5,3499,0,UPI
+ORD1207,2026-04-26,South,Home,Table Lamp,2,699,0,COD
+ORD1011,2026-04-28,North,Fashion,Denim Jacket,3,2199,5,COD
+ORD1144,2026-04-28,East,Home,Cushion Set,2,599,15,Card
+ORD1109,2026-04-29,East,Fashion,Denim Jacket,3,2199,15,NetBanking
+ORD1139,2026-04-29,West,Home,Table Lamp,3,699,5,COD
+ORD1295,2026-05-01,North,Fashion,Cotton Kurta,1,899,5,COD
+ORD1142,2026-05-02,West,Home,Air Fryer,5,4999,0,COD
+ORD1052,2026-05-08,East,Fashion,Backpack,2,1499,15,UPI
+ORD1141,2026-05-09,West,Fashion,Backpack,3,1499,0,NetBanking
+ORD1119,2026-05-10,East,Electronics,Power Bank,1,1299,5,UPI
+ORD1058,2026-05-11,North,Home,Table Lamp,4,699,0,Card
+ORD1282,2026-05-12,West,Fashion,Backpack,2,1499,0,COD
+ORD1070,2026-05-13,South,Home,Water Bottle,3,399,10,NetBanking
+ORD1056,2026-05-14,South,Electronics,Wireless Earbuds,5,1999,0,UPI
+ORD1018,2026-05-15,South,Home,Air Fryer,5,4999,0,COD
+ORD1107,2026-05-16,North,Grocery,Olive Oil 1L,2,799,0,Card
+ORD1110,2026-05-16,South,Electronics,Smartwatch,4,3499,0,Card
+ORD1150,2026-05-16,North,Home,Air Fryer,4,4999,0,COD
+ORD1180,2026-05-20,West,Electronics,Wireless Earbuds,4,1999,5,NetBanking
+ORD1290,2026-05-20,South,Grocery,Almonds 500g,1,549,0,Card
+ORD1001,2026-05-21,South,Electronics,Wireless Earbuds,2,1999,0,UPI
+ORD1100,2026-05-21,North,Electronics,Smartwatch,1,3499,10,COD
+ORD1055,2026-05-23,East,Fashion,Denim Jacket,5,2199,5,COD
+ORD1080,2026-05-23,West,Fashion,Backpack,3,1499,0,NetBanking
+ORD1090,2026-05-23,West,Grocery,Basmati Rice 5kg,2,649,5,NetBanking
+ORD1240,2026-05-23,South,Home,Cushion Set,1,599,0,Card
+ORD1201,2026-05-25,West,Fashion,Cotton Kurta,4,899,0,UPI
+ORD1210,2026-05-26,West,Grocery,Almonds 500g,2,549,10,Card
+ORD1264,2026-05-27,North,Home,Water Bottle,1,399,5,Card
+ORD1118,2026-05-28,West,Home,Water Bottle,5,399,0,NetBanking
+ORD1140,2026-05-28,South,Electronics,Bluetooth Speaker,1,2299,5,COD
+ORD1173,2026-05-28,East,Home,Air Fryer,3,4999,0,Card
+ORD1279,2026-05-28,South,Grocery,Green Tea,4,249,0,NetBanking
+ORD1280,2026-05-28,North,Fashion,Cotton Kurta,5,899,15,NetBanking
+ORD1286,2026-05-28,East,Home,Table Lamp,3,699,15,UPI
+ORD1099,2026-06-01,South,Electronics,Smartwatch,3,3499,0,COD
+ORD1136,2026-06-03,North,Home,Table Lamp,1,699,0,UPI
+ORD1244,2026-06-03,South,Electronics,Power Bank,2,1299,0,Card
+ORD1255,2026-06-04,West,Home,Cushion Set,2,599,15,NetBanking
+ORD1062,2026-06-05,East,Home,Air Fryer,2,4999,5,COD
+ORD1153,2026-06-05,West,Electronics,Wireless Earbuds,1,1999,0,Card
+ORD1095,2026-06-06,East,Home,Table Lamp,4,699,10,COD
+ORD1234,2026-06-06,West,Fashion,Cotton Kurta,5,899,15,NetBanking
+ORD1262,2026-06-07,West,Home,Water Bottle,1,399,0,NetBanking
+ORD1190,2026-06-08,East,Electronics,Bluetooth Speaker,2,2299,0,Card
+ORD1170,2026-06-10,East,Fashion,Backpack,3,1499,0,NetBanking
+ORD1130,2026-06-12,West,Home,Air Fryer,4,4999,5,Card
+ORD1270,2026-06-13,South,Grocery,Green Tea,4,249,10,COD
+ORD1166,2026-06-14,South,Electronics,Wireless Earbuds,1,1999,0,COD
+ORD1198,2026-06-14,West,Home,Table Lamp,5,699,0,UPI
+ORD1179,2026-06-16,North,Fashion,Cotton Kurta,1,899,0,Card
+ORD1188,2026-06-16,South,Home,Air Fryer,5,4999,5,COD
+ORD1261,2026-06-17,East,Grocery,Olive Oil 1L,2,799,0,NetBanking
+ORD1202,2026-06-18,North,Fashion,Denim Jacket,5,2199,15,NetBanking
+ORD1205,2026-06-18,South,Fashion,Backpack,5,1499,0,NetBanking
+ORD1117,2026-06-20,East,Fashion,Backpack,1,1499,0,COD
+ORD1269,2026-06-20,West,Electronics,Smartwatch,5,3499,5,Card
+ORD1289,2026-06-21,East,Fashion,Denim Jacket,4,2199,15,NetBanking
+ORD1208,2026-06-22,South,Electronics,Wireless Earbuds,5,1999,5,Card
+ORD1253,2026-06-22,North,Grocery,Olive Oil 1L,1,799,0,UPI
+ORD1030,2026-06-23,North,Electronics,Bluetooth Speaker,2,2299,0,Card
+ORD1017,2026-06-24,North,Electronics,Power Bank,3,1299,5,Card
+ORD1092,2026-06-24,East,Fashion,Cotton Kurta,5,899,15,COD
+ORD1102,2026-06-24,South,Home,Water Bottle,1,399,0,NetBanking
+ORD1199,2026-06-25,North,Home,Air Fryer,5,4999,15,Card
+ORD1057,2026-06-26,East,Electronics,Bluetooth Speaker,4,2299,10,UPI
+ORD1042,2026-06-28,North,Fashion,Running Shoes,2,2999,0,COD
+ORD1081,2026-06-29,South,Electronics,Wireless Earbuds,1,1999,15,UPI
+ORD1235,2026-06-29,West,Grocery,Almonds 500g,1,549,15,COD
+ORD1096,2026-06-30,West,Home,Cushion Set,3,599,0,COD
+ORD1009,2026-07-01,South,Grocery,Green Tea,3,249,15,UPI
+ORD1014,2026-07-05,South,Home,Water Bottle,2,399,10,NetBanking
+ORD1088,2026-07-05,West,Electronics,Bluetooth Speaker,2,2299,5,Card
+ORD1206,2026-07-05,East,Fashion,Denim Jacket,2,2199,0,COD
+ORD1019,2026-07-11,South,Grocery,Olive Oil 1L,5,799,10,UPI
+ORD1137,2026-07-11,West,Fashion,Cotton Kurta,2,899,0,NetBanking
+ORD1178,2026-07-12,West,Electronics,Smartwatch,4,3499,0,Card
+ORD1008,2026-07-14,East,Grocery,Basmati Rice 5kg,4,649,15,COD
+ORD1079,2026-07-14,East,Electronics,Power Bank,2,1299,5,COD
+ORD1185,2026-07-14,South,Grocery,Olive Oil 1L,5,799,10,COD
+ORD1016,2026-07-15,West,Electronics,Bluetooth Speaker,5,2299,0,UPI
+ORD1238,2026-07-16,North,Fashion,Cotton Kurta,5,899,0,NetBanking
+ORD1204,2026-07-20,South,Fashion,Cotton Kurta,5,899,15,UPI
+ORD1040,2026-07-22,South,Grocery,Green Tea,3,249,5,COD
+ORD1143,2026-07-22,East,Fashion,Denim Jacket,1,2199,10,UPI
+ORD1085,2026-07-23,South,Fashion,Backpack,1,1499,10,Card
+ORD1133,2026-07-23,North,Fashion,Cotton Kurta,3,899,15,NetBanking
+ORD1157,2026-07-23,East,Fashion,Denim Jacket,2,2199,0,NetBanking
+ORD1258,2026-07-24,South,Fashion,Cotton Kurta,3,899,10,UPI
+ORD1103,2026-07-25,West,Electronics,Wireless Earbuds,1,1999,10,UPI
+ORD1165,2026-07-25,West,Electronics,Bluetooth Speaker,1,2299,5,NetBanking
+ORD1265,2026-07-26,East,Fashion,Cotton Kurta,1,899,5,UPI
+ORD1077,2026-07-27,South,Home,Cushion Set,4,599,0,UPI
+ORD1028,2026-07-28,South,Grocery,Almonds 500g,1,549,0,NetBanking
+ORD1060,2026-07-29,East,Fashion,Cotton Kurta,4,899,15,COD
+ORD1029,2026-07-30,West,Fashion,Backpack,1,1499,15,UPI
+ORD1066,2026-08-01,South,Electronics,Bluetooth Speaker,4,2299,5,NetBanking
+ORD1272,2026-08-02,East,Fashion,Denim Jacket,1,2199,10,NetBanking
+ORD1221,2026-08-03,West,Electronics,Smartwatch,1,3499,0,NetBanking
+ORD1061,2026-08-04,West,Grocery,Olive Oil 1L,2,799,10,COD
+ORD1004,2026-08-05,East,Electronics,Smartwatch,3,3499,0,Card
+ORD1031,2026-08-05,South,Home,Table Lamp,3,699,5,Card
+ORD1035,2026-08-05,West,Home,Cushion Set,2,599,0,COD
+ORD1292,2026-08-07,East,Grocery,Almonds 500g,1,549,5,UPI
+ORD1049,2026-08-09,South,Fashion,Running Shoes,1,2999,0,COD
+ORD1113,2026-08-13,North,Fashion,Backpack,5,1499,0,NetBanking
+ORD1200,2026-08-13,West,Electronics,Smartwatch,5,3499,10,Card
+ORD1237,2026-08-13,North,Electronics,Smartwatch,2,3499,0,Card
+ORD1071,2026-08-14,North,Grocery,Green Tea,3,249,0,COD
+ORD1231,2026-08-14,West,Home,Water Bottle,3,399,0,NetBanking
+ORD1063,2026-08-15,South,Home,Water Bottle,5,399,5,Card
+ORD1069,2026-08-15,West,Home,Cushion Set,5,599,5,Card
+ORD1156,2026-08-16,South,Grocery,Almonds 500g,3,549,0,COD
+ORD1239,2026-08-16,North,Fashion,Cotton Kurta,5,899,0,COD
+ORD1243,2026-08-16,North,Home,Table Lamp,3,699,15,COD
+ORD1294,2026-08-17,East,Home,Table Lamp,3,699,0,UPI
+ORD1094,2026-08-18,North,Home,Water Bottle,1,399,0,Card
+ORD1196,2026-08-20,North,Fashion,Backpack,1,1499,0,COD
+ORD1154,2026-08-21,East,Grocery,Almonds 500g,5,549,5,Card
+ORD1169,2026-08-21,West,Home,Cushion Set,4,599,15,UPI
+ORD1041,2026-08-23,North,Electronics,Wireless Earbuds,1,1999,10,Card
+ORD1006,2026-08-24,North,Fashion,Denim Jacket,4,2199,0,COD
+ORD1152,2026-08-26,East,Grocery,Basmati Rice 5kg,4,649,0,Card
+ORD1089,2026-08-27,West,Fashion,Backpack,5,1499,0,COD
+ORD1259,2026-08-27,North,Fashion,Running Shoes,3,2999,5,Card
+ORD1053,2026-08-29,South,Home,Air Fryer,2,4999,5,COD
+ORD1224,2026-08-29,North,Electronics,Bluetooth Speaker,4,2299,0,COD
+ORD1125,2026-08-30,South,Home,Water Bottle,4,399,10,Card
+ORD1163,2026-09-01,West,Electronics,Wireless Earbuds,3,1999,10,UPI
+ORD1293,2026-09-02,East,Grocery,Olive Oil 1L,2,799,0,COD
+ORD1247,2026-09-03,West,Fashion,Backpack,4,1499,10,UPI
+ORD1148,2026-09-04,East,Grocery,Green Tea,3,249,0,NetBanking
+ORD1213,2026-09-04,East,Fashion,Denim Jacket,5,2199,0,UPI
+ORD1098,2026-09-05,East,Grocery,Olive Oil 1L,5,799,10,COD
+ORD1155,2026-09-08,West,Home,Air Fryer,3,4999,0,COD
+ORD1242,2026-09-09,South,Grocery,Green Tea,1,249,0,UPI
+ORD1193,2026-09-10,West,Electronics,Smartwatch,5,3499,10,NetBanking
+ORD1091,2026-09-11,East,Fashion,Denim Jacket,2,2199,5,Card
+ORD1288,2026-09-11,South,Electronics,Bluetooth Speaker,3,2299,0,UPI
+ORD1212,2026-09-15,West,Fashion,Backpack,2,1499,0,Card
+ORD1216,2026-09-15,East,Electronics,Bluetooth Speaker,2,2299,5,UPI
+ORD1296,2026-09-15,East,Grocery,Almonds 500g,1,549,15,COD
+ORD1087,2026-09-17,East,Fashion,Denim Jacket,1,2199,5,NetBanking
+ORD1197,2026-09-17,West,Electronics,Wireless Earbuds,4,1999,10,UPI
+ORD1126,2026-09-18,South,Home,Table Lamp,1,699,0,NetBanking
+ORD1064,2026-09-21,East,Electronics,Power Bank,1,1299,0,COD
+ORD1232,2026-09-23,East,Home,Cushion Set,1,599,15,NetBanking
+ORD1276,2026-09-23,South,Electronics,Smartwatch,5,3499,0,NetBanking
+ORD1105,2026-09-25,West,Home,Table Lamp,4,699,5,COD
+ORD1182,2026-09-27,East,Fashion,Backpack,1,1499,0,NetBanking
+ORD1299,2026-09-27,West,Grocery,Basmati Rice 5kg,5,649,15,COD
+ORD1167,2026-09-29,East,Fashion,Backpack,4,1499,10,NetBanking
+ORD1191,2026-09-29,South,Electronics,Wireless Earbuds,3,1999,0,Card
+ORD1252,2026-10-01,North,Grocery,Green Tea,5,249,15,Card
+ORD1287,2026-10-01,North,Electronics,Smartwatch,2,3499,5,Card
+ORD1128,2026-10-03,West,Grocery,Almonds 500g,3,549,0,NetBanking
+ORD1023,2026-10-04,South,Home,Table Lamp,3,699,5,COD
+ORD1072,2026-10-04,North,Fashion,Cotton Kurta,2,899,0,Card
+ORD1134,2026-10-05,North,Fashion,Backpack,5,1499,0,Card
+ORD1043,2026-10-06,East,Grocery,Almonds 500g,5,549,15,UPI
+ORD1229,2026-10-06,West,Fashion,Backpack,3,1499,0,Card
+ORD1003,2026-10-07,West,Electronics,Smartwatch,2,3499,5,COD
+ORD1032,2026-10-09,North,Electronics,Bluetooth Speaker,1,2299,15,UPI
+ORD1298,2026-10-09,West,Fashion,Backpack,5,1499,15,Card
+ORD1123,2026-10-10,West,Fashion,Denim Jacket,1,2199,0,UPI
+ORD1168,2026-10-10,South,Electronics,Wireless Earbuds,4,1999,5,Card
+ORD1246,2026-10-10,South,Fashion,Backpack,5,1499,0,UPI
+ORD1159,2026-10-11,South,Grocery,Basmati Rice 5kg,5,649,0,Card
+ORD1266,2026-10-11,East,Grocery,Green Tea,1,249,5,NetBanking
+ORD1068,2026-10-13,South,Home,Air Fryer,1,4999,5,Card
+ORD1241,2026-10-15,North,Home,Water Bottle,3,399,0,NetBanking
+ORD1104,2026-10-16,East,Grocery,Olive Oil 1L,1,799,0,UPI
+ORD1271,2026-10-16,East,Fashion,Backpack,4,1499,0,COD
+ORD1012,2026-10-18,East,Electronics,Smartwatch,2,3499,15,NetBanking
+ORD1021,2026-10-18,North,Electronics,Smartwatch,1,3499,15,NetBanking
+ORD1106,2026-10-19,North,Home,Cushion Set,5,599,15,UPI
+ORD1254,2026-10-20,West,Fashion,Running Shoes,5,2999,15,UPI
+ORD1175,2026-10-21,South,Electronics,Power Bank,4,1299,10,UPI
+ORD1187,2026-10-21,West,Fashion,Backpack,4,1499,0,UPI
+ORD1036,2026-10-24,North,Grocery,Basmati Rice 5kg,3,649,0,UPI
+ORD1039,2026-10-26,East,Electronics,Bluetooth Speaker,3,2299,0,COD
+ORD1116,2026-10-27,West,Fashion,Running Shoes,4,2999,0,NetBanking
+ORD1172,2026-10-28,East,Grocery,Basmati Rice 5kg,1,649,5,COD
+ORD1025,2026-10-29,South,Electronics,Smartwatch,1,3499,0,UPI
+ORD1195,2026-10-30,North,Fashion,Cotton Kurta,3,899,10,UPI

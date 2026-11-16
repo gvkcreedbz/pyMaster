@@ -1,0 +1,13 @@
+{
+  "id": "ticket-triage-pipeline",
+  "title": "Ticket Triage Pipeline",
+  "emoji": "🧠",
+  "kind": "Data + AI pipeline",
+  "tagline": "Messy CSV in, clean decisions out, with an AI model that is allowed to be slow, wrong or down.",
+  "stack": ["csv", "generators", "dataclasses", "Protocol", "SQLite", "LLM adapter", "FastAPI (optional)"],
+  "patterns": ["Pipeline of generators", "Strategy", "Fallback chain", "Retry + backoff", "Idempotent upsert"],
+  "level": "Intermediate",
+  "minutes": 45,
+  "demo": "demo.py",
+  "files": ["pipeline.py", "demo.py"]
+}

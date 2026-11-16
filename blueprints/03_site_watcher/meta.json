@@ -1,0 +1,13 @@
+{
+  "id": "site-watcher",
+  "title": "Site & Price Watcher",
+  "emoji": "🔭",
+  "kind": "Automation + monitoring",
+  "tagline": "Scheduled jobs that remember, alert only on change, and survive a bad day on the internet.",
+  "stack": ["scheduler tick", "plugins", "regex", "hashlib", "JSON state", "webhooks", "FastAPI (optional)"],
+  "patterns": ["Plugin registry", "Circuit breaker", "Observer", "Atomic persistence", "Injected clock"],
+  "level": "Intermediate",
+  "minutes": 45,
+  "demo": "demo.py",
+  "files": ["watcher.py", "demo.py"]
+}

@@ -1,0 +1,10 @@
+Hi team, please reach out to the vendors below.
+Priya Sharma - priya.sharma@example.com, phone +91 98765 43210
+Rahul Verma <rahul_v99@mail.co.in> | 9123456780
+Support desk: help@shop-india.com or call 1800-123-4567 (toll free)
+Invoice INV-2026-0042 dated 2026-11-03 total Rs. 12,450.50
+Invoice INV-2026-0043 dated 03/11/2026 total Rs. 899
+Invalid entries: john@@example..com, 12345, no-at-sign.example.com
+Meera Iyer: meera.iyer@university.edu.in, +91-90000-11111
+Order refs: ORD1001, ORD1002, ord1003 and ORD-1004 were delayed.
+Escalate to cto@startup.io by 2026-12-01 if unresolved.

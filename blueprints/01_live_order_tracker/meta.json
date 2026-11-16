@@ -1,0 +1,13 @@
+{
+  "id": "live-order-tracker",
+  "title": "Live Order Tracker",
+  "emoji": "🛵",
+  "kind": "Real-time backend",
+  "tagline": "One person changes something, everyone watching sees it instantly: delivery, ride-hailing, booking apps.",
+  "stack": ["FastAPI", "WebSocket", "SQLite", "pydantic", "asyncio", "HTML + JS"],
+  "patterns": ["State machine", "Pub/Sub", "Idempotency", "Repository", "App factory + DI"],
+  "level": "Intermediate",
+  "minutes": 45,
+  "demo": "demo.py",
+  "files": ["app.py", "demo.py"]
+}
