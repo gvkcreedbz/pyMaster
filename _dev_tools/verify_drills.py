@@ -344,7 +344,8 @@ def do_file(path: Path, day: int, java: bool, a, pool):
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
     except ValueError as e:
-        return lambda: (0, 1, [f"LINT  invalid JSON: {e}"])
+        why = str(e)                                       # `e` is deleted when this block ends, so keep the text
+        return lambda: (0, 1, [f"LINT  invalid JSON: {why}"])
     doc = core.load_doc(path) or {}
     drills = doc.get("drills", [])
     if a.fix:

@@ -193,7 +193,7 @@ def goal_info(f: dict, xp: dict, today: date) -> dict:
 
 # ---- badges -----------------------------------------------------------------------------------------
 def compute_badges(f: dict, st: dict, today: date) -> list[dict]:
-    S, java = track.T["short"], track.IS_JAVA
+    S = track.T["short"]
     days = content.load_days()
     full = [k for k, g in f["ex"].items() if g["n"] and g["p"] == g["n"]]
     done = {n for n in f["done"] if n in days}
