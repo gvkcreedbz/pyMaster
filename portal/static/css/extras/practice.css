@@ -1,0 +1,34 @@
+/* Practice sessions. Uses the theme variables of app.css and the card styles of drills.css. */
+.pr { max-width: 860px; }
+.pr-how { margin: 6px 0 14px; padding-left: 20px; line-height: 1.7; color: var(--ink-2); max-width: 66ch; }
+.pr-scope { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0; }
+.pr-opt { display: inline-flex; gap: 8px; align-items: center; border: 1px solid var(--line-2); border-radius: 99px; padding: 6px 14px; cursor: pointer; background: var(--panel); }
+.pr-opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.pr-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; }
+.pr-num { font: 600 15px var(--sans); }
+.pr-lvl { margin-left: 10px; font: 600 11px var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line-2); border-radius: 99px; padding: 2px 9px; }
+.pr-aids { margin-top: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--panel-2); display: grid; gap: 10px; }
+.pr-lab { font: 600 12px var(--sans); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.pr-think { min-height: 70px; }
+.pr-mic { justify-self: start; }
+.pr-confrow { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.pr-conf { display: inline-flex; gap: 6px; }
+.pr-conf .btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.pr-hintrow { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.pr-hints { flex: 1; min-width: 220px; }
+.pr-hint { margin: 0 0 6px; padding: 8px 12px; background: var(--warn-soft); border-left: 3px solid var(--warn); border-radius: 6px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+.pr-reveal { margin-top: 12px; }
+.pr-stats { display: flex; gap: 12px; flex-wrap: wrap; margin: 14px 0; }
+.pr-stat { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius-s); padding: 10px 16px; min-width: 110px; display: grid; }
+.pr-stat b { font-size: 22px; }
+.pr-stat span { font-size: 12.5px; color: var(--muted); }
+.pr-cal, .pr-weak { margin: 14px 0; }
+.pr-cal h3, .pr-weak h3 { margin: 0 0 8px; }
+.pr-barrow { display: grid; grid-template-columns: 96px 1fr 96px; gap: 10px; align-items: center; margin: 6px 0; font-size: 13.5px; }
+.pr-barrow .track { height: 10px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.pr-barrow .track i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.pr-barrow .val { color: var(--muted); text-align: right; }
+.pr-weak .chip { margin: 4px 6px 0 0; text-decoration: none; }
+.pr-home { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
+.pr-home .grow { min-width: 220px; }
+@media (max-width: 520px) { .pr-barrow { grid-template-columns: 78px 1fr 70px; } }

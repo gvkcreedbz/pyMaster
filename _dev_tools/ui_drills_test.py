@@ -77,6 +77,13 @@ class Page:
         return out
 
 
+async def wait_boot(p):
+    """Wait like a person would: the first page is drawn and the extensions are loaded (a click during boot would be wiped by the next render)."""
+    await wait_for(p, "!!document.querySelector('#topbar-extras') && document.querySelector('#topbar-extras').children.length > 0", 30)
+    await wait_for(p, "(document.querySelector('#view')?.innerText || '').trim().length > 30 && !/^Loading/.test(document.querySelector('#view').innerText.trim())", 30)
+    await asyncio.sleep(1.2)
+
+
 async def wait_for(p, js, secs=12):
     for _ in range(int(secs * 10)):
         if await p.eval(js):
@@ -152,7 +159,7 @@ async def main():
                 await p.send(m)
             await p.send("Page.navigate", url=BASE + "/")
             await wait_for(p, "!!document.querySelector('#view') && document.querySelector('#view').innerText.length > 30", 20)
-            await wait_for(p, "!!document.querySelector('#topbar-extras') && document.querySelector('#topbar-extras').children.length > 0", 20)   # extensions have loaded
+            await wait_boot(p)
             await asyncio.sleep(1.0)
             for n in DAYS:
                 f = next(iter(sorted(DAYS_DIR.glob(f"day{n:02d}_*"))), None)

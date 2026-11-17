@@ -60,11 +60,13 @@ async function render(body, d, label) {
   paint();
 }
 
-function drillCard(d, v, next, repaint) {
+/** One drill. opts (all optional) lets other pages reuse it: hideTitle, checkFn(answer, tryNo)->result, giveupFn()->result,
+ *  onFinish(r, solved, tries), nextLabel, noHint, noAsk, noSummary. */
+export function drillCard(d, v, next, repaint, opts = {}) {
   const card = el('div', { class: 'card dr-card' });
-  card.append(el('span', { class: 'dr-type', text: TYPE_NAME[v.type] }), el('h3', { class: 'dr-title', text: v.title }));
+  card.append(el('span', { class: 'dr-type', text: TYPE_NAME[v.type] }), ...(opts.hideTitle ? [] : [el('h3', { class: 'dr-title', text: v.title })]));
   card.append(el('p', { class: 'dr-prompt', html: C.md(v.prompt, true).replace(/^<p>|<\/p>\s*$/g, '') }));
-  if (v.state.solved) card.append(el('div', { class: 'dr-fine', text: 'You solved this one before. Try it again if you like.' }));
+  if (v.state?.solved && !opts.hideTitle) card.append(el('div', { class: 'dr-fine', text: 'You solved this one before. Try it again if you like.' }));
   const fb = el('div', { 'aria-live': 'polite' });
   const acts = el('div', { class: 'dr-acts' });
   const builders = { parsons, fill, predict, bug, review };
@@ -73,15 +75,15 @@ function drillCard(d, v, next, repaint) {
 
   let tries = 0, done = false;
   const check = el('button', { class: 'btn primary', type: 'button', text: 'Check' });
-  const hint = v.hint ? el('button', { class: 'btn ghost sm', type: 'button', text: 'Hint', onclick: () => {
+  const hint = v.hint && !opts.noHint ? el('button', { class: 'btn ghost sm', type: 'button', text: 'Hint', onclick: () => {
     if (!card.querySelector('.dr-hint')) acts.after(el('p', { class: 'dr-hint', text: 'Hint: ' + v.hint })); } }) : null;
   const give = el('button', { class: 'btn ghost sm', type: 'button', text: 'Show the answer', onclick: async () => {
-    try { const r = await C.api(`/drills/${d.n}/${v.id}/giveup`, { method: 'POST', body: { session_id: sidOf() } }); v.state.gave_up = true; finish(r, false); }
+    try { const r = opts.giveupFn ? await opts.giveupFn() : await C.api(`/drills/${d.n}/${v.id}/giveup`, { method: 'POST', body: { session_id: sidOf() } }); if (v.state) v.state.gave_up = true; finish(r, false); }
     catch (e) { C.toast('Could not load the answer: ' + e.message); } } });
   const ask = el('button', { class: 'btn ghost sm', type: 'button', text: 'Ask the tutor', onclick: () => {
     C.tutor.toggle?.(true);
     C.tutor.ask('', `I'm working on the "${v.title}" drill (${TYPE_NAME[v.type]}) in Day ${d.n}. ${tries ? 'My answer was not right yet. ' : ''}Help me think it through without giving the answer away.`); } });
-  acts.append(check, ...(hint ? [hint] : []), give, ask);
+  acts.append(check, ...(hint ? [hint] : []), give, ...(opts.noAsk ? [] : [ask]));
 
   function finish(r, solved) {
     done = true;
@@ -95,10 +97,11 @@ function drillCard(d, v, next, repaint) {
     const row = el('div', { class: 'dr-acts' });
     const code = r.solution?.code;
     if (v.viz && code) row.append(el('button', { class: 'btn ghost sm', type: 'button', text: '👁 Visualize', onclick: () => C.openVisualizer({ code: wrapJava(code), lang: C.TRK.fence, dayNo: d.n }) }));
-    row.append(el('button', { class: 'btn primary sm', type: 'button', text: 'Next drill →', onclick: () => { refreshSummary(); next(); } }));
+    row.append(el('button', { class: 'btn primary sm', type: 'button', text: opts.nextLabel || 'Next drill →', onclick: () => { if (!opts.noSummary) refreshSummary(); next(); } }));
     box.append(row);
     fb.append(box);
-    if (solved) v.state.solved = true;
+    if (solved && v.state) v.state.solved = true;
+    opts.onFinish?.(r, solved, tries);
     const dot = document.querySelector('.dr-dot.on');                      // show the result on the dot right away
     if (dot && !dot.classList.contains('solved')) { dot.classList.remove('peeked'); dot.classList.add(solved ? 'solved' : 'peeked'); }
     check.disabled = true; give.disabled = true;
@@ -110,13 +113,13 @@ function drillCard(d, v, next, repaint) {
     try { answer = q.answer(); } catch (e) { C.toast(e.message); return; }
     check.disabled = true;
     try {
-      const r = await C.api(`/drills/${d.n}/${v.id}/check`, { method: 'POST', body: { answer, session_id: sidOf() } });
-      tries += 1; v.state.attempts = r.attempts;
+      const r = opts.checkFn ? await opts.checkFn(answer, tries + 1) : await C.api(`/drills/${d.n}/${v.id}/check`, { method: 'POST', body: { answer, session_id: sidOf() } });
+      tries += 1; if (v.state) v.state.attempts = r.attempts;
       q.mark(r);
       if (r.ok) finish(r, true);
       else {
         fb.replaceChildren(el('div', { class: 'dr-fb try' }, [el('b', { text: `Not quite yet (${Math.round(r.score * 100)}% right).` }), el('div', { text: q.tip(r) }),
-          r.explain && tries >= 2 ? el('div', { class: 'dr-fine', text: 'Stuck? Use Hint, Ask the tutor, or Show the answer. All are fine.' }) : null]));
+          tries >= 2 && !opts.noHint ? el('div', { class: 'dr-fine', text: 'Stuck? Use Hint, Ask the tutor, or Show the answer. All are fine.' }) : null]));
         check.disabled = false;
       }
     } catch (e) { check.disabled = false; C.toast(/stale/.test(e.message) ? 'This drill changed. Reloading it…' : 'Could not check: ' + e.message); if (/stale/.test(e.message)) repaint(); }

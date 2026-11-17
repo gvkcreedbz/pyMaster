@@ -1,0 +1,9 @@
+/* Predict before you run (Code-along tab). */
+.pd-switch { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.pd-panel { margin-bottom: 10px; border-color: var(--accent-line); background: var(--accent-soft); }
+.pd-panel b { display: block; margin-bottom: 6px; }
+.pd-compare { margin-top: 10px; }
+.pd-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 8px 0; }
+@media (max-width: 640px) { .pd-cols { grid-template-columns: 1fr; } }
+.pd-h { font: 600 12px var(--sans); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
+.pd-cols .out { margin: 0; }

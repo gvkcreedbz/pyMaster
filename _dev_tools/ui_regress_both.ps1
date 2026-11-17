@@ -7,7 +7,7 @@ foreach ($track in 'python', 'java') {
     $env:PORTAL_TRACK = $track; $env:PORTAL_PORT = "8777"; $env:PORTAL_DATA = "$env:TEMP\ui_data_$track"
     if (Test-Path $env:PORTAL_DATA) { Remove-Item -Recurse -Force $env:PORTAL_DATA }
     $srv = Start-Process -FilePath $py -ArgumentList '-W', 'ignore', 'portal\run.py', '--no-browser' -PassThru -WindowStyle Hidden
-    Start-Sleep 8
+    $up = $false; for ($i = 0; $i -lt 90 -and -not $up; $i++) { try { Invoke-WebRequest "http://127.0.0.1:8777/api/overview" -UseBasicParsing -TimeoutSec 5 | Out-Null; $up = $true } catch { Start-Sleep 1 } }
     $log = "$env:TEMP\ui_$track.log"
     & $py -W ignore _dev_tools\ui_regress.py http://127.0.0.1:8777 > $log 2>&1
     Add-Content $sum "== $track exit $LASTEXITCODE"

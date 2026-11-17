@@ -14,6 +14,10 @@ import { renderBlueprints } from './blueprints.js';
 import { initPalette, open as openPalette } from './palette.js';
 
 const PANE = layout.PANE;
+/** Pages added by extensions: { id, title, icon, label, render(view, part2, part3), action: {title, sub, keys} }. Route is #/<id>. */
+const extraPages = [];
+let extrasReady = false;               // false until the extension modules have been loaded once (they may add routes)
+function registerPage(p) { extraPages.push(p); }
 const view = () => $('#view');
 const LOGO = '<img class="logo" src="/static/logo.svg" alt="" width="26" height="26">';
 
@@ -51,7 +55,7 @@ function paintSide() {
   const o = S.overview; if (!o) return;
   const cur = o.welcome.current_day, viewing = viewingDay();
   const hash = location.hash || '#/';
-  const nav = [['#/', '&#8962;', 'Home'], ['#/insights', '&#9684;', 'Insights'], ['#/library', '&#10081;', 'Library'], ['#/blueprints', '&#129513;', 'Blueprints']];
+  const nav = [['#/', '&#8962;', 'Home'], ['#/insights', '&#9684;', 'Insights'], ['#/library', '&#10081;', 'Library'], ['#/blueprints', '&#129513;', 'Blueprints'], ...extraPages.map(p => ['#/' + p.id, p.icon || '&#9679;', p.label])];
   const on = h => (h === '#/' ? hash === '#/' || hash === '' || hash.startsWith('#/day') : hash.startsWith(h));
   $('#side').innerHTML = `
     <div class="row"><div class="brand">${LOGO}<span>${TRK.name}</span></div><span class="grow"></span><button class="iconbtn" id="side-x" title="Close (Esc)">&#10005;</button></div>
@@ -118,7 +122,7 @@ let lastHash = '#/';
 function lessonTitle(a, b) {
   if (!a) return 'Home';
   if (a === 'day') return `Day ${b} · ${S.overview?.days[+b - 1]?.title || ''}`;
-  return { insights: 'Insights', library: 'Library', blueprints: 'Blueprints' }[a] || 'Lesson';
+  return { insights: 'Insights', library: 'Library', blueprints: 'Blueprints' }[a] || extraPages.find(p => p.id === a)?.title || 'Lesson';
 }
 async function route() {
   const hash = location.hash || '#/';
@@ -144,6 +148,8 @@ async function route() {
     else if (a === 'insights') await renderInsights(view());
     else if (a === 'library') await renderLibrary(view(), b ? decodeURIComponent(b) : null);
     else if (a === 'blueprints') await renderBlueprints(view(), b ? decodeURIComponent(b) : null, c);
+    else if (extraPages.some(p => p.id === a)) { S.area = a; S.dayNo = 0; await extraPages.find(p => p.id === a).render(view(), b ? decodeURIComponent(b) : null, c); }
+    else if (!extrasReady) { view().innerHTML = '<div class="muted">Loading…</div>'; return; }      // maybe an extension page: loadExtras() routes again
     else { location.hash = '#/'; return; }
   } catch (e) {
     view().innerHTML = `<div class="card pad"><b>Something went wrong.</b><pre class="out err">${esc(e.stack || e.message)}</pre></div>`;
@@ -230,6 +236,7 @@ initPalette({
       { title: 'Ask the assistant', sub: 'Ctrl+K', keys: 'ai tutor help', run: () => tutor.toggle(true) },
       { title: 'Switch light / dark theme', keys: 'theme dark light mode', run: () => $('#btn-theme').click() },
       { title: 'Assistant & settings', keys: 'api key provider start date export', run: openSettings },
+      ...extraPages.filter(p => p.action).map(p => ({ title: p.action.title, sub: p.action.sub, keys: p.action.keys, run: go('#/' + p.id) })),
     ];
   },
 });
@@ -240,13 +247,13 @@ async function loadExtras() {
   try {
     const r = await api('/extras'); list = r.js || [];
     for (const href of r.css || []) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '/static/css/extras/' + href; document.head.appendChild(l); }
-  } catch { return; }
-  const ctx = { api, $, $$, esc, md, enhance, toast, modal, store, TRK, S, hooks, layout, tutor, openVisualizer, openSettings, openPalette, registerDayTab, PANE };
+  } catch { extrasReady = true; return; }                       // no extensions available: carry on without them
+  const ctx = { api, $, $$, esc, md, enhance, toast, modal, store, TRK, S, hooks, layout, tutor, openVisualizer, openSettings, openPalette, registerDayTab, registerPage, PANE };
   for (const name of list) {
-    try { const m = await import('/static/js/extras/' + name); await m.init?.(ctx); }
+    try { const m = await import('/static/js/extras/' + name); await Promise.race([m.init?.(ctx), new Promise(r => setTimeout(r, 4000))]); }
     catch (e) { console.warn('extension ' + name + ' failed', e); }       // a broken extension never stops the app
   }
-  if (list.length && (!PANE || PANE === 'lesson') && S.area === 'day') route();   // the first render happened before the extensions added their day tabs
+  extrasReady = true;
 }
 // ---- boot -----------------------------------------------------------------------------------------------
 (async function boot() {
@@ -258,8 +265,8 @@ async function loadExtras() {
   if (PANE && urlSid) store.sid = urlSid;
   else { const s = await api('/session/start', { method: 'POST' }); store.sid = s.session_id; }
   await hooks.refreshOverview();
+  await loadExtras();                     // before the first render, so extension pages and day tabs exist from the start
   if (!PANE || PANE === 'lesson') await route();
   layout.apply();
   beat();
-  await loadExtras();
 })();
