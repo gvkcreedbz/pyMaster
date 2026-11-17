@@ -83,7 +83,6 @@ async def main():
             asyncio.create_task(p.pump())
             await p.send("Emulation.setDeviceMetricsOverride", width=1440, height=900, deviceScaleFactor=1, mobile=False)
             await p.send("Page.enable")
-            errors = []
             await p.send("Runtime.enable")
 
             async def go(url, wait=0.8):

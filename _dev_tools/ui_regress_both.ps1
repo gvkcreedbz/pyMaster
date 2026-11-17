@@ -1,7 +1,7 @@
 # Browser regression for both tracks against throw-away servers (port 8777), one after the other.
 # Summary: %TEMP%\ui_both.txt
 $env:PYTHONUTF8 = "1"; $env:PYTHONIOENCODING = "utf-8"
-$py = "$env:TEMP\pyverify\py\python.exe"; if (-not (Test-Path $py)) { $py = "python" }
+$py = Join-Path (Split-Path -Parent $PSScriptRoot) ".tools\py\python.exe"; if (-not (Test-Path $py)) { $py = "python" }
 $sum = "$env:TEMP\ui_both.txt"; Remove-Item $sum -ErrorAction SilentlyContinue
 foreach ($track in 'python', 'java') {
     $env:PORTAL_TRACK = $track; $env:PORTAL_PORT = "8777"; $env:PORTAL_DATA = "$env:TEMP\ui_data_$track"

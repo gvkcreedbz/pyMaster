@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements-portal.txt
+            requirements-week4.txt
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install Python packages
+        run: python -m pip install -r requirements-portal.txt -r requirements-week4.txt pytest ruff websockets pyyaml
+
+      - name: Download the Java libraries (JUnit, SQLite JDBC)
+        run: python _dev_tools/fetch_java_libs.py
+
+      - name: Lint (real errors only)
+        run: ruff check portal _dev_tools --select E9,F
+
+      - name: Course content lint
+        run: python _dev_tools/lint_content.py
+
+      - name: Verify the Python course (every solution, example and unfinished practice file)
+        run: python _dev_tools/verify.py
+
+      - name: Verify the Java course
+        run: python _dev_tools/verify_java.py
+
+      - name: Unit tests (blueprints, Java helpers, content linter)
+        run: python -m pytest _dev_tools/test_blueprints.py _dev_tools/test_blueprints_java.py _dev_tools/test_java_assist.py _dev_tools/test_lint_content.py -q -p no:cacheprovider
+
+      - name: Extension tests (skipped while there are none)
+        shell: bash
+        run: |
+          set +e
+          python -m pytest _dev_tools -q -p no:cacheprovider -k "test_ex_" --ignore=_dev_tools/test_blueprints.py
+          code=$?
+          if [ "$code" -eq 5 ]; then echo "no extension tests yet"; exit 0; fi
+          exit $code
+
+      - name: Portal smoke tests
+        shell: bash
+        run: |
+          python _dev_tools/portal_smoke.py
+          python _dev_tools/portal_smoke_java.py
+          python _dev_tools/visual_smoke.py
+          python _dev_tools/jviz_smoke.py

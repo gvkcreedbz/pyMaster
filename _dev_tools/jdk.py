@@ -27,7 +27,7 @@ def tool(name: str = "java") -> str:
         return str(home / "bin" / f"{name}{EXE}")
     found = shutil.which(name)
     if not found:
-        raise SystemExit(f"No JDK found. Run: python _dev_tools/fetch_java_libs.py --jdk   (or install JDK 21 and set JAVA_HOME)")
+        raise SystemExit("No JDK found. Run: python _dev_tools/fetch_java_libs.py --jdk   (or install JDK 21 and set JAVA_HOME)")
     return found
 
 

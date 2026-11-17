@@ -13,7 +13,7 @@ for k in ("CURSOR_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY"):
 
 from fastapi.testclient import TestClient  # noqa: E402
 
-from portal import analytics, content, main  # noqa: E402
+from portal import content, main  # noqa: E402
 
 problems = []
 
@@ -234,7 +234,6 @@ with TestClient(main.app, base_url="http://127.0.0.1:8765") as c:
     for bid, needles in expect.items():
         r = c.post(f"/api/blueprints/{bid}/run", headers=H, json={}).json()
         check(f"blueprint demo runs: {bid}", r["ok"] and all(n in r["output"] for n in needles), (r["output"][-400:], r["hint"]))
-    from pathlib import Path as _P
     check("demos leave the originals clean", not list((ROOT / "blueprints").rglob("*.db")) and not list((ROOT / "blueprints").rglob("__pycache__")))
     from portal import db as _db
     _db.run("UPDATE sessions SET active_seconds=120, date='2026-11-10' WHERE id=?", (sid,))

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py-master"
+version = "1.0.0"
+description = "30-day Python and Java courses with a local learning portal (Py Master / Java Master)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "httpx",
+    "pydantic",
+    "requests",
+    "beautifulsoup4",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "pytest",
+    "ruff",
+    "cursor-sdk",
+]
+
+[project.scripts]
+pymaster = "portal.__main__:main_python"
+javamaster = "portal.__main__:main_java"
+
+# The course folders (days/, java/, datasets/, solutions/, blueprints/) are read from the project folder next to
+# portal/, so the supported install is an EDITABLE one from a checkout:  pip install -e .
+[tool.setuptools]
+packages = ["portal"]
+
+[tool.setuptools.package-data]
+portal = ["static/**/*", "jtracer/*.java"]
+
+[tool.ruff]
+line-length = 140

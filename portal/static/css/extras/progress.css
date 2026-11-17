@@ -1,0 +1,65 @@
+/* Progress extension: XP chip + goal ring, popover, Home "Today" card, warm-up modal. Uses the app's CSS variables. */
+.px-chip { display: inline-flex; align-items: center; gap: 7px; padding: 3px 11px 3px 6px; border: 1px solid var(--line); border-radius: 99px;
+  background: var(--panel); color: var(--ink-2); font-size: 12.5px; font-variant-numeric: tabular-nums; cursor: pointer; vertical-align: middle; }
+.px-chip[hidden] { display: none; }
+.px-chip:hover { border-color: var(--muted); color: var(--ink); }
+.px-chip:focus-visible, .px-pop button:focus-visible, .px-pop input:focus-visible, .px-pop select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.px-chip .px-lv { font-weight: 650; color: var(--ink); }
+.px-chip .px-xp { color: var(--muted); }
+.px-chip.met { border-color: var(--good); }
+.px-ring .bg { stroke: var(--line-2); }
+.px-ring .fg { stroke: var(--accent); transition: stroke-dasharray .4s ease; }
+.px-chip.met .px-ring .fg, .px-goal.met .px-ring .fg { stroke: var(--good); }
+
+.px-pop { position: fixed; top: 52px; right: 10px; width: min(380px, calc(100vw - 20px)); max-height: calc(100vh - 70px); overflow-y: auto;
+  padding: 16px 18px; z-index: 90; animation: fade .15s ease both; }
+.px-head { display: flex; align-items: flex-start; gap: 8px; }
+.px-head > div:first-child { flex: 1; }
+.px-lvname { font-size: 19px; font-weight: 650; letter-spacing: -.01em; }
+.px-bar { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; margin: 10px 0 4px; }
+.px-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .4s ease; }
+.px-sec { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13.5px; }
+.px-sec:first-of-type { border-top: 0; }
+.px-goal { display: flex; align-items: center; gap: 12px; }
+.px-goaltxt { flex: 1; }
+.px-goalform { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.px-goalform[hidden] { display: none; }
+.px-goalform input, .px-goalform select { padding: 5px 8px; border: 1px solid var(--line-2); border-radius: var(--radius-s); background: var(--panel); color: var(--ink); font: inherit; }
+.px-goalform input { width: 84px; }
+.px-goalform #px-goalerr { color: var(--bad); flex-basis: 100%; }
+.px-h { font-weight: 600; margin-bottom: 8px; }
+.px-badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+.px-badge { display: flex; flex-direction: column; gap: 2px; padding: 8px 9px; border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--panel-2); min-width: 0; }
+.px-badge b { font-size: 12.5px; line-height: 1.25; }
+.px-badge .small { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+.px-badge .gl { font-size: 17px; line-height: 1; margin-bottom: 3px; color: var(--accent); }
+.px-badge.on { border-color: var(--accent-line); background: var(--accent-soft); }
+.px-badge.off { opacity: .6; }
+.px-badge.off .gl { color: var(--muted); }
+.px-opt { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: var(--ink-2); cursor: pointer; }
+.px-fine { margin-top: 6px; line-height: 1.4; }
+.px-wb { color: var(--ink-2); }
+
+.px-today { margin-top: 16px; }
+.px-today .px-trow h3 { font-size: 16px; }
+.px-today p { margin: 8px 0 0; }
+.px-warmrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.px-due { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; align-items: center; }
+.px-concept { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; text-decoration: none; color: var(--ink-2); }
+.px-concept:hover { border-color: var(--accent-line); color: var(--accent); }
+
+.px-dots { display: flex; gap: 5px; margin: 8px 0 12px; }
+.px-dots i { flex: 1; height: 4px; border-radius: 4px; background: var(--line); }
+.px-dots i.d { background: var(--good); }
+.px-dots i.c { background: var(--accent); }
+.px-ctx { margin-bottom: 6px; }
+.px-q { font-size: 16px; line-height: 1.5; margin: 6px 0 12px; }
+.px-q p, .px-ans p { margin: 0 0 8px; }
+.px-ans { padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--panel-2); margin-bottom: 12px; font-size: 14px; }
+.px-ans[hidden], .px-rate[hidden] { display: none; }
+.px-desc { white-space: pre-wrap; font: 13px/1.5 var(--mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius-s); padding: 10px 12px; max-height: 190px; overflow: auto; }
+.px-acts { margin: 8px 0; }
+.px-rate { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.px-foot { margin-top: 14px; }
+
+@media (max-width: 700px) { .px-chip .px-xp { display: none; } .px-pop { top: 48px; right: 6px; left: 6px; width: auto; } }

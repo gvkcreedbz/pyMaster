@@ -119,7 +119,7 @@ async def main():
         # ---- dock back ------------------------------------------------------------------------------------------
         await play.eval("(async()=>{const m=await import('/static/js/layout.js'); m.dockSelf();})()")
         check("docking restores the playground in main", await main_.until("!document.querySelector('#pane-play').classList.contains('hide')", 8))
-        check("docked playground has the text typed in the other window", await main_.until(f"document.querySelector('#pg .CodeMirror').CodeMirror.getValue().includes('zebra_total')", 6))
+        check("docked playground has the text typed in the other window", await main_.until("document.querySelector('#pg .CodeMirror').CodeMirror.getValue().includes('zebra_total')", 6))
 
         # ---- lesson window follows navigation ------------------------------------------------------------------------
         lesson = await open_tab(f"{BASE}/?pane=lesson&sid={sid}#/day/2/learn")

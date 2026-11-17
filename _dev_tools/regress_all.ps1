@@ -2,7 +2,7 @@
 # Writes a summary to %TEMP%\reg_all.txt. Uses throw-away data dirs, so your progress is untouched.
 $ErrorActionPreference = "Continue"
 $env:PYTHONUTF8 = "1"; $env:PYTHONIOENCODING = "utf-8"
-$py = "$env:TEMP\pyverify\py\python.exe"; if (-not (Test-Path $py)) { $py = "python" }
+$py = Join-Path (Split-Path -Parent $PSScriptRoot) ".tools\py\python.exe"; if (-not (Test-Path $py)) { $py = "python" }
 $out = "$env:TEMP\reg_all.txt"; Remove-Item $out -ErrorAction SilentlyContinue
 function Note($s) { Add-Content -Path $out -Value $s }
 foreach ($t in 'portal_smoke', 'portal_smoke_java', 'visual_smoke', 'jviz_smoke') {
@@ -19,4 +19,6 @@ Note "pytest exit $LASTEXITCODE"
 ([IO.File]::ReadAllText($log) -split "`n" | Select-Object -Last 3) | ForEach-Object { Note "    $_" }
 & $py -W ignore _dev_tools\verify_java.py > "$env:TEMP\reg_vj.log" 2>&1; Note "verify_java exit $LASTEXITCODE"
 & $py -W ignore _dev_tools\verify.py > "$env:TEMP\reg_vp.log" 2>&1; Note "verify (python) exit $LASTEXITCODE"
+& $py -m ruff check portal _dev_tools --select E9,F > "$env:TEMP\reg_ruff.log" 2>&1; Note "ruff exit $LASTEXITCODE"
+& $py -W ignore _dev_tools\lint_content.py > "$env:TEMP\reg_lint.log" 2>&1; Note "lint_content exit $LASTEXITCODE"
 Note "DONE"

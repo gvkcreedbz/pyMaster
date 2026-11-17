@@ -12,8 +12,8 @@ Main.java:7: error: incompatible types: String cannot be converted to int     �
 ```
 ```
 Exception in thread "main" java.lang.NullPointerException: Cannot invoke "String.length()" because "name" is null   ← WHAT
-	at Main.greet(Main.java:12)          ← WHERE: first line in YOUR file = the culprit
-	at Main.main(Main.java:5)            ← who called it (read downwards)
+    at Main.greet(Main.java:12)          ← WHERE: first line in YOUR file = the culprit
+    at Main.main(Main.java:5)            ← who called it (read downwards)
 ```
 
 ## A. Compile errors (before the program runs)

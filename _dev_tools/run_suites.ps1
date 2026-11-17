@@ -1,6 +1,5 @@
 param([string[]]$Suites = @('portal_smoke','test_java_assist','test_blueprints','jviz_smoke','visual_smoke'))
-$py = "$env:TEMP\pyverify\py\python.exe"
-if (-not (Test-Path $py)) { $py = "python" }
+$py = Join-Path (Split-Path -Parent $PSScriptRoot) ".tools\py\python.exe"; if (-not (Test-Path $py)) { $py = "python" }
 $env:PYTHONIOENCODING = "utf-8"; $env:PYTHONUTF8 = "1"
 if (-not $env:PORTAL_DATA) { $env:PORTAL_DATA = "$env:TEMP\ptest_py" }
 $logs = "$env:TEMP\tlogs"; New-Item -ItemType Directory -Force $logs | Out-Null

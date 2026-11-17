@@ -4,7 +4,7 @@ No database access here (ex_struggle.py loads the history and passes it in), so 
 from __future__ import annotations
 import ast
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from . import track
 
 REPEAT_N = 3            # same failure this many runs in a row with the same code
