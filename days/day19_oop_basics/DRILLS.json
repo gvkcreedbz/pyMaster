@@ -1,0 +1,261 @@
+{
+  "day": 19,
+  "drills": [
+    {
+      "id": "d19-parsons",
+      "type": "parsons",
+      "title": "Build the Product class",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them) so the program defines a Product class, creates one book and prints its price after a 25% discount. Two lines do not belong.",
+      "lines": [
+        "class Product:",
+        "def __init__(self, name, price):",
+        "self.name = name",
+        "self.price = price",
+        "def discounted_price(self, percent):",
+        "return round(self.price * (1 - percent / 100), 2)",
+        "book = Product(\"Book\", 120)",
+        "print(book.discounted_price(25))"
+      ],
+      "indent": [
+        0,
+        1,
+        2,
+        2,
+        1,
+        2,
+        0,
+        0
+      ],
+      "distractors": [
+        "def _init_(self, name, price):",
+        "price = price"
+      ],
+      "explain": "The class header comes first, its methods are indented one level under it, and the statements inside each method one level deeper. __init__ needs double underscores on both sides to run automatically when Product(...) is called, and attributes are stored with self. (price = price would only set a local variable that disappears). The object is created after the class is defined, then its method is called.",
+      "concepts": [
+        "class and object",
+        "__init__",
+        "self",
+        "methods"
+      ],
+      "output": "90.0"
+    },
+    {
+      "id": "d19-fill",
+      "type": "fill",
+      "title": "Each counter keeps its own count",
+      "viz": true,
+      "prompt": "Fill the three blanks so every TeaCounter object counts its own cups.",
+      "code": [
+        "class TeaCounter:",
+        "    def __init__(___):",
+        "        self.cups = 0",
+        "    def serve(self):",
+        "        ___.cups ___ 1",
+        "",
+        "a = TeaCounter()",
+        "b = TeaCounter()",
+        "a.serve()",
+        "a.serve()",
+        "b.serve()",
+        "print(a.cups, b.cups)"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "self"
+          ],
+          "options": [
+            "self",
+            "this",
+            "cups"
+          ]
+        },
+        {
+          "answers": [
+            "self"
+          ],
+          "options": [
+            "self",
+            "this",
+            "TeaCounter"
+          ]
+        },
+        {
+          "answers": [
+            "+="
+          ],
+          "options": [
+            "+=",
+            "=+",
+            "=="
+          ]
+        }
+      ],
+      "explain": "Every method receives the object it works on as its first parameter, by convention called self (Python passes it for you: a.serve() means TeaCounter.serve(a)). self.cups is the cups of that one object, so a ends with 2 and b with 1. this is Java, not Python. Careful with =+: it means \"set to +1\", so the count would never go above 1.",
+      "concepts": [
+        "self",
+        "instance attributes",
+        "objects keep their own state"
+      ],
+      "output": "2 1"
+    },
+    {
+      "id": "d19-predict",
+      "type": "predict",
+      "title": "One list for every cart?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "class Cart:",
+        "    items = []",
+        "",
+        "    def __init__(self, owner):",
+        "        self.owner = owner",
+        "",
+        "    def add(self, item):",
+        "        self.items.append(item)",
+        "",
+        "aarav = Cart(\"Aarav\")",
+        "diya = Cart(\"Diya\")",
+        "aarav.add(\"pen\")",
+        "print(diya.items, len(aarav.items))",
+        "print(aarav.items is diya.items)"
+      ],
+      "explain": "items = [] is written at class level, so it is a class attribute: one single list shared by every Cart. aarav.add(\"pen\") changes that shared list, and diya sees the pen too. The fix is to create the list per object inside __init__ with self.items = [].",
+      "concepts": [
+        "class attribute vs instance attribute",
+        "shared mutable state"
+      ],
+      "expected": "['pen'] 1\nTrue"
+    },
+    {
+      "id": "d19-bug",
+      "type": "bug",
+      "title": "The name that vanished",
+      "viz": true,
+      "prompt": "The program stops with an AttributeError when it prints the product. Click the line that causes it, then choose the right fix.",
+      "code": [
+        "class Product:",
+        "    def __init__(self, name, price):",
+        "        name = name",
+        "        self.price = price",
+        "",
+        "    def __str__(self):",
+        "        return f\"{self.name} (Rs. {self.price})\"",
+        "",
+        "pen = Product(\"Pen\", 10)",
+        "print(pen)"
+      ],
+      "bug_lines": [
+        3
+      ],
+      "answer": 0,
+      "options": [
+        "        self.name = name",
+        "        self.name == name",
+        "        self.name = self.name",
+        "        name = self.name"
+      ],
+      "fixed_code": [
+        "class Product:",
+        "    def __init__(self, name, price):",
+        "        self.name = name",
+        "        self.price = price",
+        "",
+        "    def __str__(self):",
+        "        return f\"{self.name} (Rs. {self.price})\"",
+        "",
+        "pen = Product(\"Pen\", 10)",
+        "print(pen)"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "AttributeError"
+      },
+      "explain": "name = name copies the parameter into a local variable that disappears when __init__ ends, so the object never gets a name attribute. Attributes must be stored on the object with self.name = name. Other lines then read self.name and fail with AttributeError: 'Product' object has no attribute 'name'.",
+      "concepts": [
+        "self",
+        "__init__",
+        "AttributeError"
+      ],
+      "output": "Pen (Rs. 10)"
+    },
+    {
+      "id": "d19-review",
+      "type": "review",
+      "title": "Review the AI's bank account",
+      "prompt": "An AI assistant wrote this BankAccount class. It runs and the numbers look right, but tick the statements that point at real problems.",
+      "code": [
+        "class BankAccount:",
+        "    history = []",
+        "",
+        "    def __init__(self, owner, balance=0):",
+        "        self.owner = owner",
+        "        self.balance = balance",
+        "",
+        "    def deposit(self, amount):",
+        "        self.balance += amount",
+        "        self.history.append((\"deposit\", amount))",
+        "",
+        "    def withdraw(self, amount):",
+        "        if amount > self.balance:",
+        "            return False",
+        "        self.balance -= amount",
+        "        self.history.append((\"withdraw\", amount))",
+        "        return True",
+        "",
+        "a = BankAccount(\"Aarav\", 1000)",
+        "b = BankAccount(\"Diya\")",
+        "a.deposit(500)",
+        "print(a.withdraw(2000), a.withdraw(300))",
+        "b.deposit(75)",
+        "print(a.balance, b.balance, len(b.history))"
+      ],
+      "issues": [
+        {
+          "id": "shared-history",
+          "text": "history is a class attribute, so every account shares one list",
+          "why": "The last line prints 3 for Diya's history although she made one deposit: Aarav's transactions are in the same list. Create the list per object with self.history = [] in __init__.",
+          "lines": [
+            2,
+            10,
+            16
+          ]
+        },
+        {
+          "id": "negative-deposit",
+          "text": "deposit accepts zero and negative amounts, so a deposit can take money out",
+          "why": "The rules of the account should live inside the class. deposit(-500) would reduce the balance and be recorded as a deposit. Check amount <= 0 and raise a ValueError (as withdraw already guards its own rule).",
+          "lines": [
+            8,
+            9
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "default-zero",
+          "text": "balance=0 is a mutable default argument that will be shared",
+          "why": "Only mutable defaults such as [] or {} are shared between calls. An integer cannot be changed in place, so balance=0 is safe."
+        },
+        {
+          "id": "greater-than",
+          "text": "withdraw should use >= so that the whole balance cannot be taken",
+          "why": "With > only amounts larger than the balance are refused. Withdrawing exactly the balance is allowed, which is the normal rule."
+        },
+        {
+          "id": "tuple-history",
+          "text": "Storing the history as (name, amount) tuples is wrong",
+          "why": "Tuples are a fine choice for a record that should not change: each entry holds a kind and an amount."
+        }
+      ],
+      "explain": "In a class, ask where each piece of data lives (per object or shared by all) and whether the class protects its own rules. The shared list is easy to miss because the balances all look correct.",
+      "concepts": [
+        "class attribute vs instance attribute",
+        "encapsulation",
+        "reading code critically"
+      ]
+    }
+  ]
+}

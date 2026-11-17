@@ -1,0 +1,289 @@
+{
+  "day": 9,
+  "drills": [
+    {
+      "id": "j09-parsons",
+      "type": "parsons",
+      "title": "A shopping cart that grows",
+      "viz": true,
+      "prompt": "Arrange the lines into a program that builds a cart, replaces the bread and prints the cart. The two imports can go in either order. Two lines do not belong.",
+      "lines": [
+        "import java.util.ArrayList;",
+        "import java.util.List;",
+        "class Cart {",
+        "public static void main(String[] args) {",
+        "List<String> cart = new ArrayList<>();",
+        "cart.add(\"milk\");",
+        "cart.add(\"bread\");",
+        "cart.set(1, \"brown bread\");",
+        "System.out.println(cart);",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "List<String> cart = new List<>();",
+        "cart[1] = \"brown bread\";"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      ],
+      "explain": "Write the variable's type as the interface List<String> and create the real list with new ArrayList<>(). List alone is only a description and cannot be created with new. Lists have no square-bracket access: you read with get(i) and replace with set(i, value). The imports come first, before the class.",
+      "concepts": [
+        "ArrayList",
+        "add, get, set",
+        "List vs ArrayList"
+      ],
+      "output": "[milk, brown bread]"
+    },
+    {
+      "id": "j09-fill",
+      "type": "fill",
+      "title": "Collections helpers and sets",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the program prints the goal output.",
+      "code": [
+        "import java.util.Collections;",
+        "import java.util.HashSet;",
+        "import java.util.List;",
+        "import java.util.TreeSet;",
+        "List<Integer> marks = List.of(72, 95, 88, 95);",
+        "System.out.println(Collections.___(marks));",
+        "System.out.println(Collections.___(marks, 95));",
+        "System.out.println(new ___<>(marks).size());",
+        "System.out.println(marks.___(88));"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "max"
+          ],
+          "options": [
+            "max",
+            "min",
+            "sum"
+          ]
+        },
+        {
+          "answers": [
+            "frequency"
+          ],
+          "options": [
+            "frequency",
+            "count",
+            "size"
+          ]
+        },
+        {
+          "answers": [
+            "HashSet",
+            "TreeSet"
+          ],
+          "options": [
+            "HashSet",
+            "TreeSet",
+            "List"
+          ]
+        },
+        {
+          "answers": [
+            "contains"
+          ],
+          "options": [
+            "contains",
+            "has",
+            "indexOf"
+          ]
+        }
+      ],
+      "explain": "Collections is the helper class for lists: max gives the biggest value and frequency counts how often a value appears (95 twice). A set keeps every value only once, so copying the list into a HashSet and asking for size() counts the different marks (3). contains answers true or false, while indexOf would print a position.",
+      "concepts": [
+        "Collections",
+        "HashSet",
+        "contains"
+      ],
+      "output": [
+        "95",
+        "2",
+        "3",
+        "true"
+      ]
+    },
+    {
+      "id": "j09-predict",
+      "type": "predict",
+      "title": "Position or value?",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.util.ArrayList;",
+        "import java.util.HashSet;",
+        "import java.util.List;",
+        "import java.util.Set;",
+        "List<Integer> marks = new ArrayList<>(List.of(72, 95, 88, 60));",
+        "marks.remove(1);",
+        "marks.remove(Integer.valueOf(60));",
+        "System.out.println(marks);",
+        "Set<String> seen = new HashSet<>();",
+        "System.out.println(seen.add(\"aarav\") + \" \" + seen.add(\"aarav\"));",
+        "Integer p = 1000, q = 1000;",
+        "System.out.println((p == q) + \" \" + p.equals(q));"
+      ],
+      "explain": "remove(1) has an int inside, so it removes the item at position 1 (the 95). remove(Integer.valueOf(60)) has an Integer, so it removes the value 60. add on a set says true only the first time. Integer objects above 127 are separate objects, so == is false while equals is true: always compare wrapper types with equals.",
+      "concepts": [
+        "remove by position or value",
+        "Set.add result",
+        "Integer equals vs =="
+      ],
+      "expected": [
+        "[72, 88]",
+        "true false",
+        "false true"
+      ]
+    },
+    {
+      "id": "j09-bug",
+      "type": "bug",
+      "title": "A menu that refuses new items",
+      "viz": true,
+      "prompt": "The shop wants to add jalebi to its menu list, but the program crashes while it runs. Click the line that has to change (not the line that crashes) and choose the fix.",
+      "code": [
+        "import java.util.ArrayList;",
+        "import java.util.List;",
+        "class Menu {",
+        "    public static void main(String[] args) {",
+        "        List<String> items = List.of(\"chai\", \"samosa\");",
+        "        items.add(\"jalebi\");",
+        "        System.out.println(items);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        5
+      ],
+      "answer": 0,
+      "options": [
+        "List<String> items = new ArrayList<>(List.of(\"chai\", \"samosa\"));",
+        "List<String> items = new List<>(\"chai\", \"samosa\");",
+        "List<String> items = List.copyOf(List.of(\"chai\", \"samosa\"));",
+        "ArrayList<String> items = List.of(\"chai\", \"samosa\");"
+      ],
+      "fixed_code": [
+        "import java.util.ArrayList;",
+        "import java.util.List;",
+        "class Menu {",
+        "    public static void main(String[] args) {",
+        "        List<String> items = new ArrayList<>(List.of(\"chai\", \"samosa\"));",
+        "        items.add(\"jalebi\");",
+        "        System.out.println(items);",
+        "    }",
+        "}"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "UnsupportedOperationException"
+      },
+      "explain": "List.of makes a list that can never change: add, remove and set all throw UnsupportedOperationException. The crash shows at line 6, but the cause is how the list was made. Copy it into an ArrayList when you need changes. List.copyOf is read-only too.",
+      "concepts": [
+        "List.of is read-only",
+        "ArrayList copy",
+        "UnsupportedOperationException"
+      ],
+      "output": "[chai, samosa, jalebi]"
+    },
+    {
+      "id": "j09-review",
+      "type": "review",
+      "title": "Review the AI's mutual friends",
+      "prompt": "An AI assistant wrote this friends program. It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.ArrayList;",
+        "import java.util.HashSet;",
+        "import java.util.List;",
+        "import java.util.Set;",
+        "",
+        "class Mutual {",
+        "    public static void main(String[] args) {",
+        "        Set<String> mine = new HashSet<>(List.of(\"aarav\", \"diya\", \"kabir\"));",
+        "        Set<String> hers = new HashSet<>(List.of(\"diya\", \"kabir\", \"zoya\"));",
+        "        mine.retainAll(hers);",
+        "        System.out.println(\"Mutual: \" + mine);",
+        "        mine.addAll(hers);",
+        "        System.out.println(\"Everyone, A-Z: \" + mine);",
+        "        List<String> visits = List.of(\"aarav\", \"diya\", \"aarav\", \"kabir\");",
+        "        List<String> unique = new ArrayList<>();",
+        "        for (String v : visits) {",
+        "            if (!unique.contains(v)) {",
+        "                unique.add(v);",
+        "            }",
+        "        }",
+        "        System.out.println(unique);",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "mutated-set",
+          "text": "retainAll changes mine itself, so the later union is wrong and aarav is missing from Everyone",
+          "why": "retainAll, addAll and removeAll change the set they are called on. Work on a copy: Set<String> both = new HashSet<>(mine); both.retainAll(hers);",
+          "lines": [
+            10,
+            12
+          ]
+        },
+        {
+          "id": "hashset-order",
+          "text": "The line says A-Z but a HashSet makes no promise about order",
+          "why": "Never rely on HashSet order. Copy into a TreeSet (new TreeSet<>(all)) when the report must be sorted.",
+          "lines": [
+            13
+          ]
+        },
+        {
+          "id": "slow-contains",
+          "text": "unique.contains(v) walks the whole list on every round, which gets slow for millions of visits",
+          "why": "contains on a list looks at items one by one. A HashSet seen finds an item almost instantly: if (seen.add(v)) { unique.add(v); } keeps the order and stays fast.",
+          "lines": [
+            17
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "set-of-instead",
+          "text": "new HashSet<>(List.of(...)) is pointless: use Set.of(...) directly",
+          "why": "Set.of is read-only, so retainAll and addAll would throw UnsupportedOperationException. Copying into a HashSet gives a changeable set."
+        },
+        {
+          "id": "declared-as-set",
+          "text": "mine should be declared as HashSet<String>, not Set<String>",
+          "why": "Declaring the variable with the interface and creating the class on the right is the recommended Java habit."
+        },
+        {
+          "id": "modify-while-loop",
+          "text": "unique.add(v) changes a list while the loop is running",
+          "why": "The loop walks over visits and the code adds to unique, which is a different list. Only changing the looped list would be a problem."
+        }
+      ],
+      "explain": "Set operations that change the set in place, unordered HashSets and list.contains in a loop are the typical collection slips of generated code. All of them compile and produce believable output on three items.",
+      "concepts": [
+        "set operations copy first",
+        "HashSet vs TreeSet",
+        "contains cost"
+      ]
+    }
+  ]
+}

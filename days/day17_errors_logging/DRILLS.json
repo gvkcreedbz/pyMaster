@@ -1,0 +1,234 @@
+{
+  "day": 17,
+  "drills": [
+    {
+      "id": "d17-parsons",
+      "type": "parsons",
+      "title": "Survive a bad amount",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them) so the program tries to convert the text to a number and, because the text is not a number, prints the error message and then the cleanup line. Two lines do not belong.",
+      "lines": [
+        "text = \"abc\"",
+        "try:",
+        "amount = int(text)",
+        "except ValueError:",
+        "print(\"Please type digits only\")",
+        "else:",
+        "print(\"OK:\", amount)",
+        "finally:",
+        "print(\"checked\")"
+      ],
+      "indent": [
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1
+      ],
+      "distractors": [
+        "except TypeError:",
+        "catch ValueError:"
+      ],
+      "explain": "The risky line goes under try. int(\"abc\") raises a ValueError, so the except ValueError block runs and else is skipped (else runs only when nothing went wrong). finally always runs last, whatever happened. except TypeError would not catch it, and catch is not a Python keyword.",
+      "concepts": [
+        "try / except / else / finally",
+        "ValueError"
+      ],
+      "output": "Please type digits only\nchecked"
+    },
+    {
+      "id": "d17-fill",
+      "type": "fill",
+      "title": "Raise it, then catch it",
+      "viz": true,
+      "prompt": "Fill the two blanks so the function stops with an error when the withdrawal is too big, and the caller catches that error and prints its message.",
+      "code": [
+        "def withdraw(balance, amount):",
+        "    if amount > balance:",
+        "        ___ ValueError(f\"Need Rs. {amount - balance} more\")",
+        "    return balance - amount",
+        "",
+        "try:",
+        "    withdraw(2000, 5000)",
+        "except ___ as e:",
+        "    print(\"Refused:\", e)"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "raise"
+          ],
+          "options": [
+            "raise",
+            "return",
+            "throw"
+          ]
+        },
+        {
+          "answers": [
+            "ValueError",
+            "Exception"
+          ],
+          "options": [
+            "ValueError",
+            "Exception",
+            "KeyError"
+          ]
+        }
+      ],
+      "explain": "raise creates the error and stops the function on the spot. return ValueError(...) would only hand back an error object that nobody checks, so nothing would be refused. except ValueError as e catches exactly that type and e holds the message. Exception also catches it, but naming the specific type is better: a wrong type such as KeyError would let the error crash the program.",
+      "concepts": [
+        "raise",
+        "except ... as e",
+        "catch specific errors"
+      ],
+      "output": "Refused: Need Rs. 3000 more"
+    },
+    {
+      "id": "d17-predict",
+      "type": "predict",
+      "title": "What lands in the log?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output. The log is written to a small file that the program deletes at the end.",
+      "code": [
+        "import logging",
+        "from pathlib import Path",
+        "",
+        "log = Path(\"drill_app.log\")",
+        "logging.basicConfig(filename=log, filemode=\"w\", level=logging.INFO,",
+        "                    format=\"%(levelname)s: %(message)s\", encoding=\"utf-8\")",
+        "logging.debug(\"details for developers\")",
+        "logging.info(\"order 77 placed\")",
+        "logging.warning(\"stock is low\")",
+        "try:",
+        "    1 / 0",
+        "except ZeroDivisionError:",
+        "    logging.error(\"report failed\")",
+        "logging.shutdown()",
+        "print(log.read_text(encoding=\"utf-8\"), end=\"\")",
+        "log.unlink()"
+      ],
+      "explain": "The levels are DEBUG < INFO < WARNING < ERROR < CRITICAL, and a logger only keeps messages at or above its level. With level=logging.INFO the debug line is dropped, while info, warning and error are written, each prefixed by the level name from the format string. Nothing appears on screen from the logging calls: they go to the file, which the program reads back.",
+      "concepts": [
+        "logging levels",
+        "basicConfig",
+        "try / except"
+      ],
+      "expected": "INFO: order 77 placed\nWARNING: stock is low\nERROR: report failed"
+    },
+    {
+      "id": "d17-bug",
+      "type": "bug",
+      "title": "Catching the wrong error",
+      "viz": true,
+      "prompt": "The program has an except block, but it still crashes with a traceback. Click the faulty line and choose the fix.",
+      "code": [
+        "text = \"12.5\"",
+        "try:",
+        "    amount = int(text)",
+        "except TypeError:",
+        "    print(\"Please type digits only\")",
+        "else:",
+        "    print(\"OK:\", amount)"
+      ],
+      "bug_lines": [
+        4
+      ],
+      "answer": 0,
+      "options": [
+        "except ValueError:",
+        "except KeyError:",
+        "except (TypeError, KeyError):",
+        "except ZeroDivisionError:"
+      ],
+      "fixed_code": [
+        "text = \"12.5\"",
+        "try:",
+        "    amount = int(text)",
+        "except ValueError:",
+        "    print(\"Please type digits only\")",
+        "else:",
+        "    print(\"OK:\", amount)"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "ValueError"
+      },
+      "explain": "An except block only catches the types it names. int(\"12.5\") raises a ValueError (the text is the right type, str, but the wrong content), not a TypeError, so the error passes through and the traceback appears. Read the last line of the traceback to find the real exception name, then catch that one.",
+      "concepts": [
+        "except types",
+        "ValueError vs TypeError",
+        "reading a traceback"
+      ],
+      "output": "Please type digits only"
+    },
+    {
+      "id": "d17-review",
+      "type": "review",
+      "title": "Review the AI's withdraw function",
+      "prompt": "An AI assistant wrote this withdraw function so that 'it never crashes'. It runs, but tick the statements that point at real problems.",
+      "code": [
+        "def withdraw(balance, amount):",
+        "    try:",
+        "        if amount > balance:",
+        "            raise ValueError(\"Insufficient funds\")",
+        "        return balance - amount",
+        "    except:",
+        "        pass",
+        "    return balance",
+        "",
+        "print(withdraw(2000, 500))",
+        "print(withdraw(2000, 5000))",
+        "print(withdraw(2000, \"500\"))"
+      ],
+      "issues": [
+        {
+          "id": "bare-except",
+          "text": "A bare except: with pass swallows every error, including real bugs like the TypeError for \"500\"",
+          "why": "The call with the text \"500\" is a programming mistake, but it is silently ignored and the balance comes back unchanged. Catch only the specific error you expect, and never leave except: pass without at least logging it.",
+          "lines": [
+            6,
+            7
+          ]
+        },
+        {
+          "id": "failure-looks-like-success",
+          "text": "A refused withdrawal returns the old balance, so the caller cannot tell it from a successful one, and nothing is logged",
+          "why": "withdraw(2000, 5000) prints 2000, exactly like a withdrawal of 0 would. Let the ValueError reach the caller (or return a clear result) and use logging.error or logging.exception so engineers can see what happened.",
+          "lines": [
+            3,
+            4,
+            8
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "return-in-try",
+          "text": "A return statement is not allowed inside a try block",
+          "why": "return works anywhere in a function, including inside try. If no error happens, the function returns from there."
+        },
+        {
+          "id": "greater-than",
+          "text": "The check should be amount >= balance",
+          "why": "Withdrawing exactly the whole balance is allowed, so only amount > balance should be refused."
+        },
+        {
+          "id": "crash-on-raise",
+          "text": "The raise ValueError line will crash the program for 5000",
+          "why": "It is caught by the except block in the same function, which is the problem: the error never reaches the caller."
+        }
+      ],
+      "explain": "Code that never crashes is not the same as code that works. When you see except: pass, ask what errors it hides and how anyone would find out. Good error handling catches specific exceptions, reports them clearly and leaves a trace in the log.",
+      "concepts": [
+        "bare except",
+        "swallowed exceptions",
+        "logging"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,315 @@
+{
+  "day": 27,
+  "drills": [
+    {
+      "id": "j27-parsons",
+      "type": "parsons",
+      "title": "A URL with encoded parameters",
+      "wrap": true,
+      "prompt": "Arrange the lines so the program builds a search URL whose text parameter is safely encoded (no network is used, the URL is only printed). The imports can swap, and so can the two variables. Two lines do not belong.",
+      "lines": [
+        "import java.net.URLEncoder;",
+        "import java.nio.charset.StandardCharsets;",
+        "String base = \"http://127.0.0.1:8080/search\";",
+        "String q = \"tea & coffee\";",
+        "String url = base + \"?q=\" + URLEncoder.encode(q, StandardCharsets.UTF_8) + \"&page=\" + 2;",
+        "System.out.println(url);"
+      ],
+      "distractors": [
+        "String url = base + \"?q=\" + q + \"&page=\" + 2;",
+        "String url = base + \"?q=\" + URLEncoder.encode(q, StandardCharsets.UTF8) + \"&page=\" + 2;"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5
+        ],
+        [
+          0,
+          1,
+          3,
+          2,
+          4,
+          5
+        ],
+        [
+          1,
+          0,
+          3,
+          2,
+          4,
+          5
+        ]
+      ],
+      "explain": "User text must never be glued into a URL as it is: the & in \"tea & coffee\" would start a new parameter. URLEncoder.encode(text, StandardCharsets.UTF_8) turns the space into + and the & into %26, so the server reads one value. The constant is StandardCharsets.UTF_8 with an underscore.",
+      "concepts": [
+        "URLEncoder",
+        "query parameters",
+        "StandardCharsets"
+      ],
+      "output": "http://127.0.0.1:8080/search?q=tea+%26+coffee&page=2"
+    },
+    {
+      "id": "j27-fill",
+      "type": "fill",
+      "title": "POST a JSON body to a local server",
+      "wrap": true,
+      "prompt": "The program starts its own server on this computer, POSTs a JSON order to it and prints the answer. Fill the blanks so it prints the goal output.",
+      "code": [
+        "import com.sun.net.httpserver.*;",
+        "import java.io.*;",
+        "import java.net.*;",
+        "import java.net.http.*;",
+        "HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);",
+        "server.createContext(\"/orders\", ex -> {",
+        "    String reply = ex.getRequestHeaders().getFirst(\"Content-Type\") + \" | \"",
+        "            + new String(ex.getRequestBody().readAllBytes());",
+        "    byte[] bytes = reply.getBytes();",
+        "    ex.sendResponseHeaders(201, bytes.length);",
+        "    try (OutputStream out = ex.getResponseBody()) { out.write(bytes); }",
+        "});",
+        "server.start();",
+        "int port = server.getAddress().getPort();",
+        "String json = \"{\\\"customer\\\":\\\"Asha\\\",\\\"qty\\\":3}\";",
+        "HttpRequest post = HttpRequest.newBuilder(URI.create(\"http://127.0.0.1:\" + port + \"/orders\"))",
+        "        .header(___, \"application/json\")",
+        "        .___(HttpRequest.BodyPublishers.___(json))",
+        "        .build();",
+        "HttpResponse<String> res = HttpClient.newHttpClient().send(post, HttpResponse.BodyHandlers.ofString());",
+        "System.out.println(res.statusCode() + \" \" + res.body());",
+        "server.stop(0);"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "\"Content-Type\""
+          ],
+          "options": [
+            "\"Content-Type\"",
+            "\"Accept\"",
+            "\"Content-Length\""
+          ]
+        },
+        {
+          "answers": [
+            "POST"
+          ],
+          "options": [
+            "POST",
+            "post",
+            "SEND"
+          ]
+        },
+        {
+          "answers": [
+            "ofString"
+          ],
+          "options": [
+            "ofString",
+            "ofText",
+            "of"
+          ]
+        }
+      ],
+      "explain": "A POST needs two things: the Content-Type header, which tells the server how to read the body, and POST(...) with a body publisher built from the JSON text. Accept only says what the client wants back, and Content-Length is set by the client itself (the library refuses it). The builder methods are written exactly POST and ofString. Last line: always stop the server, or the program would not end.",
+      "concepts": [
+        "POST with a JSON body",
+        "Content-Type header",
+        "BodyPublishers",
+        "stopping the server"
+      ],
+      "output": "201 application/json | {\"customer\":\"Asha\",\"qty\":3}"
+    },
+    {
+      "id": "j27-predict",
+      "type": "predict",
+      "title": "A 404 is an answer, not an exception",
+      "wrap": true,
+      "prompt": "The program starts a local server that knows only /ok, then asks for two paths. Type exactly what it prints, one line per line of output.",
+      "code": [
+        "import com.sun.net.httpserver.*;",
+        "import java.io.*;",
+        "import java.net.*;",
+        "import java.net.http.*;",
+        "HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);",
+        "server.createContext(\"/ok\", ex -> {",
+        "    byte[] bytes = \"fine\".getBytes();",
+        "    ex.sendResponseHeaders(200, bytes.length);",
+        "    try (OutputStream out = ex.getResponseBody()) { out.write(bytes); }",
+        "});",
+        "server.start();",
+        "String base = \"http://127.0.0.1:\" + server.getAddress().getPort();",
+        "HttpClient client = HttpClient.newHttpClient();",
+        "for (String path : new String[]{\"/ok\", \"/nope\"}) {",
+        "    HttpRequest request = HttpRequest.newBuilder(URI.create(base + path)).build();",
+        "    HttpResponse<String> r = client.send(request, HttpResponse.BodyHandlers.ofString());",
+        "    System.out.println(path + \" -> \" + r.statusCode());",
+        "}",
+        "server.stop(0);",
+        "System.out.println(\"done\");"
+      ],
+      "explain": "The server has no context for /nope, so it answers 404 by itself. send(...) only throws when the connection breaks; a 404 comes back as a normal response, so the loop carries on, prints the status code and reaches done. That is why client code must look at statusCode() and not assume the body is the data it asked for.",
+      "concepts": [
+        "status codes",
+        "404 is not an exception",
+        "HttpClient.send"
+      ],
+      "expected": "/ok -> 200\n/nope -> 404\ndone"
+    },
+    {
+      "id": "j27-bug",
+      "type": "bug",
+      "title": "30 is not a Double",
+      "prompt": "A JSON reader returns whole numbers as Long and numbers with a decimal point as Double. The reading of {\"temperature_2m\": 30} crashes. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Weather {",
+        "    public static void main(String[] args) {",
+        "        // what a JSON reader returns for {\"temperature_2m\": 30, \"wind_speed_10m\": 12.3}",
+        "        Map<String, Object> current = Map.of(\"temperature_2m\", 30L, \"wind_speed_10m\", 12.3);",
+        "        double temp = (Double) current.get(\"temperature_2m\");",
+        "        double wind = (Double) current.get(\"wind_speed_10m\");",
+        "        System.out.println(temp + \" C, wind \" + wind);",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.util.*;",
+        "",
+        "class Weather {",
+        "    public static void main(String[] args) {",
+        "        // what a JSON reader returns for {\"temperature_2m\": 30, \"wind_speed_10m\": 12.3}",
+        "        Map<String, Object> current = Map.of(\"temperature_2m\", 30L, \"wind_speed_10m\", 12.3);",
+        "        double temp = ((Number) current.get(\"temperature_2m\")).doubleValue();",
+        "        double wind = (Double) current.get(\"wind_speed_10m\");",
+        "        System.out.println(temp + \" C, wind \" + wind);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        7
+      ],
+      "answer": 0,
+      "options": [
+        "double temp = ((Number) current.get(\"temperature_2m\")).doubleValue();",
+        "double temp = (double) current.get(\"temperature_2m\");",
+        "double temp = Double.parseDouble(current.get(\"temperature_2m\"));",
+        "double temp = (Double) current.getOrDefault(\"temperature_2m\", 0.0);"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "ClassCastException"
+      },
+      "explain": "30 has no decimal point, so it is a Long, and a Long cannot be cast to Double (ClassCastException). Number is the common parent of Long and Double: cast to Number and call doubleValue() and both kinds work. A (double) cast on an Object still expects a Double, getOrDefault does not change the type of the value, and parseDouble wants a String, not an Object.",
+      "concepts": [
+        "JSON numbers",
+        "Number.doubleValue",
+        "ClassCastException"
+      ],
+      "output": "30.0 C, wind 12.3"
+    },
+    {
+      "id": "j27-review",
+      "type": "review",
+      "title": "Review the AI's order lookup",
+      "prompt": "An AI assistant wrote this client for a local test server. It compiles and runs, but tick the real problems (there are four).",
+      "code": [
+        "import com.sun.net.httpserver.HttpServer;",
+        "import java.io.OutputStream;",
+        "import java.net.InetAddress;",
+        "import java.net.InetSocketAddress;",
+        "import java.net.URI;",
+        "import java.net.http.HttpClient;",
+        "import java.net.http.HttpRequest;",
+        "import java.net.http.HttpResponse;",
+        "",
+        "class Dashboard {",
+        "    static final String API_KEY = \"sk-live-7f3a91c2\";",
+        "",
+        "    public static void main(String[] args) throws Exception {",
+        "        HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);",
+        "        server.createContext(\"/orders/\", ex -> {",
+        "            byte[] body = \"{\\\"error\\\":\\\"not found\\\"}\".getBytes();",
+        "            ex.sendResponseHeaders(404, body.length);",
+        "            try (OutputStream out = ex.getResponseBody()) { out.write(body); }",
+        "        });",
+        "        server.start();",
+        "        HttpClient client = HttpClient.newHttpClient();",
+        "        String base = \"http://127.0.0.1:\" + server.getAddress().getPort();",
+        "        HttpRequest request = HttpRequest.newBuilder(URI.create(base + \"/orders/42\"))",
+        "                .header(\"Authorization\", \"Bearer \" + API_KEY)",
+        "                .build();",
+        "        String json = client.send(request, HttpResponse.BodyHandlers.ofString()).body();",
+        "        System.out.println(\"Order says: \" + json);",
+        "        server.stop(0);",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "hardcoded-key",
+          "text": "The API key is written into the source code",
+          "why": "A key in code ends up in Git and in every copy of the file. Read it from the environment (System.getenv(\"API_TOKEN\")) and send it only in the Authorization header.",
+          "lines": [
+            11
+          ]
+        },
+        {
+          "id": "no-timeout",
+          "text": "The request and the client have no timeout",
+          "why": "If the server never answers, send(...) waits for ever. Add .timeout(Duration.ofSeconds(10)) to the request and a connectTimeout to the client.",
+          "lines": [
+            21,
+            23
+          ]
+        },
+        {
+          "id": "status-ignored",
+          "text": "The status code is never checked, so the 404 error body is printed as if it were the order",
+          "why": "A 404 or 500 is a normal response, not an exception. Look at statusCode() first and only treat a 2xx body as data; otherwise report the failure.",
+          "lines": [
+            26,
+            27
+          ]
+        },
+        {
+          "id": "stop-not-finally",
+          "text": "server.stop(0) is not in a finally block",
+          "why": "If anything before it throws (a timeout, a broken connection), the server thread keeps running and the program never ends. Wrap the work in try and stop the server in finally.",
+          "lines": [
+            28
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "get-default",
+          "text": "The request never says GET, so it is not sent as a GET",
+          "why": "HttpRequest.newBuilder(...) builds a GET unless you call POST, PUT or DELETE."
+        },
+        {
+          "id": "port-zero",
+          "text": "Port 0 is not a valid port; it should be 8080",
+          "why": "Port 0 asks the system for any free port, and getAddress().getPort() gives the real one. A fixed 8080 may already be used by another program."
+        },
+        {
+          "id": "loopback-public",
+          "text": "The server can be reached by anyone on the internet",
+          "why": "It is bound to the loopback address (127.0.0.1), so only this computer can connect."
+        }
+      ],
+      "explain": "For generated HTTP code run through a short checklist: secrets, timeouts, status codes, cleanup. The server-side lines were fine.",
+      "concepts": [
+        "secrets",
+        "timeouts",
+        "checking status codes",
+        "cleanup in finally"
+      ]
+    }
+  ]
+}

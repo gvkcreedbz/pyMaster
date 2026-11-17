@@ -1,0 +1,277 @@
+{
+  "day": 29,
+  "drills": [
+    {
+      "id": "d29-parsons",
+      "type": "parsons",
+      "title": "One function, one job: transform",
+      "viz": true,
+      "prompt": "Arrange (and indent) the lines so a transform function drops duplicate orders and cleans the region names, and the program prints how many rows went in and out and the cleaned regions. The raw table may be created before or after the function. Two lines do not belong.",
+      "lines": [
+        "import pandas as pd",
+        "def transform(raw):",
+        "df = raw.drop_duplicates()",
+        "df[\"region\"] = df[\"region\"].str.strip().str.title()",
+        "return df",
+        "raw = pd.DataFrame({\"region\": [\" east\", \" east\", \"West \"], \"amount\": [100, 100, 50]})",
+        "clean = transform(raw)",
+        "print(len(raw), \"->\", len(clean))",
+        "print(clean[\"region\"].tolist())"
+      ],
+      "indent": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "alternatives": [
+        [
+          0,
+          5,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8
+        ]
+      ],
+      "distractors": [
+        "df = raw",
+        "df[\"region\"] = df[\"region\"].strip().title()"
+      ],
+      "explain": "transform takes the raw table and returns a cleaned one, and the caller keeps both: the prints show 3 rows going in and 2 coming out, which is the kind of validation number a pipeline should log. Starting from df = raw would only give a second name for the same table, so the cleaning would change the raw data and nothing would be dropped. drop_duplicates() returns a new table. The text methods live behind .str.",
+      "concepts": [
+        "functions with one job",
+        "drop_duplicates",
+        "raw data stays raw",
+        "validation numbers"
+      ],
+      "output": "3 -> 2\n['East', 'West']"
+    },
+    {
+      "id": "d29-fill",
+      "type": "fill",
+      "title": "A pipeline with a command line",
+      "viz": true,
+      "prompt": "A pipeline script reads its settings with argparse. Fill the blanks so the program parses this argument list (as if the user typed --input sales.csv) and prints the input path and the output folder, which has a default.",
+      "code": [
+        "import argparse",
+        "",
+        "parser = argparse.ArgumentParser(description=\"Clean the weekly sales export.\")",
+        "parser.add_argument(\"--input\", required=True)",
+        "parser.add_argument(\"--out\", default=\"output\")",
+        "args = parser.parse_args(___)",
+        "print(args.input, args.___)"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "[\"--input\", \"sales.csv\"]",
+            "['--input', 'sales.csv']"
+          ],
+          "options": [
+            "[\"--input\", \"sales.csv\"]",
+            "[\"sales.csv\"]",
+            "\"--input sales.csv\""
+          ]
+        },
+        {
+          "answers": [
+            "out"
+          ],
+          "options": [
+            "out",
+            "output",
+            "default"
+          ]
+        }
+      ],
+      "explain": "parse_args(argv) takes a list of words, exactly the pieces the shell would give you. Passing the list yourself (instead of None, which reads the real command line) makes main(argv) testable. The attribute name comes from the option name: --out is read as args.out, and --input as args.input. The default \"output\" is used when the option is not given.",
+      "concepts": [
+        "argparse",
+        "parse_args(argv)",
+        "testable main"
+      ],
+      "output": "sales.csv output"
+    },
+    {
+      "id": "d29-predict",
+      "type": "predict",
+      "title": "The numbers in the report",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import pandas as pd",
+        "",
+        "df = pd.DataFrame({\"region\": [\"East\", \"West\", \"East\"], \"revenue\": [1200.5, 2000.0, 1800.25]})",
+        "totals = df.groupby(\"region\")[\"revenue\"].sum()",
+        "print(totals.idxmax(), totals.max())",
+        "print(f\"Total: {totals.sum():,.2f}\")",
+        "print(f\"East share: {totals['East'] / totals.sum():.0%}\")"
+      ],
+      "explain": "groupby adds up the revenue per region: East 3000.75, West 2000.0. idxmax() gives the label of the biggest total (East), max() gives the value itself. In an f-string, :,.2f means thousands separator and two decimals (5,000.75), and :.0% multiplies by 100 and shows no decimals (3000.75 / 5000.75 is 60.0 %). These small format codes make a report readable.",
+      "concepts": [
+        "KPIs with groupby",
+        "idxmax vs max",
+        "f-string number formats"
+      ],
+      "expected": "East 3000.75\nTotal: 5,000.75\nEast share: 60%"
+    },
+    {
+      "id": "d29-bug",
+      "type": "bug",
+      "title": "Reporting on the wrong table",
+      "viz": true,
+      "prompt": "The pipeline cleans the data, but the report still counts the duplicate order twice (3 rows and 200.0 instead of 2 rows and 150.0). Click the faulty line and choose the fix.",
+      "code": [
+        "import pandas as pd",
+        "",
+        "def transform(raw):",
+        "    return raw.drop_duplicates()",
+        "",
+        "def kpis(df):",
+        "    return {\"rows\": len(df), \"revenue\": float(df[\"revenue\"].sum())}",
+        "",
+        "raw = pd.DataFrame({\"order_id\": [1, 2, 2], \"revenue\": [100.0, 50.0, 50.0]})",
+        "clean = transform(raw)",
+        "print(kpis(raw))"
+      ],
+      "bug_lines": [
+        11
+      ],
+      "answer": 0,
+      "options": [
+        "print(kpis(clean))",
+        "print(kpis(transform))",
+        "print(kpis(raw[\"revenue\"]))",
+        "print(kpis(clean.copy))"
+      ],
+      "fixed_code": [
+        "import pandas as pd",
+        "",
+        "def transform(raw):",
+        "    return raw.drop_duplicates()",
+        "",
+        "def kpis(df):",
+        "    return {\"rows\": len(df), \"revenue\": float(df[\"revenue\"].sum())}",
+        "",
+        "raw = pd.DataFrame({\"order_id\": [1, 2, 2], \"revenue\": [100.0, 50.0, 50.0]})",
+        "clean = transform(raw)",
+        "print(kpis(clean))"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "{'rows': 3, 'revenue': 200.0}"
+      },
+      "explain": "The cleaning ran, but its result was never passed forward: kpis got the raw table. The rule for pipelines is to always hand the cleaned DataFrame to the next step, so the database, the report and the chart all describe the same data. Calling transform without brackets passes the function itself, and kpis(raw[\"revenue\"]) passes a single column, not a table. Printing len() before and after each step makes this kind of bug visible.",
+      "concepts": [
+        "pass the cleaned data forward",
+        "one function = one job",
+        "silent wrong numbers"
+      ],
+      "output": "{'rows': 2, 'revenue': 150.0}"
+    },
+    {
+      "id": "d29-review",
+      "type": "review",
+      "title": "Review the AI's pipeline function",
+      "prompt": "An AI assistant wrote this run_pipeline function. It runs and prints done. Tick the statements that point at real problems.",
+      "code": [
+        "import sqlite3",
+        "import pandas as pd",
+        "",
+        "def run_pipeline(raw, db_path):",
+        "    try:",
+        "        raw[\"region\"] = raw[\"region\"].str.strip().str.title()",
+        "        clean = raw.drop_duplicates()",
+        "        conn = sqlite3.connect(db_path)",
+        "        clean.to_sql(\"orders\", conn, if_exists=\"replace\", index=False)",
+        "        conn.close()",
+        "    except Exception as exc:",
+        "        print(\"pipeline failed:\", exc)",
+        "    print(\"done\")",
+        "    return 0",
+        "",
+        "raw = pd.DataFrame({\"region\": [\" east\", \"east \", \"West\"], \"amount\": [100, 100, 50]})",
+        "print(run_pipeline(raw, \":memory:\"))",
+        "print(raw[\"region\"].tolist())"
+      ],
+      "issues": [
+        {
+          "id": "mutates-input",
+          "text": "The function overwrites the region column of the table it was given, so the caller's raw data is changed",
+          "why": "The last print shows the caller's table now holds cleaned names. A pipeline should never modify its source: build the cleaned table as a new object and leave the raw one alone, so a re-run or a comparison is still possible.",
+          "lines": [
+            6
+          ]
+        },
+        {
+          "id": "failure-exit-code",
+          "text": "After a failure it still prints done and returns 0, so a scheduler thinks the job succeeded",
+          "why": "Exit code 0 means success. When the except branch runs, return a non-zero code (or re-raise) and log the error with the logging module instead of printing done.",
+          "lines": [
+            11,
+            12,
+            13,
+            14
+          ]
+        },
+        {
+          "id": "no-validation-numbers",
+          "text": "The run reports no row counts or totals, so a silent data loss would not be noticed",
+          "why": "Log rows before and after cleaning and a total such as revenue. Here two duplicate-looking orders vanish without a trace.",
+          "lines": [
+            7,
+            13
+          ]
+        },
+        {
+          "id": "close-on-error",
+          "text": "If to_sql fails, the connection is never closed",
+          "why": "conn.close() is skipped when an exception happens before it. Use try/finally or contextlib.closing so the resource is released on every path.",
+          "lines": [
+            8,
+            9,
+            10
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "replace-table",
+          "text": "if_exists=\"replace\" will destroy data",
+          "why": "The orders table is rebuilt from the raw export on every run, so replacing it is the intended, repeatable behaviour (the raw file stays the source of truth)."
+        },
+        {
+          "id": "index-false",
+          "text": "index=False loses information",
+          "why": "The default index is just 0, 1, 2... and would become a meaningless extra column in the database."
+        },
+        {
+          "id": "db-path-param",
+          "text": "The database path should be a constant inside the function",
+          "why": "Taking db_path as a parameter is better: the caller (or a test) chooses where the data goes, here an in-memory database."
+        },
+        {
+          "id": "clean-new-name",
+          "text": "drop_duplicates() changes raw, so the clean variable is pointless",
+          "why": "drop_duplicates returns a new table and leaves its input as it is. The problem is the line above it, which assigns into raw."
+        }
+      ],
+      "explain": "A pipeline is judged by how it fails and what it reports. Check that the source is untouched, that failures reach the caller, and that numbers are logged so a silent bug becomes visible.",
+      "concepts": [
+        "never modify the source",
+        "exit codes",
+        "validation numbers",
+        "closing resources"
+      ]
+    }
+  ]
+}

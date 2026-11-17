@@ -1,0 +1,281 @@
+{
+  "day": 12,
+  "drills": [
+    {
+      "id": "j12-parsons",
+      "type": "parsons",
+      "title": "Filter, sort, transform",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Arrange the lines into one stream pipeline: keep the prices under Rs. 500, sort them, then add 18% GST to each. The filter and sorted steps may swap places. Two lines do not belong.",
+      "lines": [
+        "import java.util.List;",
+        "List<Integer> prices = List.of(450, 90, 1200, 60);",
+        "List<Integer> cheap = prices.stream()",
+        ".filter(p -> p < 500)",
+        ".sorted()",
+        ".map(p -> p + p * 18 / 100)",
+        ".toList();",
+        "System.out.println(cheap);"
+      ],
+      "distractors": [
+        ".filter(p -> p < 500);",
+        ".map(p + p * 18 / 100)"
+      ],
+      "alternatives": [
+        [
+          0,
+          1,
+          2,
+          4,
+          3,
+          5,
+          6,
+          7
+        ]
+      ],
+      "explain": "A stream pipeline reads top to bottom: source, middle steps, one terminal step (toList). Each step is one lambda such as p -> p < 500. A semicolon ends the statement, so it belongs only after the last step, and a lambda needs its arrow: map(p + ...) is not a lambda.",
+      "concepts": [
+        "stream pipeline",
+        "filter",
+        "map",
+        "lambda syntax"
+      ],
+      "output": "[70, 106, 531]"
+    },
+    {
+      "id": "j12-fill",
+      "type": "fill",
+      "title": "Call the right method",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Every functional interface has its own method name. Fill the blanks so the program prints the goal output.",
+      "code": [
+        "import java.util.List;",
+        "import java.util.function.*;",
+        "Predicate<Integer> big = n -> n > 100;",
+        "System.out.println(big.___(250));",
+        "Function<Integer, Integer> doubler = x -> x * 2;",
+        "System.out.println(doubler.___(21));",
+        "List<String> names = List.of(\"chai\", \"samosa\", \"vada\");",
+        "System.out.println(names.stream().map(String::___).toList());",
+        "System.out.println(names.stream().___(s -> s.length() > 4).count());"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "test"
+          ],
+          "options": [
+            "test",
+            "apply",
+            "accept"
+          ]
+        },
+        {
+          "answers": [
+            "apply"
+          ],
+          "options": [
+            "apply",
+            "test",
+            "get"
+          ]
+        },
+        {
+          "answers": [
+            "toUpperCase"
+          ],
+          "options": [
+            "toUpperCase",
+            "toUpperCase()",
+            "upper"
+          ]
+        },
+        {
+          "answers": [
+            "filter"
+          ],
+          "options": [
+            "filter",
+            "map",
+            "anyMatch"
+          ]
+        }
+      ],
+      "explain": "Predicate answers yes/no with test, Function turns one value into another with apply (Supplier uses get, Consumer uses accept). String::toUpperCase is a method reference: no parentheses, because you point at the method instead of calling it. filter keeps items for which the test is true; map would only turn each item into true or false and count all three.",
+      "concepts": [
+        "Predicate and Function",
+        "method references",
+        "filter vs map"
+      ],
+      "output": "true\n42\n[CHAI, SAMOSA, VADA]\n1"
+    },
+    {
+      "id": "j12-predict",
+      "type": "predict",
+      "title": "Top songs and a tie",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints.",
+      "code": [
+        "import java.util.Comparator;",
+        "import java.util.List;",
+        "",
+        "class Chart {",
+        "    record Song(String title, int plays) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Song> songs = List.of(new Song(\"Kesariya\", 90), new Song(\"Apna Bana Le\", 90),",
+        "                new Song(\"Naatu Naatu\", 120), new Song(\"Chaleya\", 75));",
+        "        List<String> top3 = songs.stream()",
+        "                .sorted(Comparator.comparingInt(Song::plays).reversed().thenComparing(Song::title))",
+        "                .limit(3).map(Song::title).toList();",
+        "        System.out.println(top3 + \" \" + songs.get(0).title());",
+        "    }",
+        "}"
+      ],
+      "explain": "comparingInt(plays).reversed() puts the most played first. Kesariya and Apna Bana Le tie on 90, so thenComparing(title) sorts them A to Z. limit(3) drops Chaleya. sorted works on the stream only: the original list still starts with Kesariya.",
+      "concepts": [
+        "Comparator",
+        "reversed and thenComparing",
+        "streams do not change the list"
+      ],
+      "expected": "[Naatu Naatu, Apna Bana Le, Kesariya] Kesariya"
+    },
+    {
+      "id": "j12-bug",
+      "type": "bug",
+      "title": "Sum on a stream of Integer",
+      "viz": true,
+      "prompt": "This program does not compile. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.util.List;",
+        "",
+        "class Basket {",
+        "    public static void main(String[] args) {",
+        "        List<Integer> prices = List.of(120, 80, 45);",
+        "        int total = prices.stream().sum();",
+        "        System.out.println(\"Total: Rs.\" + total);",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.util.List;",
+        "",
+        "class Basket {",
+        "    public static void main(String[] args) {",
+        "        List<Integer> prices = List.of(120, 80, 45);",
+        "        int total = prices.stream().mapToInt(Integer::intValue).sum();",
+        "        System.out.println(\"Total: Rs.\" + total);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        6
+      ],
+      "answer": 1,
+      "options": [
+        "int total = prices.stream().map(Integer::intValue).sum();",
+        "int total = prices.stream().mapToInt(Integer::intValue).sum();",
+        "int total = prices.stream().toList().sum();"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "cannot find symbol"
+      },
+      "explain": "A Stream of Integer objects has no sum(). mapToInt switches to an IntStream, which has sum() and average(). map(Integer::intValue) still gives an object stream, so it has the same problem.",
+      "concepts": [
+        "mapToInt",
+        "IntStream",
+        "sum"
+      ],
+      "output": "Total: Rs.245"
+    },
+    {
+      "id": "j12-review",
+      "type": "review",
+      "title": "Review the AI's shop queries",
+      "prompt": "An AI assistant wrote these product queries. They compile and run, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.Comparator;",
+        "import java.util.List;",
+        "",
+        "class Shop {",
+        "    record Product(String name, int price, double rating) {}",
+        "",
+        "    static List<String> bestDeals(List<Product> shop, int limit) {",
+        "        return shop.stream()",
+        "                .filter(p -> p.price() < limit)",
+        "                .sorted(Comparator.comparingDouble(Product::rating))",
+        "                .map(Product::name)",
+        "                .toList();",
+        "    }",
+        "",
+        "    static String priciest(List<Product> shop) {",
+        "        return shop.stream().max(Comparator.comparingInt(Product::price)).get().name();",
+        "    }",
+        "",
+        "    static long countPens(List<Product> shop) {",
+        "        return shop.stream().filter(p -> p.name() == \"Pen\").count();",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Product> shop = List.of(new Product(\"Pen\", 10, 4.1), new Product(\"Book\", 120, 4.8),",
+        "                new Product(\"Lamp\", 650, 4.2));",
+        "        System.out.println(bestDeals(shop, 1000) + \" \" + priciest(shop) + \" \" + countPens(shop));",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "worst-first",
+          "text": "bestDeals lists the lowest rated product first",
+          "why": "comparingDouble sorts small to large. For best rated first the comparator needs .reversed(), otherwise the output starts with Pen (4.1) instead of Book (4.8).",
+          "lines": [
+            10
+          ]
+        },
+        {
+          "id": "get-on-empty",
+          "text": "max(...).get() crashes when the shop list is empty",
+          "why": "max returns an Optional that is empty for an empty list, and get() on an empty Optional throws NoSuchElementException. Use orElse(...) or check isPresent first.",
+          "lines": [
+            16
+          ]
+        },
+        {
+          "id": "string-equals",
+          "text": "The filter compares strings with ==",
+          "why": "== compares whether two names are the same object, not the same letters. It only works here because both are literals in one program. Names that come from input or files would not match. Use p.name().equals(\"Pen\").",
+          "lines": [
+            20
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "sorted-changes-list",
+          "text": "sorted(...) reorders the original shop list",
+          "why": "A stream never changes its source. sorted only affects the items flowing through the pipeline."
+        },
+        {
+          "id": "lambda-final",
+          "text": "Using limit inside the filter lambda is a compile error",
+          "why": "A lambda may read a variable around it as long as the variable is never changed afterwards (effectively final). limit is never reassigned."
+        },
+        {
+          "id": "count-long",
+          "text": "countPens should return int because it counts items",
+          "why": "count() returns a long, so a long return type is the natural match. An int would need a cast."
+        }
+      ],
+      "explain": "Generated stream code often compiles and gives plausible output. Check the sort direction, every Optional.get() and every == between texts.",
+      "concepts": [
+        "Comparator direction",
+        "Optional",
+        "string equality",
+        "reviewing streams"
+      ]
+    }
+  ]
+}

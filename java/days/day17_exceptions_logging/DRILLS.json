@@ -1,0 +1,310 @@
+{
+  "day": 17,
+  "drills": [
+    {
+      "id": "j17-parsons",
+      "type": "parsons",
+      "title": "try, catch, finally",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Arrange the lines into a try / catch / finally block that survives a bad amount and always says Done. Two lines do not belong.",
+      "lines": [
+        "try {",
+        "int amount = Integer.parseInt(\"two hundred\");",
+        "System.out.println(\"OK: \" + amount);",
+        "} catch (NumberFormatException e) {",
+        "System.out.println(\"Please type digits only\");",
+        "} finally {",
+        "System.out.println(\"Done\");",
+        "}"
+      ],
+      "distractors": [
+        "} catch (NumberFormatException) {",
+        "} else {"
+      ],
+      "explain": "The risky line goes into try. If it fails, Java jumps to the catch that matches the exception (and skips the OK line); finally runs in both cases. A catch needs a variable name after the type, and Java has no else for try blocks (that is Python).",
+      "concepts": [
+        "try / catch / finally",
+        "NumberFormatException"
+      ],
+      "output": "Please type digits only\nDone"
+    },
+    {
+      "id": "j17-fill",
+      "type": "fill",
+      "title": "Throw it, catch it, clean up",
+      "viz": true,
+      "prompt": "Fill the blanks so withdraw rejects an amount larger than the balance, and the program prints the goal output.",
+      "code": [
+        "class Account {",
+        "    static int withdraw(int balance, int amount) {",
+        "        if (amount > balance) {",
+        "            ___ new IllegalArgumentException(\"Need Rs. \" + (amount - balance) + \" more\");",
+        "        }",
+        "        return balance - amount;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        try {",
+        "            System.out.println(withdraw(1000, 400));",
+        "            System.out.println(withdraw(100, 600));",
+        "        } ___ (IllegalArgumentException e) {",
+        "            System.out.println(\"Rejected: \" + e.___());",
+        "        } ___ {",
+        "            System.out.println(\"Closed\");",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "throw"
+          ],
+          "options": [
+            "throw",
+            "throws",
+            "raise"
+          ]
+        },
+        {
+          "answers": [
+            "catch"
+          ],
+          "options": [
+            "catch",
+            "except",
+            "handle"
+          ]
+        },
+        {
+          "answers": [
+            "getMessage"
+          ],
+          "options": [
+            "getMessage",
+            "message",
+            "getText"
+          ]
+        },
+        {
+          "answers": [
+            "finally"
+          ],
+          "options": [
+            "finally",
+            "always",
+            "else"
+          ]
+        }
+      ],
+      "explain": "throw (no s) raises one exception object now; throws only appears in a method header. catch is Java's word for Python's except, e.getMessage() gives the text the thrower wrote, and finally runs whether or not something went wrong. The first withdraw succeeds, the second one never returns a value.",
+      "concepts": [
+        "throw",
+        "catch",
+        "getMessage",
+        "finally"
+      ],
+      "output": "600\nRejected: Need Rs. 500 more\nClosed"
+    },
+    {
+      "id": "j17-predict",
+      "type": "predict",
+      "title": "When does finally run?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "class Flow {",
+        "    static int parse(String text) {",
+        "        try {",
+        "            return Integer.parseInt(text);",
+        "        } catch (NumberFormatException e) {",
+        "            System.out.println(\"bad \" + text);",
+        "            return -1;",
+        "        } finally {",
+        "            System.out.println(\"done \" + text);",
+        "        }",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        System.out.println(parse(\"25\"));",
+        "        System.out.println(parse(\"2x\"));",
+        "    }",
+        "}"
+      ],
+      "explain": "finally runs even when the try block has already decided to return, so \"done 25\" appears before main prints the 25 that parse returned. For \"2x\" the catch prints bad 2x, finally prints done 2x, and only then does -1 travel back to main.",
+      "concepts": [
+        "finally always runs",
+        "return inside try",
+        "order of output"
+      ],
+      "expected": "done 25\n25\nbad 2x\ndone 2x\n-1"
+    },
+    {
+      "id": "j17-bug",
+      "type": "bug",
+      "title": "The error that was never thrown",
+      "viz": true,
+      "prompt": "setAge(-1) should be rejected, but the program prints -1 instead. Click the faulty line, then choose the fix.",
+      "code": [
+        "class Profile {",
+        "    static int setAge(int age) {",
+        "        if (age < 0) {",
+        "            new IllegalArgumentException(\"Age cannot be negative\");",
+        "        }",
+        "        return age;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        try {",
+        "            System.out.println(setAge(30));",
+        "            System.out.println(setAge(-1));",
+        "        } catch (IllegalArgumentException e) {",
+        "            System.out.println(\"Rejected: \" + e.getMessage());",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "class Profile {",
+        "    static int setAge(int age) {",
+        "        if (age < 0) {",
+        "            throw new IllegalArgumentException(\"Age cannot be negative\");",
+        "        }",
+        "        return age;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        try {",
+        "            System.out.println(setAge(30));",
+        "            System.out.println(setAge(-1));",
+        "        } catch (IllegalArgumentException e) {",
+        "            System.out.println(\"Rejected: \" + e.getMessage());",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        4
+      ],
+      "answer": 2,
+      "options": [
+        "throws new IllegalArgumentException(\"Age cannot be negative\");",
+        "System.out.println(new IllegalArgumentException(\"Age cannot be negative\"));",
+        "throw new IllegalArgumentException(\"Age cannot be negative\");",
+        "return new IllegalArgumentException(\"Age cannot be negative\");"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "30\n-1"
+      },
+      "explain": "new IllegalArgumentException(...) only builds an error object. Without the word throw nothing happens, the method carries on and returns -1. throw hands the object to the nearest matching catch. throws belongs in method headers, and returning or printing the object does not stop anything.",
+      "concepts": [
+        "throw",
+        "creating vs throwing",
+        "silent bugs"
+      ],
+      "output": "30\nRejected: Age cannot be negative"
+    },
+    {
+      "id": "j17-review",
+      "type": "review",
+      "title": "Review the AI's payment helpers",
+      "prompt": "An AI assistant wrote these helpers. They compile and run, but tick the real problems (there are three).",
+      "code": [
+        "import java.io.BufferedReader;",
+        "import java.io.IOException;",
+        "import java.nio.file.Files;",
+        "import java.nio.file.Path;",
+        "import java.util.logging.Logger;",
+        "",
+        "class Payments {",
+        "    private static final Logger LOG = Logger.getLogger(\"payments\");",
+        "",
+        "    static int parseAmount(String text) {",
+        "        try {",
+        "            return Integer.parseInt(text.trim());",
+        "        } catch (Exception e) {",
+        "            return 0;",
+        "        }",
+        "    }",
+        "",
+        "    static String firstLine(Path path) {",
+        "        try {",
+        "            BufferedReader in = Files.newBufferedReader(path);",
+        "            return in.readLine();",
+        "        } catch (IOException e) {",
+        "            System.out.println(\"could not read file\");",
+        "            return \"\";",
+        "        }",
+        "    }",
+        "",
+        "    static int withdraw(int balance, int amount) {",
+        "        if (amount > balance) {",
+        "            throw new IllegalArgumentException(\"Need Rs. \" + (amount - balance) + \" more\");",
+        "        }",
+        "        return balance - amount;",
+        "    }",
+        "",
+        "    public static void main(String[] args) throws IOException {",
+        "        Path file = Files.createTempFile(\"payments\", \".txt\");",
+        "        file.toFile().deleteOnExit();",
+        "        Files.writeString(file, \"Order #1001\\n\");",
+        "        System.out.println(parseAmount(\"12x\") + \" \" + firstLine(file) + \" \" + withdraw(1000, 400));",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "swallowed",
+          "text": "parseAmount catches every Exception and quietly returns 0",
+          "why": "Bad input such as \"12x\" turns into a payment of 0 with no trace, and real bugs (like a null text) disappear the same way. Catch NumberFormatException only, and log it or report the bad value to the caller.",
+          "lines": [
+            13,
+            14
+          ]
+        },
+        {
+          "id": "reader-not-closed",
+          "text": "The BufferedReader is never closed",
+          "why": "Every call leaves a file handle open. Declare it in try (BufferedReader in = ...) so close() runs even when readLine fails.",
+          "lines": [
+            20
+          ]
+        },
+        {
+          "id": "println-instead-of-log",
+          "text": "The failure is reported with System.out.println and the exception is dropped",
+          "why": "A log call such as LOG.log(Level.SEVERE, \"could not read \" + path, e) records the level, the file and the stack trace. The println loses the reason, and the LOG constant above is never used.",
+          "lines": [
+            23
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "no-throws",
+          "text": "withdraw must declare throws IllegalArgumentException",
+          "why": "IllegalArgumentException is unchecked, so the compiler does not require a throws clause. Documenting it is optional."
+        },
+        {
+          "id": "should-be-checked",
+          "text": "Bad arguments should be reported with a checked exception",
+          "why": "IllegalArgumentException is the standard way to say \"you gave me a bad value\", and unchecked is the right family for it."
+        },
+        {
+          "id": "constant-logger",
+          "text": "The Logger must be created inside each method",
+          "why": "One static final Logger per class is the normal pattern and is safe to share."
+        }
+      ],
+      "explain": "In generated error handling look for catch blocks that hide the problem, resources opened outside try-with-resources and messages printed instead of logged.",
+      "concepts": [
+        "swallowed exceptions",
+        "try-with-resources",
+        "logging",
+        "reviewing error handling"
+      ]
+    }
+  ]
+}

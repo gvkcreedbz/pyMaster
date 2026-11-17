@@ -1,0 +1,213 @@
+{
+  "day": 12,
+  "drills": [
+    {
+      "id": "d12-parsons",
+      "type": "parsons",
+      "title": "Build the music chart",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them) so the program prints the songs from most played to least played, with a rank. Two lines do not belong.",
+      "lines": [
+        "songs = [(\"Kesariya\", 900), (\"Heeriye\", 1200), (\"Tum Hi Ho\", 400)]",
+        "chart = sorted(songs, key=lambda s: s[1], reverse=True)",
+        "for rank, (title, plays) in enumerate(chart, start=1):",
+        "print(f\"{rank}. {title} ({plays} plays)\")"
+      ],
+      "indent": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "distractors": [
+        "chart = sorted(songs, key=s[1], reverse=True)",
+        "chart = sorted(songs, key=lambda s: s[1])"
+      ],
+      "explain": "sorted() builds a new, ordered list. key= must be a function that returns what to sort by, so it needs lambda s: s[1] (key=s[1] fails because s does not exist outside the lambda). Without reverse=True the least played song would come first. enumerate(chart, start=1) hands you the rank and the item together, and the (title, plays) in the loop header unpacks each tuple.",
+      "concepts": [
+        "sorted(key=)",
+        "lambda",
+        "enumerate"
+      ],
+      "output": "1. Heeriye (1200 plays)\n2. Kesariya (900 plays)\n3. Tum Hi Ho (400 plays)"
+    },
+    {
+      "id": "d12-fill",
+      "type": "fill",
+      "title": "Filter and transform in one line",
+      "viz": true,
+      "prompt": "Fill the three blanks to finish the comprehensions: one filters the catalog by budget, one chooses a label for every price.",
+      "code": [
+        "prices = {\"Earbuds\": 1999, \"Power Bank\": 1299, \"Cable\": 299, \"Smartwatch\": 3499}",
+        "budget = 1500",
+        "names = [name ___ name, price in prices.items() ___ price <= budget]",
+        "print(names)",
+        "labels = [\"cheap\" ___ p < 500 else \"pricey\" for p in prices.values()]",
+        "print(labels)"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "for"
+          ],
+          "options": [
+            "for",
+            "in",
+            "while"
+          ]
+        },
+        {
+          "answers": [
+            "if"
+          ],
+          "options": [
+            "if",
+            "when",
+            "for"
+          ]
+        },
+        {
+          "answers": [
+            "if"
+          ],
+          "options": [
+            "if",
+            "when",
+            "for"
+          ]
+        }
+      ],
+      "explain": "The pattern is [what_to_keep for item in source if condition]. The if at the end filters: items that fail it are left out. An if/else that changes the value goes in front of the for, because every item still produces a result (\"cheap\" or \"pricey\").",
+      "concepts": [
+        "list comprehension",
+        "filter",
+        "if/else expression"
+      ],
+      "output": "['Power Bank', 'Cable']\n['pricey', 'pricey', 'cheap', 'pricey']"
+    },
+    {
+      "id": "d12-predict",
+      "type": "predict",
+      "title": "Ties and sort keys",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "songs = [(\"Kesariya\", 900), (\"Apna Bana Le\", 900), (\"Heeriye\", 1200), (\"Tum Hi Ho\", 400)]",
+        "chart = sorted(songs, key=lambda s: (-s[1], s[0]))",
+        "print([title for title, plays in chart])",
+        "",
+        "duo = [(\"Kesariya\", 900), (\"Apna Bana Le\", 900)]",
+        "print(max(duo, key=lambda s: s[1])[0])",
+        "",
+        "words = [\"bb\", \"a\", \"ccc\", \"dd\"]",
+        "print(sorted(words, key=len, reverse=True))"
+      ],
+      "explain": "A tuple key sorts by its first item and breaks ties with the second. The minus sign puts the biggest plays first, and the title then sorts the 900-play songs A to Z. max() with a tie returns the first of the equal items it meets, so Kesariya wins. sorted() is stable: with reverse=True, items of equal length (bb and dd) keep their original order.",
+      "concepts": [
+        "tuple sort keys",
+        "max(key=)",
+        "sorted(reverse=True)"
+      ],
+      "expected": "['Heeriye', 'Apna Bana Le', 'Kesariya', 'Tum Hi Ho']\nKesariya\n['ccc', 'bb', 'dd', 'a']"
+    },
+    {
+      "id": "d12-bug",
+      "type": "bug",
+      "title": "The if/else in the wrong place",
+      "viz": true,
+      "prompt": "The program stops with an error before it prints anything. Click the faulty line and choose the fix.",
+      "code": [
+        "marks = [88, 95, 40, 35]",
+        "result = [\"pass\" for m in marks if m >= 40 else \"fail\"]",
+        "print(result)"
+      ],
+      "bug_lines": [
+        2
+      ],
+      "answer": 0,
+      "options": [
+        "result = [\"pass\" if m >= 40 else \"fail\" for m in marks]",
+        "result = [\"pass\" for m in marks if m >= 40]",
+        "result = [\"pass\" if m >= 40 for m in marks else \"fail\"]",
+        "result = [\"pass\" for m in marks if m >= 40 elif \"fail\"]"
+      ],
+      "fixed_code": [
+        "marks = [88, 95, 40, 35]",
+        "result = [\"pass\" if m >= 40 else \"fail\" for m in marks]",
+        "print(result)"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "SyntaxError"
+      },
+      "explain": "A trailing if only filters, and it cannot have an else. When each item must become one of two values, put the if/else in front of the for: [value_a if condition else value_b for item in source]. The second option runs but drops the failing marks instead of labelling them.",
+      "concepts": [
+        "list comprehension",
+        "if/else expression",
+        "SyntaxError"
+      ],
+      "output": "['pass', 'pass', 'pass', 'fail']"
+    },
+    {
+      "id": "d12-review",
+      "type": "review",
+      "title": "Review the AI's product filter",
+      "prompt": "An AI assistant wrote this filter for an e-commerce page. It runs, but tick the statements that point at real problems.",
+      "code": [
+        "catalog = [",
+        "    {\"name\": \"Earbuds\", \"price\": 1999, \"rating\": 4.3},",
+        "    {\"name\": \"Power Bank\", \"price\": 1299, \"rating\": 4.5},",
+        "    {\"name\": \"Cable\", \"price\": 299, \"rating\": 4.1},",
+        "    {\"name\": \"Smartwatch\", \"price\": 3499, \"rating\": 4.6},",
+        "]",
+        "budget = 2000",
+        "affordable = [p[\"name\"] for p in catalog if p[\"price\"] <= budget]",
+        "best = sorted(catalog, key=lambda p: p[\"rating\"])[0]",
+        "[print(p[\"name\"], p[\"price\"]) for p in catalog]",
+        "print(\"Affordable:\", affordable)",
+        "print(\"Best rated:\", best[\"name\"])"
+      ],
+      "issues": [
+        {
+          "id": "ascending-first",
+          "text": "sorted(...)[0] with the default order returns the LOWEST rated product, not the best",
+          "why": "sorted() goes from small to large. Take the last item, add reverse=True, or simply use max(catalog, key=lambda p: p[\"rating\"]), which also avoids sorting everything to pick one item.",
+          "lines": [
+            9
+          ]
+        },
+        {
+          "id": "comprehension-side-effect",
+          "text": "A list comprehension is used only to print, and builds a throw-away list of None",
+          "why": "Comprehensions are for building lists. Use a normal for loop when the goal is a side effect such as printing.",
+          "lines": [
+            10
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "lambda-key",
+          "text": "A lambda is not allowed as the key= argument",
+          "why": "key= expects a function, and a short lambda is the usual way to pick the field to sort by."
+        },
+        {
+          "id": "sorted-mutates",
+          "text": "sorted() reorders catalog, so the later loop sees a different order",
+          "why": "sorted() returns a new list and leaves the original untouched. (list.sort() is the one that changes the list in place.)"
+        },
+        {
+          "id": "loop-needed",
+          "text": "The comprehension must be written as a for loop with append",
+          "why": "A filter with one condition fits comfortably on one line, which is exactly the use case for a comprehension."
+        }
+      ],
+      "explain": "Review comprehension code for two things: does the sort order or the filter match the requirement (ascending vs descending, < vs <=), and is a comprehension being used for what it is meant for, building a list? sorted(...)[0] is a frequent AI slip because it looks right and runs without errors.",
+      "concepts": [
+        "sorted(key=)",
+        "max(key=)",
+        "comprehension vs loop"
+      ]
+    }
+  ]
+}

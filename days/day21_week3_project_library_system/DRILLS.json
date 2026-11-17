@@ -1,0 +1,262 @@
+{
+  "day": 21,
+  "drills": [
+    {
+      "id": "d21-parsons",
+      "type": "parsons",
+      "title": "Work out the late fee",
+      "viz": true,
+      "prompt": "Arrange the lines so the program computes how many days a book was out, counts only the days beyond the 14-day loan period, and prints the fee at Rs. 5 per late day. Two lines do not belong.",
+      "lines": [
+        "from datetime import date",
+        "out_date = date.fromisoformat(\"2026-11-01\")",
+        "back_date = date.fromisoformat(\"2026-11-20\")",
+        "days_out = (back_date - out_date).days",
+        "late_days = max(0, days_out - 14)",
+        "print(\"Late fee: Rs.\", late_days * 5)"
+      ],
+      "alternatives": [
+        [
+          0,
+          2,
+          1,
+          3,
+          4,
+          5
+        ]
+      ],
+      "distractors": [
+        "late_days = min(0, days_out - 14)",
+        "days_out = (out_date - back_date).days"
+      ],
+      "explain": "Both dates must exist before they are subtracted, and the subtraction must happen before the late days are worked out. Returned minus borrowed gives 19 days out. days_out - 14 is 5 late days; max(0, ...) keeps early returns at 0 instead of a negative fee. min(0, ...) would do the opposite and swapping the dates would give a negative number of days.",
+      "concepts": [
+        "date arithmetic",
+        "late fee rule",
+        "max()"
+      ],
+      "output": "Late fee: Rs. 25"
+    },
+    {
+      "id": "d21-fill",
+      "type": "fill",
+      "title": "A business rule that raises its own error",
+      "viz": true,
+      "prompt": "Fill the three blanks so the library has its own error type, raises it when a member already holds 3 books, and the caller catches it.",
+      "code": [
+        "class LibraryError(___):",
+        "    pass",
+        "",
+        "def checkout(active_loans, member):",
+        "    if active_loans.count(member) >= 3:",
+        "        ___ LibraryError(\"Loan limit reached\")",
+        "    active_loans.append(member)",
+        "",
+        "loans = [\"aarav\", \"aarav\", \"aarav\"]",
+        "try:",
+        "    checkout(loans, \"aarav\")",
+        "___ LibraryError as e:",
+        "    print(\"Refused:\", e)"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "Exception"
+          ],
+          "options": [
+            "Exception",
+            "Error",
+            "object"
+          ]
+        },
+        {
+          "answers": [
+            "raise"
+          ],
+          "options": [
+            "raise",
+            "throw",
+            "return"
+          ]
+        },
+        {
+          "answers": [
+            "except"
+          ],
+          "options": [
+            "except",
+            "catch",
+            "else"
+          ]
+        }
+      ],
+      "explain": "A custom error is a class that inherits from Exception, so it can be raised and caught like any built-in one, and the name says what went wrong (LibraryError). raise stops checkout() before the loan is added; return would just hand back an error object that nobody checks. The caller handles it with except LibraryError as e: (catch is not a Python keyword).",
+      "concepts": [
+        "custom exceptions",
+        "raise",
+        "try / except"
+      ],
+      "output": "Refused: Loan limit reached"
+    },
+    {
+      "id": "d21-predict",
+      "type": "predict",
+      "title": "Numbers as JSON keys",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output. The dictionary counts how many times each book (by number) was borrowed, then it is saved to JSON text and loaded back.",
+      "code": [
+        "import json",
+        "",
+        "checkout_counts = {111: 3, 222: 1}",
+        "text = json.dumps(checkout_counts)",
+        "restored = json.loads(text)",
+        "print(restored)",
+        "print(111 in restored, \"111\" in restored)",
+        "print(restored == checkout_counts)"
+      ],
+      "explain": "JSON object keys are always text, so json.dumps writes the integer key 111 as \"111\" and loading gives back a string key. The restored dictionary looks almost the same but 111 in restored is False and it is no longer equal to the original. This is why the library design stores ISBNs as strings from the start.",
+      "concepts": [
+        "JSON save and load",
+        "dictionary keys",
+        "round trip"
+      ],
+      "expected": "{'111': 3, '222': 1}\nFalse True\nFalse"
+    },
+    {
+      "id": "d21-bug",
+      "type": "bug",
+      "title": "A negative late fee",
+      "viz": true,
+      "prompt": "A book returned after 9 days should cost nothing, but the program reports a negative fee. Click the line with the bug, then choose the right fix.",
+      "code": [
+        "from datetime import date",
+        "out_date = date.fromisoformat(\"2026-11-01\")",
+        "back_date = date.fromisoformat(\"2026-11-10\")",
+        "late_days = (back_date - out_date).days - 14",
+        "print(\"Late days:\", late_days)",
+        "print(\"Fee: Rs.\", late_days * 5)"
+      ],
+      "bug_lines": [
+        4
+      ],
+      "answer": 0,
+      "options": [
+        "late_days = max(0, (back_date - out_date).days - 14)",
+        "late_days = min(0, (back_date - out_date).days - 14)",
+        "late_days = max(0, (back_date - out_date).days) - 14",
+        "late_days = abs((back_date - out_date).days - 14)"
+      ],
+      "fixed_code": [
+        "from datetime import date",
+        "out_date = date.fromisoformat(\"2026-11-01\")",
+        "back_date = date.fromisoformat(\"2026-11-10\")",
+        "late_days = max(0, (back_date - out_date).days - 14)",
+        "print(\"Late days:\", late_days)",
+        "print(\"Fee: Rs.\", late_days * 5)"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "Late days: -5\nFee: Rs. -25"
+      },
+      "explain": "The program runs, but 9 days out minus the 14-day loan period is -5, and -5 * 5 gives a negative fee. A late-fee rule needs a floor at 0, which max(0, ...) provides. max(0, days) - 14 puts the floor in the wrong place, min(0, ...) keeps only the negative values, and abs() would charge 25 for a book that was returned early.",
+      "concepts": [
+        "business rules",
+        "max()",
+        "edge cases"
+      ],
+      "output": [
+        "Late days: 0",
+        "Fee: Rs. 0"
+      ]
+    },
+    {
+      "id": "d21-review",
+      "type": "review",
+      "title": "Review the AI's checkout code",
+      "prompt": "An AI assistant wrote the start of the Library class. It runs, but tick the statements that point at real problems.",
+      "code": [
+        "import json",
+        "",
+        "class LibraryError(Exception):",
+        "    pass",
+        "",
+        "class Library:",
+        "    def __init__(self):",
+        "        self.copies = {\"111\": 2, \"222\": 1}",
+        "        self.loans = []",
+        "",
+        "    def checkout(self, isbn, member):",
+        "        if isbn not in self.copies:",
+        "            raise LibraryError(\"Unknown book\")",
+        "        self.loans.append({\"isbn\": isbn, \"member\": member})",
+        "        self.copies[isbn] -= 1",
+        "",
+        "    def save(self, path):",
+        "        f = open(path, \"w\")",
+        "        json.dump(self.loans, f)",
+        "        f.close()",
+        "",
+        "lib = Library()",
+        "lib.checkout(\"111\", \"aarav\")",
+        "lib.checkout(\"222\", \"diya\")",
+        "lib.checkout(\"222\", \"kabir\")",
+        "print(lib.copies, len(lib.loans))"
+      ],
+      "issues": [
+        {
+          "id": "no-stock-check",
+          "text": "checkout never checks that a copy is free, so the stock goes below zero",
+          "why": "Book 222 has one copy, yet the second checkout succeeds and the stock becomes -1. The class has to enforce its own rules and raise LibraryError(\"No copies available\") before changing anything.",
+          "lines": [
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        {
+          "id": "no-date",
+          "text": "A loan stores only the book and the member, not the date it went out",
+          "why": "Without the checkout date the library can never work out the due date, the late fee or an overdue report. Store the date as an ISO text such as \"2026-11-01\" so it also survives JSON.",
+          "lines": [
+            14
+          ]
+        },
+        {
+          "id": "file-not-closed",
+          "text": "save opens the file by hand and closes it at the end, without with and without encoding",
+          "why": "If json.dump raises an error, f.close() is never reached and the file stays open. Use with open(path, \"w\", encoding=\"utf-8\") as f: so Python closes it for you.",
+          "lines": [
+            18,
+            19,
+            20
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "pass-body",
+          "text": "LibraryError with only pass is useless and must define __init__",
+          "why": "A subclass of Exception already stores and prints the message you pass. The class only needs to exist so callers can catch it by name."
+        },
+        {
+          "id": "per-object-data",
+          "text": "self.copies and self.loans should be class attributes",
+          "why": "They are created inside __init__, so every Library gets its own data. Class-level lists or dicts would be shared by all libraries."
+        },
+        {
+          "id": "dump-vs-dumps",
+          "text": "json.dump should be json.dumps",
+          "why": "json.dump writes to an open file, which is what save does. json.dumps would only return text."
+        }
+      ],
+      "explain": "A system class is only as good as the rules it enforces and how it saves its state. Check that each method protects its data (stock, limits), that stored records hold everything later features need (dates), and that files are closed with a with block.",
+      "concepts": [
+        "business rules",
+        "JSON save and load",
+        "with open",
+        "reading code critically"
+      ]
+    }
+  ]
+}

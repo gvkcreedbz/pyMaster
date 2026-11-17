@@ -1,0 +1,230 @@
+{
+  "day": 16,
+  "drills": [
+    {
+      "id": "d16-parsons",
+      "type": "parsons",
+      "title": "Total revenue from CSV text",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them) so the function adds up quantity times unit price for every row of the CSV text. io.StringIO makes a string behave like an opened file. Two lines do not belong. The two imports can go in either order.",
+      "lines": [
+        "import csv",
+        "import io",
+        "def total_revenue(text):",
+        "total = 0",
+        "for row in csv.DictReader(io.StringIO(text)):",
+        "total += int(row[\"quantity\"]) * int(row[\"unit_price\"])",
+        "return total",
+        "print(total_revenue(\"region,quantity,unit_price\\nNorth,2,1999\\nSouth,1,499\\n\"))"
+      ],
+      "indent": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        1,
+        0
+      ],
+      "distractors": [
+        "for row in csv.DictReader(text):",
+        "total += row[\"quantity\"] * row[\"unit_price\"]"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      ],
+      "explain": "DictReader needs something that behaves like an open file, so a plain string must be wrapped (io.StringIO(text)); given a bare string it would loop over single characters. Every value read from a CSV is text, so quantity and unit_price must go through int() before the multiplication. The return sits outside the loop, at the same level as the for, so it runs after all rows are added.",
+      "concepts": [
+        "csv.DictReader",
+        "everything is text",
+        "total loop"
+      ],
+      "output": "4497"
+    },
+    {
+      "id": "d16-fill",
+      "type": "fill",
+      "title": "Save and load settings as JSON",
+      "viz": true,
+      "prompt": "Fill the two blanks. io.StringIO() is an in-memory file, so json.dump can write to it and getvalue() returns the text that was written. The program then turns that text back into a dict.",
+      "code": [
+        "import io",
+        "import json",
+        "",
+        "settings = {\"theme\": \"dark\", \"limits\": {\"daily\": 20000}}",
+        "buffer = io.StringIO()",
+        "json.___(settings, buffer, indent=2)",
+        "text = buffer.getvalue()",
+        "loaded = json.___(text)",
+        "print(text.splitlines()[1])",
+        "print(loaded[\"limits\"][\"daily\"])"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "dump"
+          ],
+          "options": [
+            "dump",
+            "dumps",
+            "load"
+          ]
+        },
+        {
+          "answers": [
+            "loads"
+          ],
+          "options": [
+            "loads",
+            "load",
+            "parse"
+          ]
+        }
+      ],
+      "explain": "The names without an s work with files: dump(obj, file) writes JSON into a file, load(file) reads it back. The names with an s work with strings: dumps(obj) returns text and loads(text) parses text. Here we write into a file-like object (dump) and then parse a string (loads). The \"s\" stands for string.",
+      "concepts": [
+        "json.dump / json.load",
+        "json.dumps / json.loads"
+      ],
+      "output": "  \"theme\": \"dark\",\n20000"
+    },
+    {
+      "id": "d16-predict",
+      "type": "predict",
+      "title": "Everything in a CSV is text",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import csv",
+        "import io",
+        "",
+        "text = \"item,qty,price\\nTea,2,30\\nCoffee,3,50\\n\"",
+        "rows = list(csv.DictReader(io.StringIO(text)))",
+        "print(rows[0])",
+        "print(rows[0][\"qty\"] * 2)",
+        "print(int(rows[0][\"qty\"]) * 2)",
+        "print(sum(int(r[\"qty\"]) * int(r[\"price\"]) for r in rows))"
+      ],
+      "explain": "DictReader turns each row into a dict keyed by the header, and every value is a str, even the digits (note the quotes around '2' and '30'). Multiplying the text \"2\" by 2 repeats it: 22. Convert with int() first and you get the number 4. The last line converts both columns before multiplying: 2 * 30 + 3 * 50.",
+      "concepts": [
+        "csv.DictReader",
+        "everything is text",
+        "int() conversion"
+      ],
+      "expected": "{'item': 'Tea', 'qty': '2', 'price': '30'}\n22\n4\n210"
+    },
+    {
+      "id": "d16-bug",
+      "type": "bug",
+      "title": "load or loads?",
+      "viz": true,
+      "prompt": "The program stops with an AttributeError. Click the faulty line and choose the fix.",
+      "code": [
+        "import json",
+        "settings_text = '{\"theme\": \"dark\", \"limits\": {\"daily\": 20000}}'",
+        "settings = json.load(settings_text)",
+        "print(settings[\"limits\"][\"daily\"])"
+      ],
+      "bug_lines": [
+        3
+      ],
+      "answer": 0,
+      "options": [
+        "settings = json.loads(settings_text)",
+        "settings = json.dumps(settings_text)",
+        "settings = json.dump(settings_text)",
+        "settings = json.parse(settings_text)"
+      ],
+      "fixed_code": [
+        "import json",
+        "settings_text = '{\"theme\": \"dark\", \"limits\": {\"daily\": 20000}}'",
+        "settings = json.loads(settings_text)",
+        "print(settings[\"limits\"][\"daily\"])"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "AttributeError"
+      },
+      "explain": "json.load expects an open file and calls .read() on it. A str has no read method, hence the AttributeError. For text already in a variable use json.loads (the s is for string). dumps would go in the opposite direction and give you more text, and json has no parse function.",
+      "concepts": [
+        "json.load vs json.loads",
+        "reading a traceback"
+      ],
+      "output": "20000"
+    },
+    {
+      "id": "d16-review",
+      "type": "review",
+      "title": "Review the AI's region report",
+      "prompt": "An AI assistant wrote this report from CSV sales data. It runs and prints something plausible, but tick the statements that point at real problems.",
+      "code": [
+        "import csv",
+        "import io",
+        "import json",
+        "",
+        "text = \"region,quantity,unit_price\\nNorth,2,1999\\nSouth,1,499\\nNorth,3,1999\\n\"",
+        "rows = list(csv.DictReader(io.StringIO(text)))",
+        "revenue_by_region = {}",
+        "for row in rows:",
+        "    revenue = int(row[\"quantity\"]) * int(row[\"unit_price\"])",
+        "    revenue_by_region[row[\"region\"]] = revenue",
+        "out = io.StringIO()",
+        "out.write(str(revenue_by_region))",
+        "print(out.getvalue())"
+      ],
+      "issues": [
+        {
+          "id": "overwrite-total",
+          "text": "Each region keeps only its LAST order instead of the total (North shows 5997, not 9995)",
+          "why": "The assignment replaces the old value. Use the group-and-total pattern: revenue_by_region[region] = revenue_by_region.get(region, 0) + revenue.",
+          "lines": [
+            8,
+            9,
+            10
+          ]
+        },
+        {
+          "id": "str-not-json",
+          "text": "str(revenue_by_region) writes Python text with single quotes, which is not valid JSON",
+          "why": "A JSON reader would reject {'North': 5997}. Use json.dump(revenue_by_region, out) (or json.dumps) so the result is real JSON with double quotes.",
+          "lines": [
+            12
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "int-conversion",
+          "text": "int(row[\"quantity\"]) is unnecessary because the CSV already has numbers",
+          "why": "DictReader returns text for every cell. The int() calls are exactly what is needed before doing maths."
+        },
+        {
+          "id": "stringio-reader",
+          "text": "csv.DictReader cannot read from io.StringIO",
+          "why": "DictReader accepts any file-like object, and StringIO is an in-memory file. With a real file you would use open(..., newline=\"\") instead."
+        },
+        {
+          "id": "list-rows",
+          "text": "list(csv.DictReader(...)) is wrong because the reader is a list already",
+          "why": "DictReader is an iterator that can be read only once. list() collects the rows so they can be reused."
+        }
+      ],
+      "explain": "Report code often looks right because it prints numbers. Check two things when you review it: does a group-and-total loop add to the previous value, and does the output format match what the next reader (a JSON or CSV parser) expects?",
+      "concepts": [
+        "group and total",
+        "JSON output",
+        "reading code critically"
+      ]
+    }
+  ]
+}

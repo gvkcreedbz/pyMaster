@@ -1,0 +1,273 @@
+{
+  "day": 25,
+  "drills": [
+    {
+      "id": "j25-parsons",
+      "type": "parsons",
+      "title": "Units per region, A-Z",
+      "wrap": true,
+      "prompt": "Arrange the lines so the program adds up the units sold in each region and prints the regions in A-Z order. The two imports can swap places. Two lines do not belong.",
+      "lines": [
+        "import java.util.*;",
+        "import java.util.stream.*;",
+        "record Sale(String region, int qty) {}",
+        "List<Sale> sales = List.of(new Sale(\"West\", 2), new Sale(\"East\", 1), new Sale(\"West\", 5));",
+        "Map<String, Integer> units = sales.stream()",
+        ".collect(Collectors.groupingBy(Sale::region, TreeMap::new, Collectors.summingInt(Sale::qty)));",
+        "System.out.println(units);"
+      ],
+      "distractors": [
+        ".collect(Collectors.groupingBy(Sale::region, TreeMap::new, Collectors.counting()));",
+        ".collect(Collectors.groupBy(Sale::region, TreeMap::new, Collectors.summingInt(Sale::qty)));"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      ],
+      "explain": "Read groupingBy aloud: group the sales by region, keep the keys A-Z in a TreeMap, and add up qty inside each group. summingInt gives an Integer per group, which is what the Map<String, Integer> expects. counting() would produce a Long and the line would not compile, and the method is called groupingBy, not groupBy.",
+      "concepts": [
+        "groupingBy",
+        "summingInt",
+        "TreeMap ordering"
+      ],
+      "output": "{East=1, West=7}"
+    },
+    {
+      "id": "j25-fill",
+      "type": "fill",
+      "title": "Average per category, and a joined list",
+      "prompt": "Fill the blanks so the program prints the average quantity per category (categories A-Z) and then the product names, sorted and joined with commas.",
+      "code": [
+        "import java.util.*;",
+        "import java.util.stream.*;",
+        "",
+        "class Shop {",
+        "    record Sale(String category, String product, int qty) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Sale> sales = List.of(new Sale(\"Home\", \"Lamp\", 2), new Sale(\"Grocery\", \"Tea\", 4),",
+        "                new Sale(\"Home\", \"Bowl\", 4), new Sale(\"Grocery\", \"Rice\", 1));",
+        "        Map<String, Double> avg = sales.stream()",
+        "                .collect(Collectors.groupingBy(Sale::category, ___, Collectors.___(Sale::qty)));",
+        "        System.out.println(avg);",
+        "        String names = sales.stream().map(Sale::product).sorted().collect(Collectors.___(\", \"));",
+        "        System.out.println(names);",
+        "    }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "TreeMap::new"
+          ],
+          "options": [
+            "TreeMap::new",
+            "TreeMap",
+            "new TreeMap<>()"
+          ]
+        },
+        {
+          "answers": [
+            "averagingDouble",
+            "averagingInt"
+          ],
+          "options": [
+            "averagingDouble",
+            "averagingInt",
+            "counting",
+            "summingInt"
+          ]
+        },
+        {
+          "answers": [
+            "joining"
+          ],
+          "options": [
+            "joining",
+            "join",
+            "concat"
+          ]
+        }
+      ],
+      "explain": "The middle argument of groupingBy chooses the Map to build: TreeMap::new is a constructor reference that keeps the categories A-Z. averagingDouble (or averagingInt) gives a Double per group, while counting() gives a Long and summingInt an Integer, so neither fits Map<String, Double>. To glue strings together you collect them with Collectors.joining(\", \"); there is no Collectors.join.",
+      "concepts": [
+        "downstream collectors",
+        "averagingDouble",
+        "Collectors.joining",
+        "TreeMap::new"
+      ],
+      "output": "{Grocery=2.5, Home=3.0}\nBowl, Lamp, Rice, Tea"
+    },
+    {
+      "id": "j25-predict",
+      "type": "predict",
+      "title": "Top 2 when the totals tie",
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.util.*;",
+        "import java.util.stream.*;",
+        "record Sale(String product, int qty) {}",
+        "List<Sale> sales = List.of(new Sale(\"Tea\", 3), new Sale(\"Rice\", 5), new Sale(\"Tea\", 4),",
+        "        new Sale(\"Lamp\", 7), new Sale(\"Rice\", 2));",
+        "Map<String, Integer> totals = sales.stream()",
+        "        .collect(Collectors.groupingBy(Sale::product, TreeMap::new, Collectors.summingInt(Sale::qty)));",
+        "System.out.println(totals);",
+        "totals.entrySet().stream()",
+        "        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))",
+        "        .limit(2)",
+        "        .forEach(e -> System.out.println(e.getKey() + \" \" + e.getValue()));"
+      ],
+      "explain": "Tea adds up to 3 + 4 = 7, Rice to 5 + 2 = 7 and Lamp to 7, so all three totals tie. sorted(...) is stable: entries that compare as equal keep their incoming order, which is the TreeMap order (Lamp, Rice, Tea). limit(2) then keeps the first two. A top-N with ties needs a tie-breaker such as thenComparing(Map.Entry::getKey), otherwise the result depends on the map you started from.",
+      "concepts": [
+        "summingInt",
+        "sorting entrySet",
+        "stable sort and ties",
+        "limit"
+      ],
+      "expected": "{Lamp=7, Rice=7, Tea=7}\nLamp 7\nRice 7"
+    },
+    {
+      "id": "j25-bug",
+      "type": "bug",
+      "title": "toMap meets a repeated key",
+      "prompt": "The program should print one price per product, but it crashes. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.util.*;",
+        "import java.util.stream.*;",
+        "",
+        "class Prices {",
+        "    record Sale(String product, int price) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Sale> sales = List.of(new Sale(\"Tea\", 120), new Sale(\"Rice\", 480), new Sale(\"Tea\", 120));",
+        "        Map<String, Integer> priceOf = sales.stream()",
+        "                .collect(Collectors.toMap(Sale::product, Sale::price));",
+        "        System.out.println(new TreeMap<>(priceOf));",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.util.*;",
+        "import java.util.stream.*;",
+        "",
+        "class Prices {",
+        "    record Sale(String product, int price) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Sale> sales = List.of(new Sale(\"Tea\", 120), new Sale(\"Rice\", 480), new Sale(\"Tea\", 120));",
+        "        Map<String, Integer> priceOf = sales.stream()",
+        "                .collect(Collectors.toMap(Sale::product, Sale::price, (first, second) -> first));",
+        "        System.out.println(new TreeMap<>(priceOf));",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        10
+      ],
+      "answer": 0,
+      "options": [
+        ".collect(Collectors.toMap(Sale::product, Sale::price, (first, second) -> first));",
+        ".collect(Collectors.toMap(s -> s.product(), s -> s.price()));",
+        ".collect(Collectors.toUnmodifiableMap(Sale::product, Sale::price));",
+        ".collect(Collectors.toMap(Sale::product, Sale::price, TreeMap::new));"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "Duplicate key Tea"
+      },
+      "explain": "Tea appears twice, and toMap does not know which of the two prices to keep, so it throws IllegalStateException: Duplicate key Tea. The third argument is a merge function that decides: (first, second) -> first keeps the first price. Spelling the key and value functions as lambdas, or switching to toUnmodifiableMap, still gives no merge function, so the crash stays. TreeMap::new is a map factory, not a merge function.",
+      "concepts": [
+        "toMap",
+        "merge function",
+        "IllegalStateException"
+      ],
+      "output": "{Rice=480, Tea=120}"
+    },
+    {
+      "id": "j25-review",
+      "type": "review",
+      "title": "Review the AI's regional report",
+      "prompt": "An AI assistant wrote this report. It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.*;",
+        "import java.util.stream.*;",
+        "",
+        "class Report {",
+        "    record Sale(String region, String product, int qty, double price) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Sale> sales = List.of(new Sale(\"West\", \"Tea\", 3, 120.55), new Sale(\"East\", \"Rice\", 1, 480.25),",
+        "                new Sale(\"West\", \"Bowl\", 3, 99.95), new Sale(\"East\", \"Lamp\", 2, 799.99));",
+        "        Map<String, Double> revenue = sales.stream()",
+        "                .collect(Collectors.groupingBy(Sale::region, Collectors.summingDouble(",
+        "                        s -> Math.round(s.qty() * s.price() * 100) / 100.0)));",
+        "        Map<String, Long> orders = sales.stream()",
+        "                .collect(Collectors.groupingBy(Sale::region, Collectors.counting()));",
+        "        int totalQty = sales.stream().mapToInt(Sale::qty).sum();",
+        "        double avgQty = totalQty / sales.size();",
+        "        System.out.println(revenue + \" \" + orders + \" \" + avgQty);",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "round-each",
+          "text": "Every order is rounded before it is added to its region total",
+          "why": "Each rounding error is kept and added up, so the totals can drift by a few paise. Add the exact revenue and round once at the end (for example with replaceAll on the finished map).",
+          "lines": [
+            12
+          ]
+        },
+        {
+          "id": "hashmap-order",
+          "text": "groupingBy without TreeMap::new returns a HashMap, so the regions have no guaranteed order",
+          "why": "A report should list the regions in a fixed order. Pass TreeMap::new as the middle argument (as Day 25 does), otherwise the order depends on hashing and can look random.",
+          "lines": [
+            11,
+            14
+          ]
+        },
+        {
+          "id": "int-division",
+          "text": "avgQty divides two ints, so the average is cut down to 2.0 instead of 2.25",
+          "why": "totalQty / sales.size() is whole-number division and the decimals are gone before the result reaches the double. Use mapToInt(...).average() or divide by (double) sales.size().",
+          "lines": [
+            16
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "counting-long",
+          "text": "counting() returns a Long, so Map<String, Long> is a mistake",
+          "why": "Long is exactly what counting() produces. Map<String, Integer> would be the compile error."
+        },
+        {
+          "id": "stream-twice",
+          "text": "sales.stream() is called more than once, so the second stream is already closed",
+          "why": "Only one Stream object cannot be reused. Every call to sales.stream() creates a fresh stream from the list."
+        },
+        {
+          "id": "record-getters",
+          "text": "The record needs getRegion() style getters to be used with Sale::region",
+          "why": "A record creates accessors named after its fields (region(), qty()), and Sale::region refers to exactly that method."
+        }
+      ],
+      "explain": "In generated report code look for rounding inside the loop, maps whose order matters but is not chosen, and divisions of two ints. The Collectors themselves were used correctly here.",
+      "concepts": [
+        "round at the end",
+        "TreeMap ordering",
+        "int division",
+        "reviewing Collectors"
+      ]
+    }
+  ]
+}

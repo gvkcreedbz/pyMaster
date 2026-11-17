@@ -1,0 +1,263 @@
+{
+  "day": 6,
+  "drills": [
+    {
+      "id": "j06-parsons",
+      "type": "parsons",
+      "title": "Add up a cart",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Arrange the lines so the program adds up the cart and prints the total. The first two lines can go in either order. Two lines do not belong.",
+      "lines": [
+        "int[] prices = {499, 1299, 250};",
+        "int total = 0;",
+        "for (int p : prices) {",
+        "total += p;",
+        "}",
+        "System.out.println(\"Total: \" + total);"
+      ],
+      "distractors": [
+        "for (int p in prices) {",
+        "total = p;"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5
+        ]
+      ],
+      "explain": "The accumulator pattern has three parts: a start value before the loop, an update inside it, and the result after it. total += p adds to what is already there, while total = p would throw the old total away. Java writes the for-each loop with a colon (for (int p : prices)), not with the word in.",
+      "concepts": [
+        "accumulator pattern",
+        "enhanced for"
+      ],
+      "output": "Total: 2048"
+    },
+    {
+      "id": "j06-fill",
+      "type": "fill",
+      "title": "for, continue and do / while",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the program prints the goal output: the numbers 1 to 5 without the 3, then the number of PIN tries.",
+      "code": [
+        "for (int i = ___; i <= 5; i___) {",
+        "    if (i == 3) {",
+        "        ___;",
+        "    }",
+        "    System.out.println(i);",
+        "}",
+        "int tries = 0;",
+        "___ {",
+        "    tries++;",
+        "} while (tries < 3);",
+        "System.out.println(\"Tries: \" + tries);"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "1"
+          ]
+        },
+        {
+          "answers": [
+            "++",
+            "+= 1"
+          ]
+        },
+        {
+          "answers": [
+            "continue"
+          ],
+          "options": [
+            "continue",
+            "break",
+            "skip"
+          ]
+        },
+        {
+          "answers": [
+            "do"
+          ],
+          "options": [
+            "do",
+            "while",
+            "loop"
+          ]
+        }
+      ],
+      "explain": "A for loop has three parts: where to start (i = 1), how long to keep going (i <= 5) and the step after each round (i++). continue skips the rest of this round only, while break would leave the loop completely and stop at 2. do { ... } while (...) runs its body first and checks afterwards, so the body always runs at least once.",
+      "concepts": [
+        "for loop",
+        "break and continue",
+        "do / while"
+      ],
+      "output": [
+        "1",
+        "2",
+        "4",
+        "5",
+        "Tries: 3"
+      ]
+    },
+    {
+      "id": "j06-predict",
+      "type": "predict",
+      "title": "Skip, stop and never start",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "for (int n = 1; n < 10; n++) {",
+        "    if (n == 3) {",
+        "        continue;",
+        "    }",
+        "    if (n == 6) {",
+        "        break;",
+        "    }",
+        "    System.out.print(n + \" \");",
+        "}",
+        "System.out.println();",
+        "int x = 5;",
+        "while (x < 3) {",
+        "    x++;",
+        "}",
+        "do {",
+        "    x++;",
+        "} while (x < 3);",
+        "System.out.println(x);"
+      ],
+      "explain": "continue skips only the round for n = 3. At n = 6 the break leaves the whole loop, so 6 is never printed. A while loop checks first: x < 3 is false from the start, so its body never runs. A do / while runs once before it checks, so x becomes 6.",
+      "concepts": [
+        "break and continue",
+        "while vs do / while"
+      ],
+      "expected": [
+        "1 2 4 5",
+        "6"
+      ]
+    },
+    {
+      "id": "j06-bug",
+      "type": "bug",
+      "title": "The total that has no start",
+      "viz": true,
+      "prompt": "The program should add up the cart, but it does not compile. Click the line the compiler complains about, then choose the fix.",
+      "code": [
+        "class Cart {",
+        "    public static void main(String[] args) {",
+        "        int[] prices = {499, 1299, 250};",
+        "        int total;",
+        "        for (int p : prices) {",
+        "            total += p;",
+        "        }",
+        "        System.out.println(\"Cart total: \" + total);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        4
+      ],
+      "answer": 0,
+      "options": [
+        "int total = 0;",
+        "int total = 1;",
+        "int total = null;",
+        "int total = \"0\";"
+      ],
+      "fixed_code": [
+        "class Cart {",
+        "    public static void main(String[] args) {",
+        "        int[] prices = {499, 1299, 250};",
+        "        int total = 0;",
+        "        for (int p : prices) {",
+        "            total += p;",
+        "        }",
+        "        System.out.println(\"Cart total: \" + total);",
+        "    }",
+        "}"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "might not have been initialized"
+      },
+      "explain": "total += p means total = total + p, which reads total before the first round. A local variable that was never given a value cannot be read, so the compiler stops you. The start value of a sum is 0, and it belongs before the loop (a 1 would make every total too big by one).",
+      "concepts": [
+        "accumulator pattern",
+        "uninitialised variable"
+      ],
+      "output": "Cart total: 2048"
+    },
+    {
+      "id": "j06-review",
+      "type": "review",
+      "title": "Review the AI's sales report",
+      "prompt": "An AI assistant wrote this sales report for four days of sales. It compiles and runs, but tick the real problems (there are two).",
+      "code": [
+        "class Report {",
+        "    public static void main(String[] args) {",
+        "        int[] sales = {1200, 800, 1500, 950};",
+        "        int total = 0;",
+        "        for (int i = 1; i < sales.length; i++) {",
+        "            total += sales[i];",
+        "        }",
+        "        double average = total / sales.length;",
+        "        int best = 0;",
+        "        for (int s : sales) {",
+        "            if (s > best) {",
+        "                best = s;",
+        "            }",
+        "        }",
+        "        System.out.println(total + \" \" + average + \" \" + best);",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "skips-first",
+          "text": "The total leaves out the first day because the loop starts at index 1",
+          "why": "Indexes start at 0. Starting at 1 skips sales[0], so the total (and everything computed from it) is 1200 too small. Use int i = 0, or a for-each loop.",
+          "lines": [
+            5,
+            6
+          ]
+        },
+        {
+          "id": "int-division-average",
+          "text": "average is cut to a whole number because total / sales.length divides two ints",
+          "why": "The decimals are dropped before the result goes into a double. Cast one side: (double) total / sales.length.",
+          "lines": [
+            8
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "best-starts-zero",
+          "text": "best = 0 as the start value is a bug",
+          "why": "Sales are never negative, so any real sale beats 0. (For data that can be negative, start from the first item instead.)"
+        },
+        {
+          "id": "should-be-le",
+          "text": "The condition i < sales.length should be i <= sales.length",
+          "why": "The last valid index is length - 1. With <= the loop would read sales[4] and crash."
+        },
+        {
+          "id": "foreach-cannot-compare",
+          "text": "A for-each loop cannot be used to look for the biggest value",
+          "why": "It reads every item in turn, and an if inside it can compare and remember the best one. Only a need for the position requires the classic loop."
+        }
+      ],
+      "explain": "Loop reports fail quietly: the program runs and prints numbers that look reasonable. Check the first and last round of every loop, and every / between two ints.",
+      "concepts": [
+        "off-by-one",
+        "int division",
+        "reading loops critically"
+      ]
+    }
+  ]
+}

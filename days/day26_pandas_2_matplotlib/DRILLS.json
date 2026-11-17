@@ -1,0 +1,233 @@
+{
+  "day": 26,
+  "drills": [
+    {
+      "id": "d26-parsons",
+      "type": "parsons",
+      "title": "Clean the region names, then add up",
+      "viz": true,
+      "prompt": "Arrange the lines so the program cleans the messy region names first and then prints the revenue per region. Two lines do not belong.",
+      "lines": [
+        "import pandas as pd",
+        "df = pd.DataFrame({\"region\": [\" SOUTH \", \"north\", \"North \"], \"revenue\": [100, 50, 70]})",
+        "df[\"region\"] = df[\"region\"].str.strip().str.title()",
+        "totals = df.groupby(\"region\")[\"revenue\"].sum()",
+        "print(totals.to_dict())"
+      ],
+      "distractors": [
+        "df[\"region\"] = df[\"region\"].strip().title()",
+        "totals = df.groupby(region)[\"revenue\"].sum()"
+      ],
+      "explain": "Clean first, then group. If the groupby ran before the cleaning, ' SOUTH ', 'north' and 'North ' would be three different groups. Text methods on a column live behind .str (df[\"region\"].str.strip()). Without .str the call fails with an AttributeError, because a column is not a string. The column name passed to groupby is itself a string (\"region\").",
+      "concepts": [
+        "str.strip / str.title",
+        "clean before you group",
+        "groupby + sum"
+      ],
+      "output": "{'North': 120, 'South': 100}"
+    },
+    {
+      "id": "d26-fill",
+      "type": "fill",
+      "title": "Fill the default, drop the unknown",
+      "viz": true,
+      "prompt": "Some orders have no discount recorded (a missing discount means no discount) and one order has no quantity (nobody knows what was sold). Fill the two blanks: fill the missing discounts with 0 and drop the row whose quantity is missing.",
+      "code": [
+        "import pandas as pd",
+        "",
+        "df = pd.DataFrame({\"item\": [\"tea\", \"coffee\", \"cake\"],",
+        "                   \"qty\": [2, None, 5],",
+        "                   \"discount\": [None, 10.0, None]})",
+        "df[\"discount\"] = df[\"discount\"].___(0)",
+        "df = df.___(subset=[\"qty\"])",
+        "print(df.to_string(index=False))"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "fillna"
+          ],
+          "options": [
+            "fillna",
+            "dropna",
+            "replace_na"
+          ]
+        },
+        {
+          "answers": [
+            "dropna"
+          ],
+          "options": [
+            "dropna",
+            "fillna",
+            "drop_duplicates"
+          ]
+        }
+      ],
+      "explain": "fillna(0) replaces the blanks with a value, which is right when a sensible default exists (no discount recorded = 0). dropna(subset=[\"qty\"]) removes the rows where that critical column is empty, which is right when guessing would invent data: we do not know how many coffees were sold. Write down choices like these, because they change your totals.",
+      "concepts": [
+        "fillna",
+        "dropna(subset=...)",
+        "fill vs drop decision"
+      ],
+      "output": "item  qty  discount\n tea  2.0       0.0\ncake  5.0       0.0"
+    },
+    {
+      "id": "d26-predict",
+      "type": "predict",
+      "title": "The silent NaN after a merge",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import pandas as pd",
+        "",
+        "revenue = pd.DataFrame({\"region\": [\"East\", \"west\"], \"revenue\": [300, 400]})",
+        "targets = pd.DataFrame({\"region\": [\"East\", \"West\"], \"target\": [250, 500]})",
+        "combined = revenue.merge(targets, on=\"region\", how=\"left\")",
+        "print(len(combined))",
+        "print(combined[\"target\"].tolist())",
+        "print(combined[\"target\"].isna().sum())"
+      ],
+      "explain": "A merge matches keys exactly, so \"west\" and \"West\" are different regions. With how=\"left\" every row of the left table is kept, and the row without a partner gets NaN instead of an error, so the table still has 2 rows. The targets become floats (250.0) because NaN is a float. Clean the key columns (strip, title) before a merge and count the NaNs afterwards.",
+      "concepts": [
+        "merge how=\"left\"",
+        "NaN",
+        "clean keys first"
+      ],
+      "expected": "2\n[250.0, nan]\n1"
+    },
+    {
+      "id": "d26-bug",
+      "type": "bug",
+      "title": "The price with a comma",
+      "viz": true,
+      "prompt": "The export has prices like \"1,999\" stored as text. The program should add them up, but it stops with an error. Click the faulty line and choose the fix.",
+      "code": [
+        "import pandas as pd",
+        "",
+        "df = pd.DataFrame({\"item\": [\"Watch\", \"Phone\"], \"price\": [\"1,999\", \"250\"]})",
+        "df[\"price\"] = df[\"price\"].astype(int)",
+        "print(df[\"price\"].sum())"
+      ],
+      "bug_lines": [
+        4
+      ],
+      "answer": 0,
+      "options": [
+        "df[\"price\"] = df[\"price\"].str.replace(\",\", \"\").astype(int)",
+        "df[\"price\"] = df[\"price\"].astype(float)",
+        "df[\"price\"] = df[\"price\"].str.replace(\",\", \" \").astype(int)",
+        "df[\"price\"] = df[\"price\"].str.strip(\",\").astype(int)"
+      ],
+      "fixed_code": [
+        "import pandas as pd",
+        "",
+        "df = pd.DataFrame({\"item\": [\"Watch\", \"Phone\"], \"price\": [\"1,999\", \"250\"]})",
+        "df[\"price\"] = df[\"price\"].str.replace(\",\", \"\").astype(int)",
+        "print(df[\"price\"].sum())"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "1,999"
+      },
+      "explain": "astype(int) cannot read the comma, so the text \"1,999\" is not a number yet. Remove the comma first with .str.replace(\",\", \"\"), then convert. float fails for the same reason, a space inside the number is just as unreadable, and strip(\",\") removes commas only at the two ends of the text, not in the middle. The error message quotes the value that broke the conversion: look at it first.",
+      "concepts": [
+        "astype",
+        "str.replace",
+        "reading a traceback"
+      ],
+      "output": "2249"
+    },
+    {
+      "id": "d26-review",
+      "type": "review",
+      "title": "Review the AI's cleaned region chart",
+      "prompt": "An AI assistant cleaned a small export and charted the revenue per region. It runs and prints numbers. Tick the statements that point at real problems.",
+      "code": [
+        "import matplotlib",
+        "matplotlib.use(\"Agg\")",
+        "import matplotlib.pyplot as plt",
+        "import pandas as pd",
+        "",
+        "raw = pd.DataFrame({",
+        "    \"region\": [\" East\", \"east \", \"West\", \"West\"],",
+        "    \"quantity\": [3, None, 5, 4],",
+        "    \"price\": [100, 120, 80, 80],",
+        "})",
+        "df = raw.fillna(0)",
+        "df[\"revenue\"] = df[\"quantity\"].astype(int) * df[\"price\"]",
+        "by_region = df.groupby(\"region\")[\"revenue\"].sum()",
+        "",
+        "fig, ax = plt.subplots()",
+        "ax.bar(by_region.index, by_region.values)",
+        "ax.set_ylim(250, 750)",
+        "print(by_region.to_dict())",
+        "plt.close(fig)"
+      ],
+      "issues": [
+        {
+          "id": "fill-unknown",
+          "text": "fillna(0) turns an unknown quantity into 0 sold, so that order silently counts as zero revenue",
+          "why": "Nobody knows how many were sold, and 0 is an invented value. For a critical column drop the row (dropna(subset=[\"quantity\"])) or flag it, and write the decision down.",
+          "lines": [
+            11
+          ]
+        },
+        {
+          "id": "dirty-keys",
+          "text": "The region names are never cleaned, so ' East' and 'east ' are counted as two regions",
+          "why": "The printed result has three groups instead of two. Run .str.strip().str.title() on the region column before grouping.",
+          "lines": [
+            7,
+            13
+          ]
+        },
+        {
+          "id": "truncated-axis",
+          "text": "set_ylim(250, 750) starts the y-axis far above zero, which exaggerates the differences between bars",
+          "why": "Bar length is read as size. A bar chart that does not start at zero makes a small gap look huge. Let matplotlib start at 0 for bars.",
+          "lines": [
+            17
+          ]
+        },
+        {
+          "id": "no-labels",
+          "text": "The chart has no title and no axis labels",
+          "why": "A chart needs a title, labelled axes and a message you can say in one sentence. Without labels nobody knows whether the numbers are rupees, orders or units.",
+          "lines": [
+            15,
+            16
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "agg-first",
+          "text": "matplotlib.use(\"Agg\") should come after the pyplot import",
+          "why": "Choosing the backend before importing pyplot is the recommended order. Agg draws into memory and never opens a window, which suits scripts and servers."
+        },
+        {
+          "id": "astype-after-fillna",
+          "text": "astype(int) will fail because quantity contains None",
+          "why": "fillna(0) already removed the missing values, so the conversion works (3, 0, 5, 4)."
+        },
+        {
+          "id": "raw-kept",
+          "text": "fillna creates a copy, so the original raw table is lost",
+          "why": "fillna returns a new table and raw stays unchanged. Keeping the raw data untouched next to the cleaned copy is the good habit."
+        },
+        {
+          "id": "close-fig",
+          "text": "plt.close(fig) is useless because the chart is never shown",
+          "why": "close frees the figure's memory. Forgetting it in a script that makes many charts is a real leak, so having it is correct."
+        }
+      ],
+      "explain": "Cleaning code can run without errors and still produce confident nonsense. Check what every fill and drop does to the numbers, whether keys are cleaned before grouping, and whether the chart tells the truth.",
+      "concepts": [
+        "fill vs drop",
+        "clean keys before groupby",
+        "honest charts"
+      ]
+    }
+  ]
+}

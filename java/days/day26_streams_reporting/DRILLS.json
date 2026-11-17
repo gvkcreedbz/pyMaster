@@ -1,0 +1,270 @@
+{
+  "day": 26,
+  "drills": [
+    {
+      "id": "j26-parsons",
+      "type": "parsons",
+      "title": "Top 2 products with a tie-breaker",
+      "wrap": true,
+      "prompt": "Arrange the lines into a pipeline that prints the names of the two best products, biggest total first, with the name A-Z breaking ties. limit and map may swap places. Two lines do not belong.",
+      "lines": [
+        "import java.util.*;",
+        "record Sale(String name, double total) {}",
+        "var sales = List.of(new Sale(\"Tea\", 90), new Sale(\"Pen\", 480), new Sale(\"Cup\", 800), new Sale(\"Mug\", 480));",
+        "List<String> top = sales.stream()",
+        ".sorted(Comparator.comparingDouble(Sale::total).reversed().thenComparing(Sale::name))",
+        ".limit(2)",
+        ".map(Sale::name)",
+        ".toList();",
+        "System.out.println(top);"
+      ],
+      "distractors": [
+        ".sorted(Comparator.comparingDouble(Sale::total).thenComparing(Sale::name))",
+        ".sorted(Comparator.comparingDouble(Sale::total).reverse().thenComparing(Sale::name))"
+      ],
+      "alternatives": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          5,
+          7,
+          8
+        ]
+      ],
+      "explain": "Sort first, then cut: limit(2) only keeps the right rows once the list is in ranking order. reversed() turns the order into biggest first, and thenComparing(Sale::name) decides between Pen and Mug, which both total 480, so the result is the same on every run. Without reversed() the cheapest products win, and reverse() does not exist (the method is reversed).",
+      "concepts": [
+        "sorted with Comparator",
+        "reversed",
+        "thenComparing",
+        "limit"
+      ],
+      "output": "[Cup, Mug]"
+    },
+    {
+      "id": "j26-fill",
+      "type": "fill",
+      "title": "A text bar chart",
+      "prompt": "Fill the blanks so the program draws one bar per region (the longest bar is 20 characters) and prints the goal output.",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Chart {",
+        "    public static void main(String[] args) {",
+        "        Map<String, Integer> revenue = new LinkedHashMap<>();",
+        "        revenue.put(\"West\", 8);",
+        "        revenue.put(\"East\", 5);",
+        "        revenue.put(\"South\", 2);",
+        "        int biggest = Collections.max(revenue.values());",
+        "        for (Map.Entry<String, Integer> e : revenue.entrySet()) {",
+        "            int bar = (___) Math.round(e.getValue() / (double) biggest * 20);",
+        "            System.out.println(String.___(\"%-6s | %s %d\", e.getKey(), \"#\".___(bar), e.getValue()));",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "int"
+          ],
+          "options": [
+            "int",
+            "double",
+            "long"
+          ]
+        },
+        {
+          "answers": [
+            "format"
+          ],
+          "options": [
+            "format",
+            "printf",
+            "valueOf"
+          ]
+        },
+        {
+          "answers": [
+            "repeat"
+          ],
+          "options": [
+            "repeat",
+            "times",
+            "multiply"
+          ]
+        }
+      ],
+      "explain": "Math.round returns a long, so you cast it to int before using it as a length (a narrowing assignment needs the cast). String.format builds the aligned text: %-6s pads the label to 6 characters, left-aligned, so the bars start in one column. \"#\".repeat(n) draws the bar. Dividing by (double) biggest keeps the decimals before the multiplication by 20.",
+      "concepts": [
+        "String.format",
+        "repeat",
+        "Math.round",
+        "text bar chart"
+      ],
+      "output": "West   | #################### 8\nEast   | ############# 5\nSouth  | ##### 2"
+    },
+    {
+      "id": "j26-predict",
+      "type": "predict",
+      "title": "flatMap, distinct and the order of steps",
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.util.*;",
+        "List<List<String>> orders = List.of(List.of(\"Tea\", \"Rice\"), List.of(\"Tea\", \"Lamp\"), List.of());",
+        "List<String> items = orders.stream().flatMap(List::stream).toList();",
+        "System.out.println(items);",
+        "System.out.println(items.stream().distinct().count());",
+        "System.out.println(items.stream().limit(3).sorted().toList());",
+        "System.out.println(items.stream().sorted().limit(3).toList());"
+      ],
+      "explain": "flatMap(List::stream) flattens the three order lists into one stream of four items (the empty list adds none). distinct() drops the second Tea, so 3 remain. The last two lines use the same steps in a different order: limit(3) first keeps Tea, Rice, Tea and only then sorts them; sorted() first puts Lamp at the front and limit(3) keeps Lamp, Rice, Tea. Steps run in the order you write them.",
+      "concepts": [
+        "flatMap",
+        "distinct",
+        "limit before sorted",
+        "pipeline order"
+      ],
+      "expected": "[Tea, Rice, Tea, Lamp]\n3\n[Rice, Tea, Tea]\n[Lamp, Rice, Tea]"
+    },
+    {
+      "id": "j26-bug",
+      "type": "bug",
+      "title": "A price with a comma",
+      "prompt": "The cleaning pipeline should add up three prices from a messy export, but it crashes. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Clean {",
+        "    public static void main(String[] args) {",
+        "        List<String> prices = List.of(\"249\", \" 1,999 \", \"499\");",
+        "        int total = prices.stream()",
+        "                .map(String::strip)",
+        "                .mapToInt(p -> Integer.parseInt(p))",
+        "                .sum();",
+        "        System.out.println(\"Total: Rs.\" + total);",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.util.*;",
+        "",
+        "class Clean {",
+        "    public static void main(String[] args) {",
+        "        List<String> prices = List.of(\"249\", \" 1,999 \", \"499\");",
+        "        int total = prices.stream()",
+        "                .map(String::strip)",
+        "                .mapToInt(p -> Integer.parseInt(p.replace(\",\", \"\")))",
+        "                .sum();",
+        "        System.out.println(\"Total: Rs.\" + total);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        8
+      ],
+      "answer": 0,
+      "options": [
+        ".mapToInt(p -> Integer.parseInt(p.replace(\",\", \"\")))",
+        ".mapToInt(p -> Integer.parseInt(p.strip()))",
+        ".mapToInt(p -> Integer.parseInt(p.split(\",\")[0]))",
+        ".mapToInt(p -> (int) Double.parseDouble(p))"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "NumberFormatException"
+      },
+      "explain": "strip() already removed the spaces, but \"1,999\" still contains a comma, and Integer.parseInt only accepts digits (and a sign). Remove the comma first with replace(\",\", \"\"), then parse. Stripping twice does nothing new, split(\",\")[0] would silently turn 1,999 into 1, and Double.parseDouble rejects the comma too.",
+      "concepts": [
+        "cleaning text before parseInt",
+        "replace",
+        "NumberFormatException"
+      ],
+      "output": "Total: Rs.2747"
+    },
+    {
+      "id": "j26-review",
+      "type": "review",
+      "title": "Review the AI's top-products chart",
+      "prompt": "An AI assistant wrote this report. It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.*;",
+        "import java.util.stream.*;",
+        "",
+        "class Chart {",
+        "    record Sale(String region, String product, double revenue) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Sale> sales = List.of(new Sale(\" West \", \"Tea\", 361.65), new Sale(\"West\", \"Bowl\", 480.25),",
+        "                new Sale(\"East\", \"Rice\", 480.25), new Sale(\"East\", \"Lamp\", 480.25));",
+        "        List<Sale> top = sales.stream()",
+        "                .sorted(Comparator.comparingDouble(Sale::revenue).reversed())",
+        "                .limit(2)",
+        "                .toList();",
+        "        double biggest = top.get(0).revenue();",
+        "        for (Sale s : top) {",
+        "            int bar = (int) Math.round(s.revenue() / biggest * 20);",
+        "            System.out.println(String.format(\"%-5s | %s\", s.product(), \"#\".repeat(bar)));",
+        "        }",
+        "        long west = sales.stream().filter(s -> s.region().strip() == \"West\").count();",
+        "        System.out.println(west + \" West orders\");",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "no-tiebreak",
+          "text": "Three products tie at 480.25 and the sort has no tie-breaker, so which two reach the top depends on the input order",
+          "why": "Add thenComparing(Sale::product) after reversed(). Then the same two products win on every run and for any ordering of the input.",
+          "lines": [
+            11
+          ]
+        },
+        {
+          "id": "string-equals",
+          "text": "The region is compared with == after strip(), so \" West \" is not counted",
+          "why": "== compares object identity, not text. strip() builds a new String when it removes spaces, which is never the same object as the literal \"West\", so only one of the two West orders is counted (1 instead of 2). Use equals.",
+          "lines": [
+            19
+          ]
+        },
+        {
+          "id": "empty-list",
+          "text": "top.get(0) crashes with an IndexOutOfBoundsException when there are no sales",
+          "why": "The scale of the chart comes from the first element, so an empty report fails with a stack trace instead of an empty chart. Check isEmpty() first (and avoid dividing by a biggest value of 0).",
+          "lines": [
+            14
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "limit-after-sort",
+          "text": "limit(2) should come before sorted(...) so the stream stops early",
+          "why": "limit before sorted would keep two arbitrary rows and sort only those. Cutting after sorting is the correct order for a top-N."
+        },
+        {
+          "id": "format-vs-printf",
+          "text": "System.out.println(String.format(...)) should be printf",
+          "why": "Both give the same text. printf is shorter, but the format string and the aligned output are correct as written."
+        },
+        {
+          "id": "tolist-readonly",
+          "text": "toList() returns a list that cannot be changed, so top.get(0) will fail",
+          "why": "An unmodifiable list can be read freely. Only add, remove and set throw UnsupportedOperationException."
+        }
+      ],
+      "explain": "In generated reporting code check the edges: ties at the cut-off of a top-N, text compared with ==, and an empty input.",
+      "concepts": [
+        "tie-breaker in sorted",
+        "equals vs ==",
+        "empty input",
+        "reviewing reports"
+      ]
+    }
+  ]
+}

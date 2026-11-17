@@ -1,0 +1,274 @@
+{
+  "day": 28,
+  "drills": [
+    {
+      "id": "j28-parsons",
+      "type": "parsons",
+      "title": "Create, fill and query a table",
+      "wrap": true,
+      "prompt": "Arrange the lines into a JDBC program that builds a throw-away in-memory database, adds three orders and prints the units per product, A-Z. Two lines do not belong.",
+      "lines": [
+        "import java.sql.*;",
+        "try (Connection conn = DriverManager.getConnection(\"jdbc:sqlite::memory:\");",
+        "Statement st = conn.createStatement()) {",
+        "st.execute(\"CREATE TABLE sales (product TEXT, qty INTEGER)\");",
+        "st.execute(\"INSERT INTO sales VALUES ('Tea', 3), ('Rice', 1), ('Tea', 2)\");",
+        "String sql = \"SELECT product, SUM(qty) FROM sales GROUP BY product ORDER BY product\";",
+        "try (ResultSet rs = st.executeQuery(sql)) {",
+        "while (rs.next()) {",
+        "System.out.println(rs.getString(1) + \" \" + rs.getInt(2));",
+        "}",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "while (rs.hasNext()) {",
+        "System.out.println(rs.getString(0) + \" \" + rs.getInt(1));"
+      ],
+      "explain": "The Connection and the Statement are opened in try-with-resources, so they are closed even when an error happens. A query returns a ResultSet that starts before the first row: while (rs.next()) moves forward and is false at the end (there is no hasNext). JDBC columns are numbered from 1, so the first column is getString(1), and getString(0) would throw.",
+      "concepts": [
+        "DriverManager.getConnection",
+        "try-with-resources",
+        "ResultSet.next",
+        "column numbers start at 1"
+      ],
+      "output": "Rice 1\nTea 5"
+    },
+    {
+      "id": "j28-fill",
+      "type": "fill",
+      "title": "A query with a ? placeholder",
+      "prompt": "Fill the blanks so the region travels as a parameter and the program prints the total for West.",
+      "code": [
+        "import java.sql.*;",
+        "",
+        "class Lookup {",
+        "    public static void main(String[] args) throws SQLException {",
+        "        try (Connection conn = DriverManager.getConnection(\"jdbc:sqlite::memory:\");",
+        "             Statement st = conn.createStatement()) {",
+        "            st.execute(\"CREATE TABLE orders (region TEXT, amount INTEGER)\");",
+        "            st.execute(\"INSERT INTO orders VALUES ('West', 100), ('East', 50), ('West', 25)\");",
+        "            String sql = \"SELECT SUM(amount) FROM orders WHERE region = ___\";",
+        "            try (PreparedStatement ps = conn.prepareStatement(sql)) {",
+        "                ps.setString(___, \"West\");",
+        "                try (ResultSet rs = ps.executeQuery()) {",
+        "                    rs.___();",
+        "                    System.out.println(rs.getInt(1));",
+        "                }",
+        "            }",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "?"
+          ],
+          "options": [
+            "?",
+            "'?'",
+            "%s"
+          ]
+        },
+        {
+          "answers": [
+            "1"
+          ],
+          "options": [
+            "1",
+            "0",
+            "2"
+          ]
+        },
+        {
+          "answers": [
+            "next"
+          ],
+          "options": [
+            "next",
+            "first",
+            "hasNext"
+          ]
+        }
+      ],
+      "explain": "A ? marks where a value goes; the value is sent separately with setString, so it can never change the meaning of the SQL (no injection). In quotes ('?') it would be plain text and there would be no parameter at all. Placeholder numbers start at 1, not 0. A ResultSet starts before its first row, so rs.next() must run before getInt: first() is not allowed on SQLite's forward-only cursor and hasNext does not exist.",
+      "concepts": [
+        "PreparedStatement",
+        "? placeholder",
+        "setString index starts at 1",
+        "rs.next()"
+      ],
+      "output": "125"
+    },
+    {
+      "id": "j28-predict",
+      "type": "predict",
+      "title": "A failed credit and a rollback",
+      "wrap": true,
+      "prompt": "Move Rs. 500 from account 1 to account 9, which does not exist. Type exactly what the program prints, one line per line of output.",
+      "code": [
+        "import java.sql.*;",
+        "try (Connection conn = DriverManager.getConnection(\"jdbc:sqlite::memory:\");",
+        "     Statement st = conn.createStatement()) {",
+        "    st.execute(\"CREATE TABLE accounts (id INTEGER PRIMARY KEY, balance INTEGER)\");",
+        "    st.execute(\"INSERT INTO accounts VALUES (1, 1000), (2, 200)\");",
+        "    conn.setAutoCommit(false);",
+        "    System.out.println(st.executeUpdate(\"UPDATE accounts SET balance = balance - 500 WHERE id = 1\"));",
+        "    System.out.println(st.executeUpdate(\"UPDATE accounts SET balance = balance + 500 WHERE id = 9\"));",
+        "    conn.rollback();",
+        "    try (ResultSet rs = st.executeQuery(\"SELECT balance FROM accounts WHERE id = 1\")) {",
+        "        rs.next();",
+        "        System.out.println(rs.getInt(1));",
+        "    }",
+        "}"
+      ],
+      "explain": "executeUpdate returns how many rows it changed: 1 for the debit, and 0 for the credit because there is no account 9 (SQL raises no error for that, you have to look at the count). With auto-commit off, both updates are still pending, so rollback() undoes the debit as well and the balance is back to 1000. All or nothing is what a transaction gives you.",
+      "concepts": [
+        "executeUpdate row count",
+        "transactions",
+        "rollback"
+      ],
+      "expected": "1\n0\n1000"
+    },
+    {
+      "id": "j28-bug",
+      "type": "bug",
+      "title": "The discount that vanished",
+      "prompt": "A Lamp (2 x Rs. 800, 15% off) and a Tea (Rs. 120) should give a revenue of 1480.0, but the program prints a different number. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.sql.*;",
+        "",
+        "class Revenue {",
+        "    public static void main(String[] args) throws SQLException {",
+        "        try (Connection conn = DriverManager.getConnection(\"jdbc:sqlite::memory:\");",
+        "             Statement st = conn.createStatement()) {",
+        "            st.execute(\"CREATE TABLE orders (qty INTEGER, price INTEGER, discount_pct INTEGER)\");",
+        "            st.execute(\"INSERT INTO orders VALUES (2, 800, 15), (1, 120, 0)\");",
+        "            String sql = \"SELECT SUM(qty * price * (1 - discount_pct / 100)) FROM orders\";",
+        "            try (ResultSet rs = st.executeQuery(sql)) {",
+        "                rs.next();",
+        "                System.out.println(\"Revenue: \" + rs.getDouble(1));",
+        "            }",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.sql.*;",
+        "",
+        "class Revenue {",
+        "    public static void main(String[] args) throws SQLException {",
+        "        try (Connection conn = DriverManager.getConnection(\"jdbc:sqlite::memory:\");",
+        "             Statement st = conn.createStatement()) {",
+        "            st.execute(\"CREATE TABLE orders (qty INTEGER, price INTEGER, discount_pct INTEGER)\");",
+        "            st.execute(\"INSERT INTO orders VALUES (2, 800, 15), (1, 120, 0)\");",
+        "            String sql = \"SELECT SUM(qty * price * (1 - discount_pct / 100.0)) FROM orders\";",
+        "            try (ResultSet rs = st.executeQuery(sql)) {",
+        "                rs.next();",
+        "                System.out.println(\"Revenue: \" + rs.getDouble(1));",
+        "            }",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        9
+      ],
+      "answer": 0,
+      "options": [
+        "String sql = \"SELECT SUM(qty * price * (1 - discount_pct / 100.0)) FROM orders\";",
+        "String sql = \"SELECT SUM(qty * price * (1 - CAST(discount_pct / 100 AS REAL))) FROM orders\";",
+        "String sql = \"SELECT SUM(qty * price * (1 - discount_pct / 100) * 1.0) FROM orders\";",
+        "String sql = \"SELECT SUM(qty * price * (1 - discount_pct) / 100) FROM orders\";"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "Revenue: 1720.0"
+      },
+      "explain": "In SQL, as in Java, a whole number divided by a whole number is a whole number: 15 / 100 is 0, so the discount disappears and the Lamp costs the full 1600. Make one side a decimal (100.0). Casting after the division, or multiplying by 1.0 at the end, is too late because the 0 is already there, and (1 - discount_pct) / 100 is a different formula.",
+      "concepts": [
+        "SQL integer division",
+        "silent bugs",
+        "ResultSet.getDouble"
+      ],
+      "output": "Revenue: 1480.0"
+    },
+    {
+      "id": "j28-review",
+      "type": "review",
+      "title": "Review the AI's order counter",
+      "prompt": "An AI assistant wrote this JDBC helper. It compiles and runs, but tick the real problems (there are two).",
+      "code": [
+        "import java.sql.*;",
+        "",
+        "class Lookup {",
+        "    static int countOrders(Connection conn, String region) throws SQLException {",
+        "        Statement st = conn.createStatement();",
+        "        ResultSet rs = st.executeQuery(\"SELECT COUNT(*) FROM orders WHERE region = '\" + region + \"'\");",
+        "        rs.next();",
+        "        return rs.getInt(1);",
+        "    }",
+        "",
+        "    public static void main(String[] args) throws SQLException {",
+        "        try (Connection conn = DriverManager.getConnection(\"jdbc:sqlite::memory:\")) {",
+        "            try (Statement st = conn.createStatement()) {",
+        "                st.execute(\"CREATE TABLE orders (region TEXT, amount INTEGER)\");",
+        "                st.execute(\"INSERT INTO orders VALUES ('West', 100), ('East', 50), ('West', 25)\");",
+        "            }",
+        "            System.out.println(countOrders(conn, \"West\") + \" \" + countOrders(conn, \"East\"));",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "injection",
+          "text": "The region is glued into the SQL text with +",
+          "why": "A region such as West' OR '1'='1 changes the meaning of the query and returns every row (SQL injection). Use a PreparedStatement with WHERE region = ? and ps.setString(1, region).",
+          "lines": [
+            6
+          ]
+        },
+        {
+          "id": "not-closed",
+          "text": "The Statement and the ResultSet are never closed",
+          "why": "Every call leaves both open until the connection closes, and on a file database it can keep the file locked. Put them in try-with-resources so they are closed even when an error happens.",
+          "lines": [
+            5,
+            6
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "getint-index",
+          "text": "rs.getInt(1) should be rs.getInt(0)",
+          "why": "JDBC columns are numbered from 1, so getInt(1) reads the first column. getInt(0) would throw."
+        },
+        {
+          "id": "needs-commit",
+          "text": "main must call conn.commit() after the INSERT",
+          "why": "A new JDBC connection is in auto-commit mode: every statement is saved at once. commit() is only needed after setAutoCommit(false)."
+        },
+        {
+          "id": "memory-db",
+          "text": "jdbc:sqlite::memory: loses the tables between the two countOrders calls",
+          "why": "An in-memory database lives as long as its connection, and both calls use the same conn."
+        },
+        {
+          "id": "count-int",
+          "text": "COUNT(*) returns a long, so getInt cannot be used",
+          "why": "getInt converts the value, and a small count fits easily. Use getLong only when the number could pass about 2 billion."
+        }
+      ],
+      "explain": "In generated database code look at how the SQL is built and who closes what. Both problems also hide in code that works perfectly in a demo.",
+      "concepts": [
+        "SQL injection",
+        "PreparedStatement",
+        "try-with-resources",
+        "reviewing JDBC code"
+      ]
+    }
+  ]
+}

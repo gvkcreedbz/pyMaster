@@ -1,0 +1,345 @@
+{
+  "day": 30,
+  "drills": [
+    {
+      "id": "j30-parsons",
+      "type": "parsons",
+      "title": "404 or 405?",
+      "prompt": "Arrange the lines into a tiny router that only knows GET /items. An unknown path must give 404 even when the method is wrong, and a known path with another method gives 405. Two lines do not belong.",
+      "lines": [
+        "class Router {",
+        "static int status(String method, String path) {",
+        "if (!path.equals(\"/items\")) {",
+        "return 404;",
+        "}",
+        "if (!method.equals(\"GET\")) {",
+        "return 405;",
+        "}",
+        "return 200;",
+        "}",
+        "public static void main(String[] args) {",
+        "System.out.println(status(\"GET\", \"/items\") + \" \" + status(\"DELETE\", \"/items\") + \" \" + status(\"DELETE\", \"/x\"));",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "if (path.equals(\"/items\")) {",
+        "return 400;"
+      ],
+      "explain": "A router asks its questions from the outside in. Does this path exist at all? If not, 404, whatever the method. Does the path accept this method? If not, 405. Only then does the request succeed with 200. DELETE /x therefore gives 404, not 405. 400 means the request itself was malformed (for example broken JSON), which is neither of these cases.",
+      "concepts": [
+        "routes",
+        "404 vs 405",
+        "status codes"
+      ],
+      "output": "200 405 404"
+    },
+    {
+      "id": "j30-fill",
+      "type": "fill",
+      "title": "Status codes from a local API",
+      "wrap": true,
+      "prompt": "The program starts an API on a free port of this computer and calls it three times. A wrong method on a known path must give 405, a path that does not exist must give 404. Fill the blanks so it prints the goal output.",
+      "code": [
+        "import com.sun.net.httpserver.*;",
+        "import java.io.*;",
+        "import java.net.*;",
+        "import java.net.http.*;",
+        "HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);",
+        "server.createContext(\"/items\", ex -> {",
+        "    int status;",
+        "    if (!ex.getRequestMethod().equals(\"GET\")) {",
+        "        status = ___;",
+        "    } else if (ex.getRequestURI().getPath().equals(\"/items/1\")) {",
+        "        status = 200;",
+        "    } else {",
+        "        status = ___;",
+        "    }",
+        "    byte[] bytes = (\"{\\\"status\\\":\" + status + \"}\").getBytes();",
+        "    ex.sendResponseHeaders(status, bytes.length);",
+        "    try (OutputStream out = ex.getResponseBody()) { out.write(bytes); }",
+        "});",
+        "server.start();",
+        "String base = \"http://127.0.0.1:\" + server.getAddress().getPort();",
+        "for (String[] call : new String[][]{{\"GET\", \"/items/1\"}, {\"GET\", \"/items/9\"}, {\"DELETE\", \"/items/1\"}}) {",
+        "    HttpRequest request = HttpRequest.newBuilder(URI.create(base + call[1]))",
+        "            .method(call[0], HttpRequest.BodyPublishers.noBody()).build();",
+        "    HttpResponse<String> r = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());",
+        "    System.out.println(call[0] + \" \" + call[1] + \" -> \" + r.___() + \" \" + r.body());",
+        "}",
+        "server.stop(0);"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "405"
+          ],
+          "options": [
+            "405",
+            "400",
+            "403"
+          ]
+        },
+        {
+          "answers": [
+            "404"
+          ],
+          "options": [
+            "404",
+            "400",
+            "500"
+          ]
+        },
+        {
+          "answers": [
+            "statusCode"
+          ],
+          "options": [
+            "statusCode",
+            "status",
+            "code"
+          ]
+        }
+      ],
+      "explain": "405 Method Not Allowed says the path exists but this method is not accepted there (DELETE /items/1). 404 Not Found says there is nothing at this path (/items/9). 400 would blame the content of the request, 403 means you are known but forbidden, and 500 would say the server is broken. The client reads the number with response.statusCode().",
+      "concepts": [
+        "404",
+        "405",
+        "status codes",
+        "HttpClient"
+      ],
+      "output": "GET /items/1 -> 200 {\"status\":200}\nGET /items/9 -> 404 {\"status\":404}\nDELETE /items/1 -> 405 {\"status\":405}"
+    },
+    {
+      "id": "j30-predict",
+      "type": "predict",
+      "title": "Which handler answers?",
+      "prompt": "A server has two contexts. HttpServer picks the context whose path is the longest match for the start of the request path. Type exactly what the program prints, one line per line of output.",
+      "code": [
+        "import com.sun.net.httpserver.*;",
+        "import java.io.*;",
+        "import java.net.*;",
+        "import java.net.http.*;",
+        "",
+        "class Routes {",
+        "    static HttpHandler say(String word) {",
+        "        return ex -> {",
+        "            byte[] bytes = word.getBytes();",
+        "            ex.sendResponseHeaders(200, bytes.length);",
+        "            try (OutputStream out = ex.getResponseBody()) { out.write(bytes); }",
+        "        };",
+        "    }",
+        "",
+        "    public static void main(String[] args) throws Exception {",
+        "        HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);",
+        "        server.createContext(\"/items\", say(\"list\"));",
+        "        server.createContext(\"/items/special\", say(\"special\"));",
+        "        server.start();",
+        "        String base = \"http://127.0.0.1:\" + server.getAddress().getPort();",
+        "        HttpClient client = HttpClient.newHttpClient();",
+        "        for (String path : new String[]{\"/items\", \"/items/7\", \"/items/special\", \"/other\"}) {",
+        "            HttpRequest request = HttpRequest.newBuilder(URI.create(base + path)).build();",
+        "            HttpResponse<String> r = client.send(request, HttpResponse.BodyHandlers.ofString());",
+        "            String shown = r.statusCode() == 200 ? r.body() : \"HTTP \" + r.statusCode();",
+        "            System.out.println(path + \" -> \" + shown);",
+        "        }",
+        "        server.stop(0);",
+        "    }",
+        "}"
+      ],
+      "explain": "A context path is a prefix, not an exact route. /items/7 starts with /items, so the list handler answers it (that is how one handler can serve /items and /items/{id}). /items/special starts with both paths, and the longer one wins. /other matches no context, so the server itself answers 404 and the client prints the status. Inside a handler you still have to look at the rest of the path yourself.",
+      "concepts": [
+        "createContext prefix matching",
+        "longest match wins",
+        "404 from the server"
+      ],
+      "expected": "/items -> list\n/items/7 -> list\n/items/special -> special\n/other -> HTTP 404"
+    },
+    {
+      "id": "j30-bug",
+      "type": "bug",
+      "title": "A handler that crashes",
+      "wrap": true,
+      "prompt": "The client sends n=21 and then n=abc. The second request should get a 400 answer, but the program dies with an error instead. Click the faulty line, then choose the fix.",
+      "code": [
+        "import com.sun.net.httpserver.*;",
+        "import java.io.*;",
+        "import java.net.*;",
+        "import java.net.http.*;",
+        "HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);",
+        "server.createContext(\"/double\", ex -> {",
+        "    String text = ex.getRequestURI().getQuery().substring(2);",
+        "    int n = Integer.parseInt(text);",
+        "    int status = n < 0 ? 400 : 200;",
+        "    String json = n < 0 ? \"{\\\"error\\\":\\\"n must be a number\\\"}\" : \"{\\\"double\\\":\" + n * 2 + \"}\";",
+        "    byte[] bytes = json.getBytes();",
+        "    ex.sendResponseHeaders(status, bytes.length);",
+        "    try (OutputStream out = ex.getResponseBody()) { out.write(bytes); }",
+        "});",
+        "server.start();",
+        "String base = \"http://127.0.0.1:\" + server.getAddress().getPort() + \"/double?n=\";",
+        "HttpClient client = HttpClient.newHttpClient();",
+        "try {",
+        "    for (String n : new String[]{\"21\", \"abc\"}) {",
+        "        HttpRequest request = HttpRequest.newBuilder(URI.create(base + n)).build();",
+        "        HttpResponse<String> r = client.send(request, HttpResponse.BodyHandlers.ofString());",
+        "        System.out.println(r.statusCode() + \" \" + r.body());",
+        "    }",
+        "} finally {",
+        "    server.stop(0);",
+        "}"
+      ],
+      "fixed_code": [
+        "import com.sun.net.httpserver.*;",
+        "import java.io.*;",
+        "import java.net.*;",
+        "import java.net.http.*;",
+        "HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);",
+        "server.createContext(\"/double\", ex -> {",
+        "    String text = ex.getRequestURI().getQuery().substring(2);",
+        "    int n = text.matches(\"\\\\d+\") ? Integer.parseInt(text) : -1;",
+        "    int status = n < 0 ? 400 : 200;",
+        "    String json = n < 0 ? \"{\\\"error\\\":\\\"n must be a number\\\"}\" : \"{\\\"double\\\":\" + n * 2 + \"}\";",
+        "    byte[] bytes = json.getBytes();",
+        "    ex.sendResponseHeaders(status, bytes.length);",
+        "    try (OutputStream out = ex.getResponseBody()) { out.write(bytes); }",
+        "});",
+        "server.start();",
+        "String base = \"http://127.0.0.1:\" + server.getAddress().getPort() + \"/double?n=\";",
+        "HttpClient client = HttpClient.newHttpClient();",
+        "try {",
+        "    for (String n : new String[]{\"21\", \"abc\"}) {",
+        "        HttpRequest request = HttpRequest.newBuilder(URI.create(base + n)).build();",
+        "        HttpResponse<String> r = client.send(request, HttpResponse.BodyHandlers.ofString());",
+        "        System.out.println(r.statusCode() + \" \" + r.body());",
+        "    }",
+        "} finally {",
+        "    server.stop(0);",
+        "}"
+      ],
+      "bug_lines": [
+        8
+      ],
+      "answer": 0,
+      "options": [
+        "int n = text.matches(\"\\\\d+\") ? Integer.parseInt(text) : -1;",
+        "int n = Integer.valueOf(text);",
+        "int n = Integer.parseInt(text.strip());",
+        "int n = text.isBlank() ? -1 : Integer.parseInt(text);"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "header parser received no bytes"
+      },
+      "explain": "Query parameters arrive as text. Integer.parseInt(\"abc\") throws inside the handler, the server drops the connection without any answer, and the client fails with an IOException instead of a clean 400. Check the input first (here with matches(\"\\\\d+\")) and answer with a status code. valueOf and strip() still throw on abc, and a blank check does not catch it either.",
+      "concepts": [
+        "validate input",
+        "400 Bad Request",
+        "a handler must always answer"
+      ],
+      "output": "200 {\"double\":42}\n400 {\"error\":\"n must be a number\"}"
+    },
+    {
+      "id": "j30-review",
+      "type": "review",
+      "title": "Review the AI's product endpoint",
+      "prompt": "An AI assistant wrote this endpoint. It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "import com.sun.net.httpserver.*;",
+        "import java.io.*;",
+        "import java.net.*;",
+        "import java.net.http.*;",
+        "import java.nio.charset.StandardCharsets;",
+        "import java.util.*;",
+        "",
+        "class Shop {",
+        "    static final Map<Integer, String> NAMES = Map.of(1, \"Pen\", 2, \"Notebook\");",
+        "",
+        "    static void send(HttpExchange ex, int status, String json) throws IOException {",
+        "        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);",
+        "        ex.getResponseHeaders().set(\"Content-Type\", \"application/json; charset=utf-8\");",
+        "        ex.sendResponseHeaders(status, bytes.length);",
+        "        try (OutputStream out = ex.getResponseBody()) {",
+        "            out.write(bytes);",
+        "        }",
+        "    }",
+        "",
+        "    public static void main(String[] args) throws Exception {",
+        "        HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);",
+        "        server.createContext(\"/products/\", ex -> {",
+        "            int id = Integer.parseInt(ex.getRequestURI().getPath().substring(\"/products/\".length()));",
+        "            String name = NAMES.get(id);",
+        "            if (name == null) {",
+        "                send(ex, 200, \"{\\\"error\\\":\\\"not found\\\"}\");",
+        "            } else {",
+        "                send(ex, 200, \"{\\\"id\\\":\" + id + \",\\\"name\\\":\\\"\" + name + \"\\\"}\");",
+        "            }",
+        "        });",
+        "        server.start();",
+        "        try {",
+        "            String base = \"http://127.0.0.1:\" + server.getAddress().getPort();",
+        "            HttpClient client = HttpClient.newHttpClient();",
+        "            for (String path : List.of(\"/products/1\", \"/products/7\")) {",
+        "                HttpRequest request = HttpRequest.newBuilder(URI.create(base + path)).build();",
+        "                HttpResponse<String> r = client.send(request, HttpResponse.BodyHandlers.ofString());",
+        "                System.out.println(r.statusCode() + \" \" + r.body());",
+        "            }",
+        "        } finally {",
+        "            server.stop(0);",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "ok-for-missing",
+          "text": "A missing product is answered with status 200 and an error text",
+          "why": "Clients (and monitoring tools) read the status code first, so they treat the error as a success. A product that does not exist must be 404 with the JSON error body.",
+          "lines": [
+            26
+          ]
+        },
+        {
+          "id": "unchecked-id",
+          "text": "The id is parsed without a check, so /products/abc breaks the handler",
+          "why": "Integer.parseInt throws NumberFormatException inside the handler, the server drops the connection and the caller gets no answer at all. Catch it (or check the text first) and answer 400 with a JSON error.",
+          "lines": [
+            23
+          ]
+        },
+        {
+          "id": "method-ignored",
+          "text": "The HTTP method is never checked, so DELETE /products/1 behaves like a GET",
+          "why": "A route is a method plus a path. For anything but GET the handler should answer 405 Method Not Allowed instead of returning the product.",
+          "lines": [
+            22
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "prefix-context",
+          "text": "One context for /products/ cannot serve different ids",
+          "why": "A context path is a prefix, so every /products/{id} request reaches this handler, and the handler reads the id from the rest of the path."
+        },
+        {
+          "id": "bytes-length",
+          "text": "The announced length should be json.length(), not bytes.length",
+          "why": "The length must count bytes, not characters. bytes.length is right, and it stays right for non-ASCII text where json.length() would be too small."
+        },
+        {
+          "id": "header-order",
+          "text": "Content-Type is set before sendResponseHeaders, which is too early",
+          "why": "Headers have to be set before sendResponseHeaders: after it they are already sent and changes are ignored."
+        }
+      ],
+      "explain": "For every endpoint in generated code ask three questions: what happens for a path that does not exist, for input that is not valid, and for a method the route does not offer. The status code is part of the answer.",
+      "concepts": [
+        "status codes",
+        "400 / 404 / 405",
+        "input validation",
+        "reviewing an API"
+      ]
+    }
+  ]
+}

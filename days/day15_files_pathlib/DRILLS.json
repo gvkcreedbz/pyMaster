@@ -1,0 +1,248 @@
+{
+  "day": 15,
+  "drills": [
+    {
+      "id": "d15-parsons",
+      "type": "parsons",
+      "title": "Add a task to the to-do file",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them) so the program saves one task, adds a second task to the end of the file, and prints both. The last line deletes the demo file so the drill leaves nothing behind. Two lines do not belong.",
+      "lines": [
+        "from pathlib import Path",
+        "todo = Path(\"drill_todo.txt\")",
+        "todo.write_text(\"Learn Python\\n\", encoding=\"utf-8\")",
+        "with open(todo, \"a\", encoding=\"utf-8\") as f:",
+        "f.write(\"Buy milk\\n\")",
+        "print(todo.read_text(encoding=\"utf-8\"), end=\"\")",
+        "todo.unlink()"
+      ],
+      "indent": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "distractors": [
+        "with open(todo, \"w\", encoding=\"utf-8\") as f:",
+        "f.writeline(\"Buy milk\\n\")"
+      ],
+      "explain": "The path must exist as an object before it is used, and the first task must be written before the second is appended. Mode \"a\" adds to the end of the file, while \"w\" would erase \"Learn Python\" first. Files have write() (and writelines()), but no writeline(). The write call belongs inside the with block, because the file is closed when the block ends.",
+      "concepts": [
+        "open modes",
+        "with block",
+        "pathlib"
+      ],
+      "output": "Learn Python\nBuy milk"
+    },
+    {
+      "id": "d15-fill",
+      "type": "fill",
+      "title": "Parse the log lines",
+      "viz": true,
+      "prompt": "Fill the blanks so each log line is split into parts and the key=value pairs become a dict.",
+      "code": [
+        "lines = [",
+        "    \"2026-11-01 08:00:01 INFO user=asha action=login\",",
+        "    \"2026-11-01 08:30:00 ERROR user=bob action=db_timeout\",",
+        "]",
+        "for line in lines:",
+        "    date, time, level, *rest = line.___()",
+        "    fields = dict(item.___(\"=\") for item in rest)",
+        "    print(level, fields[\"user\"])"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "split"
+          ],
+          "options": [
+            "split",
+            "strip",
+            "join"
+          ]
+        },
+        {
+          "answers": [
+            "split"
+          ],
+          "options": [
+            "split",
+            "partition",
+            "strip"
+          ]
+        }
+      ],
+      "explain": "split() with no argument cuts a line at every run of spaces, so the first three parts go to date, time and level and *rest collects everything else. Each leftover piece like user=asha is cut at the = sign into [\"user\", \"asha\"], and dict() turns those pairs into a dict. partition(\"=\") would give three parts (key, \"=\", value), which dict() cannot use.",
+      "concepts": [
+        "parsing a log line",
+        "split()",
+        "unpacking with *"
+      ],
+      "output": "INFO asha\nERROR bob"
+    },
+    {
+      "id": "d15-predict",
+      "type": "predict",
+      "title": "Append, read and overwrite",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "from pathlib import Path",
+        "",
+        "p = Path(\"drill_menu.txt\")",
+        "p.write_text(\"Tea\\n\", encoding=\"utf-8\")",
+        "with open(p, \"a\", encoding=\"utf-8\") as f:",
+        "    f.write(\"Coffee\")",
+        "    f.write(\"Lassi\\n\")",
+        "with open(p, encoding=\"utf-8\") as f:",
+        "    print(f.readlines())",
+        "with open(p, \"w\", encoding=\"utf-8\") as f:",
+        "    f.write(\"Juice\\n\")",
+        "print(p.read_text(encoding=\"utf-8\").splitlines(), p.suffix)",
+        "p.unlink()"
+      ],
+      "explain": "write() adds exactly the text you give it, so Coffee and Lassi end up glued together; only the \\n you type starts a new line. readlines() keeps the \\n at the end of every line. Mode \"w\" erases the old content before writing, so only Juice is left. p.suffix is the file extension, including the dot.",
+      "concepts": [
+        "open modes",
+        "\\n is yours to add",
+        "readlines()",
+        "pathlib"
+      ],
+      "expected": "['Tea\\n', 'CoffeeLassi\\n']\n['Juice'] .txt"
+    },
+    {
+      "id": "d15-bug",
+      "type": "bug",
+      "title": "The tasks run together",
+      "viz": true,
+      "prompt": "The to-do file should list one task per line, but the program prints only one long line. Click the faulty line and choose the fix.",
+      "code": [
+        "from pathlib import Path",
+        "",
+        "todo = Path(\"drill_todo.txt\")",
+        "tasks = [\"Learn Python\", \"Buy milk\", \"Practice 2 hours\"]",
+        "with open(todo, \"w\", encoding=\"utf-8\") as f:",
+        "    for task in tasks:",
+        "        f.write(task)",
+        "with open(todo, encoding=\"utf-8\") as f:",
+        "    for number, line in enumerate(f, start=1):",
+        "        print(number, line.rstrip(\"\\n\"))",
+        "todo.unlink()"
+      ],
+      "bug_lines": [
+        7
+      ],
+      "answer": 0,
+      "options": [
+        "        f.write(task + \"\\n\")",
+        "        f.write(task, \"\\n\")",
+        "        f.write(task + \"/n\")",
+        "        f.write(\"\\n\" + task)"
+      ],
+      "fixed_code": [
+        "from pathlib import Path",
+        "",
+        "todo = Path(\"drill_todo.txt\")",
+        "tasks = [\"Learn Python\", \"Buy milk\", \"Practice 2 hours\"]",
+        "with open(todo, \"w\", encoding=\"utf-8\") as f:",
+        "    for task in tasks:",
+        "        f.write(task + \"\\n\")",
+        "with open(todo, encoding=\"utf-8\") as f:",
+        "    for number, line in enumerate(f, start=1):",
+        "        print(number, line.rstrip(\"\\n\"))",
+        "todo.unlink()"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "1 Learn PythonBuy milkPractice 2 hours"
+      },
+      "explain": "write() does not add a line break for you: whatever you write is put in the file as it is. Without \\n the three tasks form one single line. Add the newline yourself (task + \"\\n\"). A forward slash (/n) is just two letters, write() takes only one argument, and putting the \\n first leaves an empty first line.",
+      "concepts": [
+        "f.write()",
+        "\\n",
+        "common mistakes"
+      ],
+      "output": "1 Learn Python\n2 Buy milk\n3 Practice 2 hours"
+    },
+    {
+      "id": "d15-review",
+      "type": "review",
+      "title": "Review the AI's log counter",
+      "prompt": "An AI assistant wrote this log analyser. It runs, but tick the statements that point at real problems.",
+      "code": [
+        "from pathlib import Path",
+        "",
+        "log_path = Path(\"drill_app.log\")",
+        "rows = [",
+        "    \"2026-11-01 08:00:01 INFO user=asha action=login\",",
+        "    \"2026-11-01 08:30:00 ERROR user=bob action=db_timeout\",",
+        "    \"2026-11-01 09:10:00 ERROR user=bob action=payment_failed\",",
+        "]",
+        "f = open(log_path, \"w\")",
+        "f.write(\"\\n\".join(rows))",
+        "f.close()",
+        "",
+        "errors = {}",
+        "for line in log_path.read_text().splitlines():",
+        "    date, time, level, *rest = line.split()",
+        "    if level == \"ERROR\":",
+        "        user = dict(item.split(\"=\") for item in rest)[\"user\"]",
+        "        errors[user] = errors.get(user, 0) + 1",
+        "print(errors)",
+        "log_path.unlink()"
+      ],
+      "issues": [
+        {
+          "id": "no-with",
+          "text": "The file is opened and closed by hand instead of with a with block",
+          "why": "If f.write() raised an error, f.close() would never run and the file would stay open. A with block closes the file automatically, even after an error.",
+          "lines": [
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "id": "no-encoding",
+          "text": "open() and read_text() do not give encoding=\"utf-8\"",
+          "why": "Without it Python uses the computer's default encoding. On Windows a name or symbol such as the rupee sign can be written or read wrongly. Always pass encoding=\"utf-8\".",
+          "lines": [
+            9,
+            14
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "star-rest",
+          "text": "date, time, level, *rest = line.split() fails because there are more than three parts",
+          "why": "The star collects all the remaining parts into the list rest, so the unpacking always works as long as there are at least three parts."
+        },
+        {
+          "id": "get-count",
+          "text": "errors.get(user, 0) + 1 is wrong because the user is not in the dict yet",
+          "why": "get returns the default 0 for a missing key, which is the standard counting pattern."
+        },
+        {
+          "id": "no-trailing-newline",
+          "text": "\"\\n\".join(rows) leaves no newline after the last row, which breaks reading",
+          "why": "splitlines() handles a missing final newline without problems, so every row is still read."
+        },
+        {
+          "id": "read-whole",
+          "text": "read_text() must not be used on a log",
+          "why": "Reading the whole file at once is fine for a small file. For a huge log you would loop over the file line by line instead."
+        }
+      ],
+      "explain": "File code that works on the happy path can still leak a file handle or depend on the machine's default encoding. When you review AI code that opens files, check for with, the mode (w erases, a appends) and an explicit encoding.",
+      "concepts": [
+        "with open",
+        "encoding=\"utf-8\"",
+        "reading code critically"
+      ]
+    }
+  ]
+}

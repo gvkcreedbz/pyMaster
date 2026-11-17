@@ -1,0 +1,259 @@
+{
+  "day": 5,
+  "drills": [
+    {
+      "id": "d05-parsons",
+      "type": "parsons",
+      "title": "Delivery fee rules",
+      "viz": true,
+      "prompt": "Arrange and indent the lines so the program works out the delivery fee for a 350 rupee order that must travel 5 km. Two lines do not belong.",
+      "lines": [
+        "order_value = 350",
+        "distance_km = 5",
+        "if order_value >= 499:",
+        "fee = 0",
+        "elif distance_km <= 3:",
+        "fee = 30",
+        "else:",
+        "fee = 50",
+        "print(\"Fee:\", fee)"
+      ],
+      "indent": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "distractors": [
+        "elif distance_km <= 3",
+        "else distance_km > 3:"
+      ],
+      "explain": "An if / elif / else chain ends every condition line with a colon and indents the block under it. The chain is checked from the top and the first true condition wins, so only one fee is set. else has no condition of its own: it simply catches everything the earlier tests did not.",
+      "concepts": [
+        "if / elif / else",
+        "colon and indentation"
+      ],
+      "output": "Fee: 50"
+    },
+    {
+      "id": "d05-fill",
+      "type": "fill",
+      "title": "and, or, not",
+      "viz": true,
+      "prompt": "Fill the three blanks with the right keyword so the program prints the goal output.",
+      "code": [
+        "is_member = False",
+        "order_value = 520",
+        "age = 70",
+        "name = \"\"",
+        "if is_member ___ order_value >= 499:",
+        "    print(\"Free delivery\")",
+        "if age >= 18 ___ age < 60:",
+        "    print(\"Working age\")",
+        "if ___ name:",
+        "    print(\"Please enter your name\")"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "or"
+          ],
+          "options": [
+            "or",
+            "and",
+            "not"
+          ]
+        },
+        {
+          "answers": [
+            "and"
+          ],
+          "options": [
+            "and",
+            "or",
+            "not"
+          ]
+        },
+        {
+          "answers": [
+            "not"
+          ],
+          "options": [
+            "not",
+            "no",
+            "is"
+          ]
+        }
+      ],
+      "explain": "or needs only one side to be True (a non-member still gets free delivery above 499). and needs both sides, so an age of 70 fails age < 60. An empty string is falsy, so not name is True and the reminder is printed.",
+      "concepts": [
+        "and / or / not",
+        "truthy and falsy"
+      ],
+      "output": "Free delivery\nPlease enter your name"
+    },
+    {
+      "id": "d05-predict",
+      "type": "predict",
+      "title": "First match wins",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "marks = 82",
+        "if marks >= 50:",
+        "    print(\"Pass\")",
+        "elif marks >= 75:",
+        "    print(\"Merit\")",
+        "if marks >= 75:",
+        "    print(\"Merit\")",
+        "color = \"green\"",
+        "if color == \"red\" or \"blue\":",
+        "    print(\"Primary\")",
+        "else:",
+        "    print(\"Other\")",
+        "print(bool(\"0\"), bool(\"\"))"
+      ],
+      "explain": "In an if / elif chain only the first true branch runs, so the strict test >= 75 must come before >= 50. A separate if starts a new chain and is checked on its own. color == \"red\" or \"blue\" means (color == \"red\") or \"blue\", and the non-empty text \"blue\" is always truthy, so write color in (\"red\", \"blue\"). Any non-empty text is truthy, even \"0\".",
+      "concepts": [
+        "first match wins",
+        "separate if vs elif",
+        "or trap",
+        "truthy and falsy"
+      ],
+      "expected": "Pass\nMerit\nPrimary\nTrue False"
+    },
+    {
+      "id": "d05-bug",
+      "type": "bug",
+      "title": "The 3 km boundary",
+      "viz": true,
+      "prompt": "Orders up to and including 3 km should pay Rs. 30, but this 3 km order is charged Rs. 50. Click the faulty line and choose the fix.",
+      "code": [
+        "order_value = 350",
+        "distance_km = 3",
+        "is_member = False",
+        "if is_member or order_value >= 499:",
+        "    fee = 0",
+        "elif distance_km < 3:",
+        "    fee = 30",
+        "elif distance_km <= 7:",
+        "    fee = 50",
+        "else:",
+        "    fee = 80",
+        "print(f\"Delivery fee: Rs. {fee}\")"
+      ],
+      "bug_lines": [
+        6
+      ],
+      "answer": 0,
+      "options": [
+        "elif distance_km <= 3:",
+        "elif distance_km <= 2:",
+        "elif distance_km > 3:",
+        "elif distance_km = 3:"
+      ],
+      "fixed_code": [
+        "order_value = 350",
+        "distance_km = 3",
+        "is_member = False",
+        "if is_member or order_value >= 499:",
+        "    fee = 0",
+        "elif distance_km <= 3:",
+        "    fee = 30",
+        "elif distance_km <= 7:",
+        "    fee = 50",
+        "else:",
+        "    fee = 80",
+        "print(f\"Delivery fee: Rs. {fee}\")"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "Delivery fee: Rs. 50"
+      },
+      "explain": "< leaves out the boundary value itself, so exactly 3 km falls through to the next branch. When a rule says \"up to and including\", use <=. Test the edge values (3, 7) as well as the middle ones. A single = in a condition is a SyntaxError: comparison is ==.",
+      "concepts": [
+        "< vs <=",
+        "boundary values",
+        "if / elif / else"
+      ],
+      "output": "Delivery fee: Rs. 30"
+    },
+    {
+      "id": "d05-review",
+      "type": "review",
+      "title": "Review the AI's ticket pricing",
+      "prompt": "The rules: base price 200. Under 5 years is free. Under 12 or 60 and above pays half (100). On weekends add 50, but never to a free ticket. An AI assistant wrote this code and it runs, but three things break the rules. Tick them.",
+      "code": [
+        "def ticket_price(age, is_weekend):",
+        "    if age < 12 or age > 60:",
+        "        price = 100",
+        "    elif age < 5:",
+        "        price = 0",
+        "    else:",
+        "        price = 200",
+        "    if is_weekend:",
+        "        price = price + 50",
+        "    return price",
+        "",
+        "print(ticket_price(3, False))",
+        "print(ticket_price(60, False))"
+      ],
+      "issues": [
+        {
+          "id": "unreachable-free",
+          "text": "The free ticket for under-5s can never happen",
+          "why": "An age of 3 is already < 12 on line 2, so the first branch wins and the elif age < 5 is never reached. Put the strictest test (age < 5) first.",
+          "lines": [
+            2,
+            4
+          ]
+        },
+        {
+          "id": "age-60",
+          "text": "age > 60 leaves out 60 itself, but the rule says 60 and above",
+          "why": "A 60-year-old pays 200 instead of 100. Use age >= 60 for \"60 and above\" and test the edge value.",
+          "lines": [
+            2
+          ]
+        },
+        {
+          "id": "weekend-free",
+          "text": "The weekend surcharge is also added to a free ticket",
+          "why": "Once the order is fixed, a free ticket on a weekend would cost 50. The surcharge needs a second condition: if is_weekend and price > 0.",
+          "lines": [
+            8
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "or-two-tests",
+          "text": "age < 12 or age > 60 is wrong because or cannot join two comparisons",
+          "why": "or joins any two conditions. Each side is a complete comparison, so this line is valid (the problem is the > on the right side, not the or)."
+        },
+        {
+          "id": "plus-equals",
+          "text": "price = price + 50 must be written price += 50",
+          "why": "Both forms do exactly the same. += is only a shorthand."
+        },
+        {
+          "id": "second-if",
+          "text": "The weekend check should be an elif of the first chain",
+          "why": "The surcharge is a separate decision that must be checked after the age price is set. Making it an elif would skip it for every age."
+        }
+      ],
+      "explain": "Rule-based code fails at the edges: the order of the branches, and >= vs >. Turn each sentence of the rules into a test input (3, 60, a free ticket on a weekend) and trace it through the code by hand.",
+      "concepts": [
+        "order of elif",
+        "boundary values",
+        "and / or",
+        "reading code critically"
+      ]
+    }
+  ]
+}

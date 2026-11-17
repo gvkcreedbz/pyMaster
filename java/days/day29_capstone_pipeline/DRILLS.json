@@ -1,0 +1,314 @@
+{
+  "day": 29,
+  "drills": [
+    {
+      "id": "j29-parsons",
+      "type": "parsons",
+      "title": "The transform step",
+      "wrap": true,
+      "prompt": "Arrange the lines into a transform step: drop exact duplicate lines, skip rows whose quantity is blank, tidy the region and print the result. The list declarations may swap places. Two lines do not belong.",
+      "lines": [
+        "import java.util.*;",
+        "List<String> raw = List.of(\"A1, south ,2\", \"A1, south ,2\", \"A2,WEST,\", \"A3,West,4\");",
+        "List<String> clean = new ArrayList<>();",
+        "for (String line : new LinkedHashSet<>(raw)) {",
+        "String[] c = line.split(\",\", -1);",
+        "if (c[2].isBlank()) {",
+        "continue;",
+        "}",
+        "clean.add(c[1].strip().toLowerCase() + \"=\" + c[2]);",
+        "}",
+        "System.out.println(clean);"
+      ],
+      "distractors": [
+        "String[] c = line.split(\",\");",
+        "for (String line : raw) {"
+      ],
+      "alternatives": [
+        [
+          0,
+          2,
+          1,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      ],
+      "explain": "new LinkedHashSet<>(raw) keeps the first copy of every line and the original order, so the duplicate A1 disappears. split(\",\", -1) keeps the empty last cell of \"A2,WEST,\"; plain split(\",\") drops it, and c[2] would crash with an index error. Looping over raw instead of the set would keep the duplicate. Each step does one job: dedupe, parse, skip, tidy.",
+      "concepts": [
+        "transform step",
+        "LinkedHashSet to drop duplicates",
+        "split with -1",
+        "skip unusable rows"
+      ],
+      "output": "[south=2, west=4]"
+    },
+    {
+      "id": "j29-fill",
+      "type": "fill",
+      "title": "Load clean rows into SQLite",
+      "prompt": "Fill the blanks so the clean rows are inserted as one batch inside one transaction and the report prints the total per region.",
+      "code": [
+        "import java.sql.*;",
+        "import java.util.*;",
+        "",
+        "class Load {",
+        "    record Sale(String region, int qty) {}",
+        "",
+        "    public static void main(String[] args) throws SQLException {",
+        "        List<Sale> clean = List.of(new Sale(\"West\", 4), new Sale(\"South\", 2), new Sale(\"West\", 1));",
+        "        try (Connection conn = DriverManager.getConnection(\"jdbc:sqlite::memory:\");",
+        "             Statement st = conn.createStatement()) {",
+        "            st.execute(\"CREATE TABLE sales (region TEXT, qty INTEGER)\");",
+        "            conn.setAutoCommit(false);",
+        "            try (PreparedStatement ps = conn.prepareStatement(\"INSERT INTO sales VALUES (?, ?)\")) {",
+        "                for (Sale s : clean) {",
+        "                    ps.setString(1, s.region());",
+        "                    ps.setInt(2, s.qty());",
+        "                    ps.___();",
+        "                }",
+        "                ps.___();",
+        "            }",
+        "            conn.___();",
+        "            String report = \"SELECT region, SUM(qty) FROM sales GROUP BY region ORDER BY region\";",
+        "            try (ResultSet rs = st.executeQuery(report)) {",
+        "                while (rs.next()) {",
+        "                    System.out.println(rs.getString(1) + \" \" + rs.getInt(2));",
+        "                }",
+        "            }",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "addBatch"
+          ],
+          "options": [
+            "addBatch",
+            "add",
+            "setBatch"
+          ]
+        },
+        {
+          "answers": [
+            "executeBatch"
+          ],
+          "options": [
+            "executeBatch",
+            "runBatch",
+            "flush"
+          ]
+        },
+        {
+          "answers": [
+            "commit"
+          ],
+          "options": [
+            "commit",
+            "rollback",
+            "close"
+          ]
+        }
+      ],
+      "explain": "addBatch() queues one filled-in INSERT, executeBatch() sends all queued rows together, and because auto-commit is off they form one transaction that only becomes permanent with commit(). rollback() would throw the rows away (the report would be empty) and close() would end the connection before the report is read. All rows or none is the point of the load step.",
+      "concepts": [
+        "load step",
+        "addBatch / executeBatch",
+        "one transaction",
+        "commit"
+      ],
+      "output": "South 2\nWest 5"
+    },
+    {
+      "id": "j29-predict",
+      "type": "predict",
+      "title": "Quality numbers before cleaning",
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints on one line.",
+      "code": [
+        "import java.util.*;",
+        "record Raw(String id, String qty, String price) {}",
+        "List<Raw> raw = List.of(new Raw(\"A1\", \"2\", \"1,999\"), new Raw(\"A2\", \"\", \"50\"), new Raw(\"A1\", \"2\", \"1,999\"));",
+        "long dupes = raw.size() - new HashSet<>(raw).size();",
+        "long blanks = raw.stream().filter(r -> r.qty().isBlank()).count();",
+        "int total = 0;",
+        "for (Raw r : new LinkedHashSet<>(raw)) {",
+        "    if (r.qty().isBlank()) continue;",
+        "    total += Integer.parseInt(r.qty()) * Integer.parseInt(r.price().replace(\",\", \"\"));",
+        "}",
+        "System.out.println(dupes + \" \" + blanks + \" \" + total);"
+      ],
+      "explain": "A record has equals and hashCode, so the two identical A1 rows collapse in a HashSet: 3 rows - 2 distinct = 1 duplicate. Exactly one row has a blank quantity. In the loop the set is used again, so only the first A1 is counted and A2 is skipped: 2 * 1999 = 3998. If the loop ran over raw, the duplicate would be added twice and the total would be 7996.",
+      "concepts": [
+        "quality report",
+        "records in a Set",
+        "dedupe before totals"
+      ],
+      "expected": "1 1 3998"
+    },
+    {
+      "id": "j29-bug",
+      "type": "bug",
+      "title": "The missing last cell",
+      "prompt": "The extract step should count 3 rows and add up the quantities, but it crashes on the row whose quantity is empty. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Extract {",
+        "    public static void main(String[] args) {",
+        "        List<String> lines = List.of(\"A1,West,4\", \"A2,South,\", \"A3,West,2\");",
+        "        int rows = 0;",
+        "        int units = 0;",
+        "        for (String line : lines) {",
+        "            String[] c = line.split(\",\");",
+        "            rows++;",
+        "            if (!c[2].isBlank()) {",
+        "                units += Integer.parseInt(c[2]);",
+        "            }",
+        "        }",
+        "        System.out.println(rows + \" rows, \" + units + \" units\");",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.util.*;",
+        "",
+        "class Extract {",
+        "    public static void main(String[] args) {",
+        "        List<String> lines = List.of(\"A1,West,4\", \"A2,South,\", \"A3,West,2\");",
+        "        int rows = 0;",
+        "        int units = 0;",
+        "        for (String line : lines) {",
+        "            String[] c = line.split(\",\", -1);",
+        "            rows++;",
+        "            if (!c[2].isBlank()) {",
+        "                units += Integer.parseInt(c[2]);",
+        "            }",
+        "        }",
+        "        System.out.println(rows + \" rows, \" + units + \" units\");",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        9
+      ],
+      "answer": 0,
+      "options": [
+        "String[] c = line.split(\",\", -1);",
+        "String[] c = line.split(\",\", 0);",
+        "String[] c = line.split(\", \");",
+        "String[] c = line.split(\",\", 1);"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "ArrayIndexOutOfBoundsException"
+      },
+      "explain": "split(\",\") throws away empty cells at the end, so \"A2,South,\" becomes only two cells and c[2] does not exist. A negative limit, split(\",\", -1), keeps them. A limit of 0 is the same as the default, a comma plus a space matches nothing in these lines, and a limit of 1 stops splitting after zero cuts, so the whole line stays in one cell.",
+      "concepts": [
+        "extract step",
+        "split with limit -1",
+        "ArrayIndexOutOfBoundsException"
+      ],
+      "output": "3 rows, 6 units"
+    },
+    {
+      "id": "j29-review",
+      "type": "review",
+      "title": "Review the AI's pipeline",
+      "prompt": "An AI assistant wrote this tiny pipeline (transform + report). It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Pipeline {",
+        "    record Raw(String id, String region, String qty) {}",
+        "    record Sale(String id, String region, int qty) {}",
+        "",
+        "    static List<Sale> transform(List<Raw> raw) {",
+        "        List<Sale> out = new ArrayList<>();",
+        "        for (Raw r : new LinkedHashSet<>(raw)) {",
+        "            if (r.qty().isBlank()) {",
+        "                continue;",
+        "            }",
+        "            out.add(new Sale(r.id(), r.region().strip().toLowerCase(), Integer.parseInt(r.qty())));",
+        "        }",
+        "        return out;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Raw> raw = List.of(new Raw(\"A1\", \" South\", \"2\"), new Raw(\"A1\", \" South\", \"2\"),",
+        "                new Raw(\"A2\", \"WEST \", \"\"), new Raw(\"A3\", \"West\", \"4\"));",
+        "        try {",
+        "            List<Sale> clean = transform(raw);",
+        "            int units = raw.stream().filter(r -> !r.qty().isBlank())",
+        "                    .mapToInt(r -> Integer.parseInt(r.qty())).sum();",
+        "            System.out.println(clean.size() + \" rows, \" + units + \" units\");",
+        "        } catch (RuntimeException e) {",
+        "            System.out.println(\"Error: \" + e.getMessage());",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "raw-total",
+          "text": "The units total is computed from the raw rows, not from the cleaned ones",
+          "why": "The duplicate A1 row is counted twice, so the report says 2 rows but 8 units (the clean list holds 6). Always report from the data you cleaned, for example clean.stream().mapToInt(Sale::qty).sum().",
+          "lines": [
+            23,
+            24
+          ]
+        },
+        {
+          "id": "no-quality-numbers",
+          "text": "Rows are dropped silently: there are no rows-before and rows-after numbers",
+          "why": "The duplicate and the blank-quantity row vanish without a trace, so a bug in the cleaning would never be noticed. Log the counts (4 raw, 1 duplicate, 1 blank, 2 clean) before the report.",
+          "lines": [
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "id": "exit-code",
+          "text": "A failure prints a message but the program still ends with exit code 0",
+          "why": "A scheduler only sees the exit code. After printing the error, call System.exit(1) so the failed job is not reported as a success.",
+          "lines": [
+            26,
+            27
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "dedupe-set",
+          "text": "new LinkedHashSet<>(raw) cannot drop duplicate records",
+          "why": "A record's equals compares all its fields, so two rows with identical values count as the same element, and the first copy and the order are kept."
+        },
+        {
+          "id": "drop-blank",
+          "text": "A blank quantity should be filled with 0 instead of dropping the row",
+          "why": "Filling 0 would invent a sale of nothing. When a value cannot be guessed safely, dropping the row is the right decision, as long as it is counted."
+        },
+        {
+          "id": "raw-strings",
+          "text": "Raw should use int for qty, because the quantity is a number",
+          "why": "The raw record deliberately holds untouched text, since the file may contain blanks or bad values. The conversion belongs in transform."
+        }
+      ],
+      "explain": "Review pipelines for three things: is every step fed with the previous step's output, can you see what each step removed, and does a failure reach the caller. Methods that each do one job made this easy to read.",
+      "concepts": [
+        "report from cleaned data",
+        "validation numbers",
+        "exit codes",
+        "reviewing a pipeline"
+      ]
+    }
+  ]
+}

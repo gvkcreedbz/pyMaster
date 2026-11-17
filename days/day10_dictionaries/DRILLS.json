@@ -1,0 +1,251 @@
+{
+  "day": 10,
+  "drills": [
+    {
+      "id": "d10-parsons",
+      "type": "parsons",
+      "title": "Count the words",
+      "viz": true,
+      "prompt": "Arrange and indent the lines so the program counts how many times each word appears. Two lines do not belong.",
+      "lines": [
+        "text = \"to be or not to be\"",
+        "counts = {}",
+        "for word in text.split():",
+        "counts[word] = counts.get(word, 0) + 1",
+        "print(counts)"
+      ],
+      "indent": [
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4
+        ]
+      ],
+      "distractors": [
+        "counts[word] += 1",
+        "counts = []"
+      ],
+      "explain": "The counting pattern is: start with an empty dict, loop over the words, and for each word store counts.get(word, 0) + 1. get returns 0 the first time a word is seen, so there is no KeyError. counts[word] += 1 would fail on the first sighting because the key does not exist yet, and a list cannot hold word -> count pairs.",
+      "concepts": [
+        "counting pattern",
+        "dict.get with default"
+      ],
+      "output": "{'to': 2, 'be': 2, 'or': 1, 'not': 1}"
+    },
+    {
+      "id": "d10-fill",
+      "type": "fill",
+      "title": "Read, test and loop a profile",
+      "viz": true,
+      "prompt": "Fill the three blanks so the program prints the goal output.",
+      "code": [
+        "user = {\"name\": \"Aarav\", \"age\": 25}",
+        "print(user.___(\"email\", \"n/a\"))",
+        "user[\"email\"] = \"aarav@x.com\"",
+        "print(\"email\" ___ user)",
+        "for key, value in user.___():",
+        "    print(key, \"->\", value)"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "get"
+          ],
+          "options": [
+            "get",
+            "find",
+            "index"
+          ]
+        },
+        {
+          "answers": [
+            "in"
+          ],
+          "options": [
+            "in",
+            "has",
+            "contains"
+          ]
+        },
+        {
+          "answers": [
+            "items"
+          ],
+          "options": [
+            "items",
+            "keys",
+            "values"
+          ]
+        }
+      ],
+      "explain": "get(key, default) reads a value and returns the default instead of raising KeyError when the key is missing. in tests whether a KEY exists. A for loop over a dict gives only keys; to get key and value together you need .items(), and the loop unpacks each pair into key, value.",
+      "concepts": [
+        "get with default",
+        "in checks keys",
+        "items()"
+      ],
+      "output": "n/a\nTrue\nname -> Aarav\nage -> 25\nemail -> aarav@x.com"
+    },
+    {
+      "id": "d10-predict",
+      "type": "predict",
+      "title": "Keys, defaults and duplicates",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "d = {\"a\": 1}",
+        "print(d.get(\"b\"), d.get(\"b\", 0))",
+        "d[\"b\"] = d.get(\"b\", 0) + 1",
+        "print(d)",
+        "for x in {\"x\": 10, \"y\": 20}:",
+        "    print(x)",
+        "print(len({\"k\": 1, \"k\": 2}), {\"k\": 1, \"k\": 2})",
+        "print(\"a\" in d, 1 in d)"
+      ],
+      "explain": "get returns None (or your default) instead of failing for a missing key, so d[\"b\"] = d.get(\"b\", 0) + 1 creates the key with 1. A for loop over a dict gives the keys, not the values. Keys are unique: the second \"k\" replaces the first value, leaving one key with the value 2. in looks at keys only: 1 is a value, not a key.",
+      "concepts": [
+        "get",
+        "loop gives keys",
+        "unique keys",
+        "in checks keys"
+      ],
+      "expected": "None 0\n{'a': 1, 'b': 1}\nx\ny\n1 {'k': 2}\nTrue False"
+    },
+    {
+      "id": "d10-bug",
+      "type": "bug",
+      "title": "Pizza is not on the menu",
+      "viz": true,
+      "prompt": "The bill should add up the dishes that are on the menu and treat unknown dishes as 0, but the program crashes with a KeyError. Click the faulty line and choose the fix.",
+      "code": [
+        "menu = {\"chai\": 20, \"samosa\": 15}",
+        "order = [\"chai\", \"samosa\", \"pizza\"]",
+        "bill = 0",
+        "for item in order:",
+        "    bill += menu[item]",
+        "print(\"Bill:\", bill)"
+      ],
+      "bug_lines": [
+        5
+      ],
+      "answer": 0,
+      "options": [
+        "    bill += menu.get(item, 0)",
+        "    bill += menu.get(item)",
+        "    bill += menu(item, 0)",
+        "    bill += menu[item, 0]"
+      ],
+      "fixed_code": [
+        "menu = {\"chai\": 20, \"samosa\": 15}",
+        "order = [\"chai\", \"samosa\", \"pizza\"]",
+        "bill = 0",
+        "for item in order:",
+        "    bill += menu.get(item, 0)",
+        "print(\"Bill:\", bill)"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "KeyError: 'pizza'"
+      },
+      "explain": "menu[item] raises KeyError when the key is missing. menu.get(item, 0) returns 0 instead, which is exactly the neutral value for adding to a bill. get(item) without a default returns None, and adding None to a number is a TypeError. Use [] when a missing key is a real error, and .get() when it is expected.",
+      "concepts": [
+        "KeyError",
+        "get with default"
+      ],
+      "output": "Bill: 35"
+    },
+    {
+      "id": "d10-review",
+      "type": "review",
+      "title": "Review the AI's shop helpers",
+      "prompt": "Spec: word_count counts words ignoring capital letters. price_of returns 0 for an item that is not on the menu. add_stock adds qty to an item and creates the item when it is new. An AI assistant wrote these helpers. They run on the sample calls, but three break the spec. Tick them.",
+      "code": [
+        "def word_count(text):",
+        "    counts = {}",
+        "    for word in text.split():",
+        "        if word in counts:",
+        "            counts[word] += 1",
+        "        else:",
+        "            counts[word] = 1",
+        "    return counts",
+        "",
+        "def price_of(menu, item):",
+        "    return menu[item]",
+        "",
+        "def add_stock(inventory, item, qty):",
+        "    inventory[item] += qty",
+        "    return inventory",
+        "",
+        "def stock_value(inventory):",
+        "    total = 0",
+        "    for item in inventory:",
+        "        total += inventory[item][\"price\"] * inventory[item][\"stock\"]",
+        "    return total",
+        "",
+        "print(word_count(\"Chai chai samosa\"))",
+        "print(price_of({\"chai\": 20}, \"chai\"))",
+        "print(add_stock({\"pen\": 5}, \"pen\", 3))",
+        "print(stock_value({\"pen\": {\"price\": 10, \"stock\": 8}}))"
+      ],
+      "issues": [
+        {
+          "id": "case-sensitive",
+          "text": "word_count treats \"Chai\" and \"chai\" as different words",
+          "why": "The words are used as keys exactly as typed, and keys are case-sensitive. Lowercase the text first: text.lower().split().",
+          "lines": [
+            3
+          ]
+        },
+        {
+          "id": "price-keyerror",
+          "text": "price_of crashes with KeyError for an item that is not on the menu",
+          "why": "menu[item] raises KeyError for a missing key, but the spec wants 0. Use menu.get(item, 0).",
+          "lines": [
+            11
+          ]
+        },
+        {
+          "id": "add-new-item",
+          "text": "add_stock fails with KeyError when the item is new",
+          "why": "inventory[item] += qty reads the old value first, and a new key has none. Use inventory[item] = inventory.get(item, 0) + qty.",
+          "lines": [
+            14
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "if-else-count",
+          "text": "The if / else in word_count is wrong and must be replaced by get()",
+          "why": "Checking with in and then adding 1 or starting at 1 is a correct way to count. get(word, 0) + 1 is just shorter."
+        },
+        {
+          "id": "loop-gives-values",
+          "text": "for item in inventory loops over the values, so inventory[item] is wrong",
+          "why": "A for loop over a dict gives the keys. inventory[item] then reads the nested record for that key, so the line works."
+        },
+        {
+          "id": "stock-value-changes",
+          "text": "stock_value changes the inventory while it loops over it",
+          "why": "It only reads values and adds them into a separate total. The dictionary is never modified, so the loop is safe."
+        }
+      ],
+      "explain": "Dictionary code usually breaks on the first time a key is seen: a missing key in a lookup, an update that reads a key that does not exist yet, or keys that differ only by case. Try each function with a new item and a differently capitalised word.",
+      "concepts": [
+        "KeyError",
+        "get with default",
+        "case-sensitive keys",
+        "reading code critically"
+      ]
+    }
+  ]
+}

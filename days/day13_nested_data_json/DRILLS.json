@@ -1,0 +1,226 @@
+{
+  "day": 13,
+  "drills": [
+    {
+      "id": "d13-parsons",
+      "type": "parsons",
+      "title": "Read an order from JSON text",
+      "viz": true,
+      "prompt": "Arrange the lines so the program turns the incoming JSON text into Python data, then prints whether the order is paid and its total. Two lines do not belong. The import and the text can go in either order.",
+      "lines": [
+        "import json",
+        "incoming = '{\"order_id\": 77, \"paid\": true, \"items\": [{\"price\": 90, \"qty\": 2}]}'",
+        "order = json.loads(incoming)",
+        "total = sum(i[\"price\"] * i[\"qty\"] for i in order[\"items\"])",
+        "print(order[\"paid\"], total)"
+      ],
+      "indent": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "distractors": [
+        "order = json.dumps(incoming)",
+        "total = sum(i[\"price\"] * i[\"qty\"] for i in order)"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4
+        ]
+      ],
+      "explain": "json.loads turns JSON text into Python data (a dict here), and json.dumps goes the other way, so dumps on text gives you more text. Once you have the dict, follow the path: order[\"items\"] is the list of item dicts. Looping over order itself would give the keys (strings), and \"order_id\"[\"price\"] fails. JSON true becomes Python True.",
+      "concepts": [
+        "json.loads",
+        "nested data",
+        "JSON to Python types"
+      ],
+      "output": "True 180"
+    },
+    {
+      "id": "d13-fill",
+      "type": "fill",
+      "title": "Follow the path",
+      "viz": true,
+      "prompt": "Fill the blanks so each line reaches the value described by the goal output. Read each one as a path: list index, then dict key, then list index.",
+      "code": [
+        "restaurants = [",
+        "    {\"name\": \"Spice Hub\", \"city\": \"Delhi\", \"cuisines\": [\"North Indian\", \"Chinese\"]},",
+        "    {\"name\": \"Dosa Corner\", \"city\": \"Pune\", \"cuisines\": [\"South Indian\"]},",
+        "]",
+        "print(restaurants[___][\"cuisines\"][___])",
+        "print(restaurants[1][___])",
+        "print(restaurants[1].___(\"rating\", \"no rating\"))"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "0"
+          ]
+        },
+        {
+          "answers": [
+            "1"
+          ]
+        },
+        {
+          "answers": [
+            "\"city\"",
+            "'city'"
+          ]
+        },
+        {
+          "answers": [
+            "get"
+          ],
+          "options": [
+            "get",
+            "find",
+            "index"
+          ]
+        }
+      ],
+      "explain": "restaurants[0] is the first dict, [\"cuisines\"] is its list, and [1] is the second cuisine in that list (counting starts at 0). A dict key is written in quotes, so restaurants[1][\"city\"] is Pune. restaurants[1][\"rating\"] would raise a KeyError because the key is missing, while .get(\"rating\", \"no rating\") returns the default instead.",
+      "concepts": [
+        "nested structures",
+        "indexing",
+        "dict.get"
+      ],
+      "output": "Chinese\nPune\nno rating"
+    },
+    {
+      "id": "d13-predict",
+      "type": "predict",
+      "title": "Shallow or deep copy",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import copy",
+        "",
+        "menu = {\"name\": \"Spice Hub\", \"tags\": [\"veg\"]}",
+        "shallow = menu.copy()",
+        "deep = copy.deepcopy(menu)",
+        "menu[\"tags\"].append(\"spicy\")",
+        "menu[\"name\"] = \"Spice Hub 2\"",
+        "print(shallow[\"tags\"], deep[\"tags\"])",
+        "print(shallow[\"name\"], deep[\"name\"])"
+      ],
+      "explain": "menu.copy() makes a new outer dict but the inner list is the same object in both, so appending to menu[\"tags\"] shows up in shallow. deepcopy copies everything, so deep never changes. Replacing menu[\"name\"] only rebinds a key in menu's own dict, so neither copy sees it. Nested data and .copy() is the classic way to change a backup by accident.",
+      "concepts": [
+        "shallow vs deep copy",
+        "nested data"
+      ],
+      "expected": "['veg', 'spicy'] ['veg']\nSpice Hub Spice Hub"
+    },
+    {
+      "id": "d13-bug",
+      "type": "bug",
+      "title": "Python text is not JSON text",
+      "viz": true,
+      "prompt": "The program stops with a JSONDecodeError. Click the faulty line and choose the fix.",
+      "code": [
+        "import json",
+        "incoming = \"{'order_id': 77, 'paid': True}\"",
+        "order = json.loads(incoming)",
+        "print(order[\"paid\"])"
+      ],
+      "bug_lines": [
+        2
+      ],
+      "answer": 0,
+      "options": [
+        "incoming = '{\"order_id\": 77, \"paid\": true}'",
+        "incoming = \"{'order_id': 77, 'paid': true}\"",
+        "incoming = '{\"order_id\": 77, \"paid\": True}'",
+        "incoming = {\"order_id\": 77, \"paid\": True}"
+      ],
+      "fixed_code": [
+        "import json",
+        "incoming = '{\"order_id\": 77, \"paid\": true}'",
+        "order = json.loads(incoming)",
+        "print(order[\"paid\"])"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "JSONDecodeError"
+      },
+      "explain": "JSON is its own text format: keys and strings need double quotes, and the words are true, false and null (not True, False, None). Single quotes or True make json.loads fail. Writing the dict directly (last option) is not text at all, so json.loads would reject it with a TypeError. Use single quotes around the whole Python string and double quotes inside it.",
+      "concepts": [
+        "json.loads",
+        "JSON syntax",
+        "JSONDecodeError"
+      ],
+      "output": "True"
+    },
+    {
+      "id": "d13-review",
+      "type": "review",
+      "title": "Review the AI's restaurant grouping",
+      "prompt": "An AI assistant wrote this code to group restaurants by city and keep a backup. It runs, but tick the statements that point at real problems.",
+      "code": [
+        "import json",
+        "restaurants = [",
+        "    {\"name\": \"Spice Hub\", \"city\": \"Delhi\", \"rating\": 4.5, \"address\": {\"pin\": \"110001\"}},",
+        "    {\"name\": \"Dosa Corner\", \"city\": \"Pune\", \"rating\": 4.2, \"address\": {\"pin\": \"411001\"}},",
+        "    {\"name\": \"Pasta Palace\", \"city\": \"Delhi\", \"rating\": 4.0, \"address\": {\"pin\": \"110002\"}},",
+        "]",
+        "backup = restaurants.copy()",
+        "by_city = {}",
+        "for r in restaurants:",
+        "    by_city[r[\"city\"]] = r[\"name\"]",
+        "restaurants[0][\"rating\"] = 5.0",
+        "print(by_city)",
+        "print(backup[0][\"rating\"])",
+        "print(json.dumps(by_city))"
+      ],
+      "issues": [
+        {
+          "id": "overwrite-group",
+          "text": "by_city keeps only the last restaurant of each city (Delhi loses Spice Hub)",
+          "why": "Assigning to the key replaces the old value. To group, store a list: by_city.setdefault(r[\"city\"], []).append(r[\"name\"]).",
+          "lines": [
+            10
+          ]
+        },
+        {
+          "id": "shallow-backup",
+          "text": "backup = restaurants.copy() is shallow, so the 'backup' changes when a restaurant dict is edited",
+          "why": "The outer list is new but the dicts inside are shared. The print on line 13 shows 5.0, not the old 4.5. Use copy.deepcopy(restaurants) for an independent backup.",
+          "lines": [
+            7,
+            11,
+            13
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "dumps-text",
+          "text": "json.dumps(by_city) prints text, so it should be json.loads instead",
+          "why": "dumps turns Python data into JSON text, which is the direction wanted here. loads is for reading text into Python data."
+        },
+        {
+          "id": "nested-dict",
+          "text": "A dict inside a dict (address) cannot be turned into JSON",
+          "why": "JSON objects can nest. Nested dicts and lists are exactly what JSON is used for."
+        },
+        {
+          "id": "float-edit",
+          "text": "Changing restaurants[0][\"rating\"] to 5.0 is invalid because it was 4.5",
+          "why": "Dict values can be replaced freely. Changing it is fine; the problem is only that the backup is affected too."
+        }
+      ],
+      "explain": "Two habits catch most bugs in nested-data code: check what an assignment to a dict key does when the key already exists (it replaces), and ask whether a copy is shallow or deep whenever the data contains lists or dicts inside.",
+      "concepts": [
+        "grouping with dicts",
+        "shallow vs deep copy",
+        "reading code critically"
+      ]
+    }
+  ]
+}

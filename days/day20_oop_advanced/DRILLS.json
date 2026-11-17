@@ -1,0 +1,323 @@
+{
+  "day": 20,
+  "drills": [
+    {
+      "id": "d20-parsons",
+      "type": "parsons",
+      "title": "A Manager is an Employee",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them) so Manager inherits from Employee, reuses the parent's setup and prints the manager's name and total pay. Two lines do not belong.",
+      "lines": [
+        "class Employee:",
+        "def __init__(self, name, salary):",
+        "self.name = name",
+        "self.salary = salary",
+        "class Manager(Employee):",
+        "def __init__(self, name, salary, bonus):",
+        "super().__init__(name, salary)",
+        "self.bonus = bonus",
+        "boss = Manager(\"Diya\", 80000, 20000)",
+        "print(boss.name, boss.salary + boss.bonus)"
+      ],
+      "indent": [
+        0,
+        1,
+        2,
+        2,
+        0,
+        1,
+        2,
+        2,
+        0,
+        0
+      ],
+      "alternatives": [
+        [
+          0,
+          1,
+          3,
+          2,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          7,
+          6,
+          8,
+          9
+        ],
+        [
+          0,
+          1,
+          3,
+          2,
+          4,
+          5,
+          7,
+          6,
+          8,
+          9
+        ]
+      ],
+      "distractors": [
+        "super().__init__(self, name, salary)",
+        "class Manager.Employee:"
+      ],
+      "explain": "The parent class must exist before the child that names it in brackets. The child's __init__ calls super().__init__(name, salary) so the parent sets name and salary, then adds its own bonus. super() already supplies self, so passing self again is one argument too many. Two pairs of lines may swap places (the two parent attributes, and super() versus the bonus line) because the result is the same.",
+      "concepts": [
+        "inheritance",
+        "super()",
+        "__init__"
+      ],
+      "output": "Diya 100000"
+    },
+    {
+      "id": "d20-fill",
+      "type": "fill",
+      "title": "Make Vector support +",
+      "viz": true,
+      "prompt": "Fill the two blanks with the special method names so adding two vectors works and the result prints as Vector(4, 6).",
+      "code": [
+        "class Vector:",
+        "    def __init__(self, x, y):",
+        "        self.x, self.y = x, y",
+        "",
+        "    def ___(self, other):",
+        "        return Vector(self.x + other.x, self.y + other.y)",
+        "",
+        "    def ___(self):",
+        "        return f\"Vector({self.x}, {self.y})\"",
+        "",
+        "print(Vector(1, 2) + Vector(3, 4))"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "__add__"
+          ],
+          "options": [
+            "__add__",
+            "__plus__",
+            "add"
+          ]
+        },
+        {
+          "answers": [
+            "__repr__",
+            "__str__"
+          ],
+          "options": [
+            "__repr__",
+            "__str__",
+            "repr"
+          ]
+        }
+      ],
+      "explain": "Python turns a + b into a.__add__(b), so defining __add__ makes + work for your own class. print() asks the object for its text through __str__, which falls back to __repr__ when __str__ is missing, so either name works here (__repr__ is the one meant for developers). Names without the double underscores are ordinary methods that Python never calls by itself.",
+      "concepts": [
+        "dunder methods",
+        "__add__",
+        "__repr__"
+      ],
+      "output": "Vector(4, 6)"
+    },
+    {
+      "id": "d20-predict",
+      "type": "predict",
+      "title": "Same call, different pay",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "class Employee:",
+        "    def __init__(self, name, salary):",
+        "        self.name = name",
+        "        self.salary = salary",
+        "    def pay(self):",
+        "        return self.salary",
+        "",
+        "class Manager(Employee):",
+        "    def __init__(self, name, salary, bonus):",
+        "        super().__init__(name, salary)",
+        "        self.bonus = bonus",
+        "    def pay(self):",
+        "        return super().pay() + self.bonus",
+        "",
+        "class Intern(Employee):",
+        "    def pay(self):",
+        "        return 10000",
+        "",
+        "team = [Employee(\"Aarav\", 50000), Manager(\"Diya\", 80000, 20000), Intern(\"Kabir\", 99999)]",
+        "for person in team:",
+        "    print(person.name, person.pay())",
+        "print(sum(person.pay() for person in team))"
+      ],
+      "explain": "Python looks for pay() in the object's own class first. Manager overrides it and calls the parent's version with super().pay() before adding the bonus (80000 + 20000). Intern overrides it too, so the 99999 passed to the inherited __init__ is stored but never used by pay(). The same call person.pay() therefore behaves differently for each object: that is polymorphism.",
+      "concepts": [
+        "polymorphism",
+        "overriding",
+        "super()"
+      ],
+      "expected": "Aarav 50000\nDiya 100000\nKabir 10000\n160000"
+    },
+    {
+      "id": "d20-bug",
+      "type": "bug",
+      "title": "The parent was not told the salary",
+      "viz": true,
+      "prompt": "The program crashes when the manager is created. Click the line that causes it, then choose the right fix.",
+      "code": [
+        "class Employee:",
+        "    def __init__(self, name, salary):",
+        "        self.name = name",
+        "        self.salary = salary",
+        "",
+        "class Manager(Employee):",
+        "    def __init__(self, name, salary, bonus):",
+        "        super().__init__(name)",
+        "        self.bonus = bonus",
+        "    def pay(self):",
+        "        return self.salary + self.bonus",
+        "",
+        "boss = Manager(\"Diya\", 80000, 20000)",
+        "print(boss.name, boss.pay())"
+      ],
+      "bug_lines": [
+        8
+      ],
+      "answer": 0,
+      "options": [
+        "        super().__init__(name, salary)",
+        "        super().__init__(self, name, salary)",
+        "        Employee.__init__(name, salary)",
+        "        super.__init__(name, salary)"
+      ],
+      "fixed_code": [
+        "class Employee:",
+        "    def __init__(self, name, salary):",
+        "        self.name = name",
+        "        self.salary = salary",
+        "",
+        "class Manager(Employee):",
+        "    def __init__(self, name, salary, bonus):",
+        "        super().__init__(name, salary)",
+        "        self.bonus = bonus",
+        "    def pay(self):",
+        "        return self.salary + self.bonus",
+        "",
+        "boss = Manager(\"Diya\", 80000, 20000)",
+        "print(boss.name, boss.pay())"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "missing 1 required positional argument"
+      },
+      "explain": "super().__init__(...) calls the parent's __init__ with exactly the arguments you give it, and Employee needs both name and salary. Passing only name leaves salary missing, so Python raises a TypeError. Do not add self yourself: super() supplies it. super without the brackets is just the class, not a proxy to the parent.",
+      "concepts": [
+        "super()",
+        "inheritance",
+        "TypeError"
+      ],
+      "output": "Diya 100000"
+    },
+    {
+      "id": "d20-review",
+      "type": "review",
+      "title": "Review the AI's payroll classes",
+      "prompt": "An AI assistant wrote this payroll code. It runs and prints the right total, but tick the statements that point at real problems.",
+      "code": [
+        "class Employee:",
+        "    def __init__(self, name, salary):",
+        "        self.name = name",
+        "        self.salary = salary",
+        "",
+        "    def pay(self):",
+        "        return self.salary",
+        "",
+        "class Manager(Employee):",
+        "    def __init__(self, name, salary, bonus):",
+        "        self.name = name",
+        "        self.salary = salary",
+        "        self.bonus = bonus",
+        "",
+        "    def pay(self, with_bonus):",
+        "        return self.salary + self.bonus if with_bonus else self.salary",
+        "",
+        "def total_payroll(team):",
+        "    total = 0",
+        "    for person in team:",
+        "        if type(person) == Manager:",
+        "            total += person.pay(True)",
+        "        else:",
+        "            total += person.pay()",
+        "    return total",
+        "",
+        "team = [Employee(\"Aarav\", 50000), Manager(\"Diya\", 80000, 20000)]",
+        "print(total_payroll(team))"
+      ],
+      "issues": [
+        {
+          "id": "copied-init",
+          "text": "Manager.__init__ repeats the parent's two assignments instead of calling super().__init__(name, salary)",
+          "why": "If Employee.__init__ later gains a check or a new attribute, Manager silently misses it. The child should reuse the parent's setup and add only the bonus.",
+          "lines": [
+            11,
+            12
+          ]
+        },
+        {
+          "id": "changed-signature",
+          "text": "Manager.pay needs an extra argument, so it can no longer be called like Employee.pay()",
+          "why": "An override should keep the parent's signature. With pay(with_bonus), code that loops over employees and calls pay() crashes on a Manager. Compute the bonus inside pay() and take no extra argument.",
+          "lines": [
+            15
+          ]
+        },
+        {
+          "id": "type-check",
+          "text": "total_payroll tests type(person) == Manager instead of just calling person.pay()",
+          "why": "Polymorphism lets each object do its own version of pay(). Checking the exact class by hand breaks as soon as a subclass of Manager or a new employee type appears, and it only exists to work around the changed signature.",
+          "lines": [
+            21,
+            22,
+            23,
+            24
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "extra-attribute",
+          "text": "Manager must not add a bonus attribute that Employee does not have",
+          "why": "A subclass is allowed to add its own data. That is usually the reason for creating the subclass."
+        },
+        {
+          "id": "override-pay",
+          "text": "Manager should not override pay() at all",
+          "why": "Overriding is the point of inheritance here: a manager's pay differs from a plain employee's. Only the changed signature is a problem."
+        },
+        {
+          "id": "total-zero",
+          "text": "total = 0 will make the sum wrong because it is reset on every loop",
+          "why": "It is set once before the loop, so every pay is added to the same running total."
+        }
+      ],
+      "explain": "When you review a subclass, check three things: does it call super().__init__, do the overrides keep the parent's signature, and can callers treat all objects the same way? Here the changed signature forces the caller into a type() test.",
+      "concepts": [
+        "inheritance",
+        "super()",
+        "polymorphism",
+        "reading code critically"
+      ]
+    }
+  ]
+}

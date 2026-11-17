@@ -1,0 +1,220 @@
+{
+  "day": 6,
+  "drills": [
+    {
+      "id": "d06-parsons",
+      "type": "parsons",
+      "title": "Cart total with an accumulator",
+      "viz": true,
+      "prompt": "Arrange and indent the lines so the program adds up the three prices in the cart and then prints the average. Two lines do not belong.",
+      "lines": [
+        "total = 0",
+        "for price in (499, 1299, 250):",
+        "total += price",
+        "print(\"Cart total:\", total)",
+        "print(\"Average:\", round(total / 3))"
+      ],
+      "indent": [
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "distractors": [
+        "total = price",
+        "for price in (499, 1299, 250)"
+      ],
+      "explain": "The accumulator pattern has three parts: a start value before the loop (total = 0), an update inside the loop (total += price, indented), and the use of the result after the loop (not indented, so it runs once). total = price would throw away the earlier prices on every round, and the for line needs its colon.",
+      "concepts": [
+        "accumulator pattern",
+        "for loop",
+        "indentation"
+      ],
+      "output": "Cart total: 2048\nAverage: 683"
+    },
+    {
+      "id": "d06-fill",
+      "type": "fill",
+      "title": "Range: stop, step, countdown",
+      "viz": true,
+      "prompt": "Fill the three blanks so the program prints the goal output. The stop of a range is never included.",
+      "code": [
+        "for i in range(1, ___):",
+        "    print(\"Round\", i)",
+        "for n in range(3, 0, ___):",
+        "    print(n)",
+        "print(\"Liftoff\")",
+        "print(list(range(0, 10, ___)))"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "4"
+          ],
+          "options": [
+            "4",
+            "3",
+            "5"
+          ]
+        },
+        {
+          "answers": [
+            "-1"
+          ],
+          "options": [
+            "-1",
+            "1",
+            "0"
+          ]
+        },
+        {
+          "answers": [
+            "2"
+          ]
+        }
+      ],
+      "explain": "range(1, 4) starts at 1 and stops before 4, so it gives 1, 2, 3. To count down you need a negative step: range(3, 0, -1) gives 3, 2, 1 (a step of 1 would give nothing, because 3 is already past 0 going up). The third number of range is the step: range(0, 10, 2) gives 0, 2, 4, 6, 8.",
+      "concepts": [
+        "range(start, stop, step)",
+        "stop is excluded",
+        "countdown"
+      ],
+      "output": "Round 1\nRound 2\nRound 3\n3\n2\n1\nLiftoff\n[0, 2, 4, 6, 8]"
+    },
+    {
+      "id": "d06-predict",
+      "type": "predict",
+      "title": "continue, break and the loop variable",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "total = 0",
+        "for n in range(1, 10):",
+        "    if n == 3:",
+        "        continue",
+        "    if n == 6:",
+        "        break",
+        "    total += n",
+        "print(total, n)",
+        "count = 0",
+        "while count < 3:",
+        "    count += 1",
+        "print(count)",
+        "for i in range(2, 10, 3):",
+        "    print(i, end=\" \")",
+        "print(\"done\")"
+      ],
+      "explain": "continue skips the rest of that round (3 is not added). break leaves the loop at once (6 is not added), so total is 1 + 2 + 4 + 5 and the loop variable n keeps the value 6 after the loop. A while loop stops when its condition turns False, so count ends at exactly 3. range(2, 10, 3) gives 2, 5, 8 and end=\" \" keeps them on one line.",
+      "concepts": [
+        "break / continue",
+        "while loop",
+        "range with step",
+        "end="
+      ],
+      "expected": "12 6\n3\n2 5 8 done"
+    },
+    {
+      "id": "d06-bug",
+      "type": "bug",
+      "title": "The table that stops at 9",
+      "viz": true,
+      "prompt": "The multiplication table of 7 should run from 7 x 1 to 7 x 10, but the last line is missing. Click the faulty line and choose the fix.",
+      "code": [
+        "n = 7",
+        "for k in range(1, 10):",
+        "    print(f\"{n} x {k} = {n * k}\")"
+      ],
+      "bug_lines": [
+        2
+      ],
+      "answer": 0,
+      "options": [
+        "for k in range(1, 11):",
+        "for k in range(0, 10):",
+        "for k in range(10):",
+        "for k in range(1, 12):"
+      ],
+      "fixed_code": [
+        "n = 7",
+        "for k in range(1, 11):",
+        "    print(f\"{n} x {k} = {n * k}\")"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "7 x 1 = 7\n7 x 2 = 14\n7 x 3 = 21\n7 x 4 = 28\n7 x 5 = 35\n7 x 6 = 42\n7 x 7 = 49\n7 x 8 = 56\n7 x 9 = 63"
+      },
+      "explain": "range excludes its stop value, so range(1, 10) ends at 9. To include 10 the stop must be 11. range(10) and range(0, 10) start at 0 and also stop at 9, and 12 would print an extra row. Off-by-one errors never crash: check the first and last line of the output.",
+      "concepts": [
+        "off-by-one",
+        "range(start, stop)"
+      ],
+      "output": "7 x 1 = 7\n7 x 2 = 14\n7 x 3 = 21\n7 x 4 = 28\n7 x 5 = 35\n7 x 6 = 42\n7 x 7 = 49\n7 x 8 = 56\n7 x 9 = 63\n7 x 10 = 70"
+    },
+    {
+      "id": "d06-review",
+      "type": "review",
+      "title": "Review the AI's PIN checker",
+      "prompt": "The ATM rule: the customer gets at most 3 attempts, and after 3 wrong PINs the card must be blocked with a message. An AI assistant wrote this checker. It runs, but it does not follow the rule. Tick the real problems.",
+      "code": [
+        "guesses = (\"1111\", \"2222\", \"3333\", \"4821\")",
+        "correct_pin = \"4821\"",
+        "attempts = 0",
+        "for guess in guesses:",
+        "    if guess == correct_pin:",
+        "        print(\"Welcome\")",
+        "        break",
+        "    attempts += 1",
+        "    print(\"Wrong PIN, attempts used:\", attempts)"
+      ],
+      "issues": [
+        {
+          "id": "no-limit",
+          "text": "The loop never stops after 3 wrong attempts, so the 4th guess still unlocks the account",
+          "why": "The for loop runs over every guess and nothing checks attempts. Stop when attempts reaches 3 (for example break after the third wrong guess, or loop over the first three guesses only).",
+          "lines": [
+            4,
+            8
+          ]
+        },
+        {
+          "id": "no-block-message",
+          "text": "When no guess is right, the program ends without ever blocking the card or saying so",
+          "why": "Nothing runs after the loop to report the failure. A for ... else (the else runs only when there was no break) or an if attempts == 3 check after the loop would print the \"Card blocked\" message.",
+          "lines": [
+            9
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "should-be-while",
+          "text": "A for loop is the wrong tool here and it must be a while loop",
+          "why": "Looping over a fixed set of guesses is a normal use of for. The bugs are the missing limit and the missing message, not the kind of loop."
+        },
+        {
+          "id": "break-should-continue",
+          "text": "break on line 7 should be continue",
+          "why": "After a correct PIN there is nothing left to check, so leaving the loop with break is right. continue would keep reading guesses."
+        },
+        {
+          "id": "pin-text",
+          "text": "The PIN is stored as text, so it should be an int",
+          "why": "A PIN is an identifier, not a quantity. Text keeps leading zeros (\"0492\"), and comparing text with text is correct."
+        },
+        {
+          "id": "counter-after-if",
+          "text": "attempts += 1 is after the if, so the counter is off by one",
+          "why": "The line only runs for wrong guesses, which is what \"attempts used\" counts. A correct guess leaves the loop first."
+        }
+      ],
+      "explain": "A loop must stop for the reasons in the rules. Check three things in loop code: when does it end, what happens when it ends WITHOUT finding what it was looking for, and does the counter count the right thing?",
+      "concepts": [
+        "loop limits",
+        "for ... else",
+        "break",
+        "reading code critically"
+      ]
+    }
+  ]
+}

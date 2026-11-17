@@ -1,0 +1,280 @@
+{
+  "day": 5,
+  "drills": [
+    {
+      "id": "j05-parsons",
+      "type": "parsons",
+      "title": "A delivery-fee chain",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Arrange the lines so the program prints the delivery fee: free from Rs. 499, Rs. 30 from Rs. 200, otherwise Rs. 50. The first two lines can go in either order. Two lines do not belong.",
+      "lines": [
+        "int orderValue = 350;",
+        "int fee;",
+        "if (orderValue >= 499) {",
+        "fee = 0;",
+        "} else if (orderValue >= 200) {",
+        "fee = 30;",
+        "} else {",
+        "fee = 50;",
+        "}",
+        "System.out.println(\"Fee: Rs. \" + fee);"
+      ],
+      "distractors": [
+        "} elif (orderValue >= 200) {",
+        "if orderValue >= 499 {"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "explain": "The condition sits in round brackets and each block in curly braces. The word is else if (not elif). The chain is checked from the top and the first true condition wins, so the biggest limit comes first and else catches everything left.",
+      "concepts": [
+        "if / else if / else",
+        "braces and conditions"
+      ],
+      "output": "Fee: Rs. 30"
+    },
+    {
+      "id": "j05-fill",
+      "type": "fill",
+      "title": "Conditions, ternary and switch",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the program prints the goal output.",
+      "code": [
+        "int age = 70;",
+        "boolean discount = age < 5 ___ age >= 60;",
+        "String status = age >= 18 ___ \"adult\" : \"minor\";",
+        "String answer = \"Yes\";",
+        "if (answer.___(\"yes\")) {",
+        "    System.out.println(\"Order confirmed\");",
+        "}",
+        "int day = 6;",
+        "String kind = switch (day) {",
+        "    case 1, 2, 3, 4, 5 -> \"Weekday\";",
+        "    case 6, 7 -> \"Weekend\";",
+        "    ___ -> \"Invalid day\";",
+        "};",
+        "System.out.println(discount + \" \" + status + \" \" + kind);"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "||"
+          ],
+          "options": [
+            "||",
+            "&&",
+            "or"
+          ]
+        },
+        {
+          "answers": [
+            "?"
+          ],
+          "options": [
+            "?",
+            "->",
+            "if"
+          ]
+        },
+        {
+          "answers": [
+            "equalsIgnoreCase"
+          ],
+          "options": [
+            "equalsIgnoreCase",
+            "equals",
+            "compareTo"
+          ]
+        },
+        {
+          "answers": [
+            "default"
+          ],
+          "options": [
+            "default",
+            "else",
+            "other"
+          ]
+        }
+      ],
+      "explain": "|| is OR: a child under 5 or a senior of 60 and over gets the discount, and no age is both, so && would never be true. condition ? valueIfTrue : valueIfFalse picks one of two values. equalsIgnoreCase ignores capital letters, equals would not match Yes with yes. A switch expression needs a default for everything else.",
+      "concepts": [
+        "&& and ||",
+        "ternary operator",
+        "equalsIgnoreCase",
+        "switch expression"
+      ],
+      "output": [
+        "Order confirmed",
+        "true adult Weekend"
+      ]
+    },
+    {
+      "id": "j05-predict",
+      "type": "predict",
+      "title": "First match wins",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "int marks = 82;",
+        "if (marks >= 50) {",
+        "    System.out.println(\"Pass\");",
+        "} else if (marks >= 75) {",
+        "    System.out.println(\"Merit\");",
+        "}",
+        "if (marks >= 75) {",
+        "    System.out.println(\"Merit\");",
+        "}",
+        "System.out.println(marks >= 90 ? \"A\" : \"B or lower\");"
+      ],
+      "explain": "In an else if chain only the first true branch runs. 82 is at least 50, so Pass is printed and the Merit branch of the chain is skipped, even though 82 would also pass it. The next if is a new, separate question, so it runs on its own and prints Merit. The ternary picks the text after the colon because 82 is not at least 90.",
+      "concepts": [
+        "else if chain",
+        "first match wins",
+        "ternary operator"
+      ],
+      "expected": [
+        "Pass",
+        "Merit",
+        "B or lower"
+      ]
+    },
+    {
+      "id": "j05-bug",
+      "type": "bug",
+      "title": "Half a question",
+      "viz": true,
+      "prompt": "The shop delivers on the same day to Mumbai and Pune, but the program does not compile. Click the line the compiler complains about, then choose the fix.",
+      "code": [
+        "class Delivery {",
+        "    public static void main(String[] args) {",
+        "        String city = \"Pune\";",
+        "        if (city.equals(\"Mumbai\") || \"Pune\") {",
+        "            System.out.println(\"Same-day delivery\");",
+        "        } else {",
+        "            System.out.println(\"Standard delivery\");",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        4
+      ],
+      "answer": 0,
+      "options": [
+        "if (city.equals(\"Mumbai\") || city.equals(\"Pune\")) {",
+        "if (city.equals(\"Mumbai\" || \"Pune\")) {",
+        "if (city.equals(\"Mumbai\") && city.equals(\"Pune\")) {",
+        "if (city.equals(\"Mumbai\", \"Pune\")) {"
+      ],
+      "fixed_code": [
+        "class Delivery {",
+        "    public static void main(String[] args) {",
+        "        String city = \"Pune\";",
+        "        if (city.equals(\"Mumbai\") || city.equals(\"Pune\")) {",
+        "            System.out.println(\"Same-day delivery\");",
+        "        } else {",
+        "            System.out.println(\"Standard delivery\");",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "bad operand types"
+      },
+      "explain": "|| joins two true/false questions. \"Pune\" alone is a text, not a question, so Java refuses it (in Python it would be accepted and always count as true). Write the full question on each side of ||. Joining the two with && would ask for a city that is both at once.",
+      "concepts": [
+        "conditions must be boolean",
+        "||",
+        "equals"
+      ],
+      "output": "Same-day delivery"
+    },
+    {
+      "id": "j05-review",
+      "type": "review",
+      "title": "Review the AI's fee rules",
+      "prompt": "The shop's rules: Rs. 30 within 3 km, Rs. 50 within 7 km, Rs. 80 beyond, and free delivery for members OR orders of Rs. 499 and above. An AI assistant wrote this code. It compiles and runs, but tick the real problems (there are two).",
+      "code": [
+        "class Fee {",
+        "    public static void main(String[] args) {",
+        "        int distanceKm = 2;",
+        "        int orderValue = 350;",
+        "        boolean isMember = true;",
+        "        int fee;",
+        "        if (distanceKm <= 7) {",
+        "            fee = 50;",
+        "        } else if (distanceKm <= 3) {",
+        "            fee = 30;",
+        "        } else {",
+        "            fee = 80;",
+        "        }",
+        "        // free delivery for members OR orders of Rs. 499 and above",
+        "        if (isMember && orderValue >= 499) {",
+        "            fee = 0;",
+        "        }",
+        "        System.out.println(\"Fee: Rs. \" + fee);",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "chain-order",
+          "text": "The 3 km branch can never run: a 2 km order is charged Rs. 50 instead of Rs. 30",
+          "why": "The chain is checked from the top and the first true condition wins. distanceKm <= 7 is true for every short distance, so the narrower <= 3 test must come first.",
+          "lines": [
+            7,
+            9
+          ]
+        },
+        {
+          "id": "and-instead-of-or",
+          "text": "The free-delivery rule uses && where the comment says OR, so a member with a small order still pays",
+          "why": "&& needs both parts to be true, || needs one. The rule is isMember || orderValue >= 499.",
+          "lines": [
+            14,
+            15
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "fee-uninitialised",
+          "text": "int fee has no starting value, so it may be uninitialised when it is printed",
+          "why": "Every branch of the if / else if / else chain assigns fee, so the compiler knows it has a value."
+        },
+        {
+          "id": "second-if-else",
+          "text": "The free-delivery check must be an else if of the first chain",
+          "why": "It is a separate rule that overrides the distance fee. Chained as an else it would be skipped whenever the distance rules matched, which is always."
+        },
+        {
+          "id": "member-equals-true",
+          "text": "isMember must be compared as isMember == true",
+          "why": "isMember already is a boolean, so it can be a condition on its own. == true only adds noise."
+        }
+      ],
+      "explain": "Both bugs are silent: the program compiles and prints a plausible fee. With a chain, read the conditions from the top and ask which cases each one swallows. With a rule written in words, check every && and || against the words AND and OR.",
+      "concepts": [
+        "else if order",
+        "&& vs ||",
+        "reading rules as code"
+      ]
+    }
+  ]
+}

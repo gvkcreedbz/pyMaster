@@ -1,0 +1,305 @@
+{
+  "day": 24,
+  "drills": [
+    {
+      "id": "j24-parsons",
+      "type": "parsons",
+      "title": "A test with a PASS/FAIL line",
+      "viz": true,
+      "prompt": "Arrange the lines into a tiny test program: the method under test, a check helper that compares expected with actual, and a main with two checks. Two lines do not belong.",
+      "lines": [
+        "class ShopTest {",
+        "static double applyDiscount(double price, int percent) {",
+        "return price * (100 - percent) / 100;",
+        "}",
+        "static void check(String name, double expected, double actual) {",
+        "System.out.println((expected == actual ? \"PASS \" : \"FAIL \") + name);",
+        "}",
+        "public static void main(String[] args) {",
+        "check(\"ten percent off\", 180.0, applyDiscount(200, 10));",
+        "check(\"zero percent changes nothing\", 99.5, applyDiscount(99.5, 0));",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "return price * (100 + percent) / 100;",
+        "System.out.println((expected = actual ? \"PASS \" : \"FAIL \") + name);"
+      ],
+      "explain": "A test calls the code with a known input and compares the result with the expected value written by hand. The helper plays the role of assertEquals(expected, actual): it prints PASS or FAIL for each check. == compares, a single = would assign (and not compile for a boolean test). The distractor formula (100 + percent) is the kind of bug a test like this exists to catch.",
+      "concepts": [
+        "expected vs actual",
+        "check helper",
+        "test for known input"
+      ],
+      "output": "PASS ten percent off\nPASS zero percent changes nothing"
+    },
+    {
+      "id": "j24-fill",
+      "type": "fill",
+      "title": "Test that an error is thrown",
+      "viz": true,
+      "prompt": "Fill the blanks so applyDiscount rejects a negative price, and the test checks both the exception type and its message. It should print PASS twice.",
+      "code": [
+        "class ShopTest {",
+        "    static double applyDiscount(double price, int percent) {",
+        "        if (price < 0) {",
+        "            ___ new IllegalArgumentException(\"Price must not be negative\");",
+        "        }",
+        "        return price * (100 - percent) / 100;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        try {",
+        "            applyDiscount(-5, 10);",
+        "            System.out.println(\"FAIL: nothing was thrown\");",
+        "        } catch (___ e) {",
+        "            System.out.println(\"PASS\");",
+        "            System.out.println(e.___().equals(\"Price must not be negative\") ? \"PASS\" : \"FAIL\");",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "throw"
+          ],
+          "options": [
+            "throw",
+            "throws",
+            "raise"
+          ]
+        },
+        {
+          "answers": [
+            "IllegalArgumentException"
+          ],
+          "options": [
+            "IllegalArgumentException",
+            "IllegalStateException",
+            "NullPointerException"
+          ]
+        },
+        {
+          "answers": [
+            "getMessage"
+          ],
+          "options": [
+            "getMessage",
+            "message",
+            "getText"
+          ]
+        }
+      ],
+      "explain": "An error test has three parts: call the code that must fail, fail the test if nothing is thrown (the line after the call is only reached when no exception happened), and check the type and the message of what was caught. JUnit packs this into assertThrows. If the method threw a different exception type, the catch would not match and the program would crash, which also shows up as a failing test.",
+      "concepts": [
+        "testing errors",
+        "throw",
+        "getMessage"
+      ],
+      "output": "PASS\nPASS"
+    },
+    {
+      "id": "j24-predict",
+      "type": "predict",
+      "title": "Tests that depend on each other",
+      "viz": true,
+      "prompt": "These checks share one static counter. Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "class CartCheck {",
+        "    static int items = 0;",
+        "",
+        "    static void checkTwoItems() {",
+        "        items += 2;",
+        "        System.out.println(items == 2 ? \"PASS two\" : \"FAIL two, items=\" + items);",
+        "    }",
+        "",
+        "    static void checkStartsEmpty() {",
+        "        System.out.println(items == 0 ? \"PASS empty\" : \"FAIL empty, items=\" + items);",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        checkTwoItems();",
+        "        checkStartsEmpty();",
+        "        checkTwoItems();",
+        "    }",
+        "}"
+      ],
+      "explain": "items belongs to the class, so every check sees what the earlier ones left behind: the empty check fails because the first check already added 2, and the second run of the first check ends with 4. JUnit avoids this by creating a new test object for every @Test method and running @BeforeEach first, so each test starts from a fresh fixture. A test must pass or fail on its own, in any order.",
+      "concepts": [
+        "independent tests",
+        "shared state",
+        "fresh fixture"
+      ],
+      "expected": "PASS two\nFAIL empty, items=2\nFAIL two, items=4"
+    },
+    {
+      "id": "j24-bug",
+      "type": "bug",
+      "title": "The boundary the test caught",
+      "viz": true,
+      "prompt": "Orders of Rs. 500 or more get free delivery. The program runs, but one check prints FAIL. Click the line of the code under test that is wrong, then choose the fix.",
+      "code": [
+        "class ShopCheck {",
+        "    static boolean freeDelivery(int total) {",
+        "        return total > 500;",
+        "    }",
+        "",
+        "    static void check(String name, boolean expected, boolean actual) {",
+        "        System.out.println((expected == actual ? \"PASS \" : \"FAIL \") + name);",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        check(\"small order pays\", false, freeDelivery(120));",
+        "        check(\"exactly 500 is free\", true, freeDelivery(500));",
+        "        check(\"big order is free\", true, freeDelivery(900));",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "class ShopCheck {",
+        "    static boolean freeDelivery(int total) {",
+        "        return total >= 500;",
+        "    }",
+        "",
+        "    static void check(String name, boolean expected, boolean actual) {",
+        "        System.out.println((expected == actual ? \"PASS \" : \"FAIL \") + name);",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        check(\"small order pays\", false, freeDelivery(120));",
+        "        check(\"exactly 500 is free\", true, freeDelivery(500));",
+        "        check(\"big order is free\", true, freeDelivery(900));",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        3
+      ],
+      "answer": 0,
+      "options": [
+        "return total >= 500;",
+        "return total == 500;",
+        "return total > 501;",
+        "return total <= 500;"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "PASS small order pays\nFAIL exactly 500 is free\nPASS big order is free"
+      },
+      "explain": "\"500 or more\" is >=, and > leaves out exactly 500. The two checks far from the limit (120 and 900) pass either way, which is why a good test suite always includes a boundary check. Changing the boundary the other way (== or > 501) breaks a different check, and <= flips the whole rule.",
+      "concepts": [
+        "boundary values",
+        "off-by-one comparison",
+        "reading test output"
+      ],
+      "output": "PASS small order pays\nPASS exactly 500 is free\nPASS big order is free"
+    },
+    {
+      "id": "j24-review",
+      "type": "review",
+      "title": "Review the AI's cart tests",
+      "prompt": "An AI assistant wrote these tests for a Cart class. They compile and run (all PASS), but tick the real problems with the tests (there are three).",
+      "code": [
+        "import java.util.ArrayList;",
+        "import java.util.List;",
+        "",
+        "class CartTest {",
+        "    static void check(String name, boolean ok) {",
+        "        System.out.println((ok ? \"PASS \" : \"FAIL \") + name);",
+        "    }",
+        "",
+        "    static void testTotal() {",
+        "        Cart cart = new Cart();",
+        "        cart.add(20);",
+        "        cart.add(15);",
+        "        check(\"total adds prices\", cart.total() == 35);",
+        "    }",
+        "",
+        "    static void testAddDoesNotCrash() {",
+        "        Cart cart = new Cart();",
+        "        cart.add(20);",
+        "        check(\"add works\", true);",
+        "    }",
+        "",
+        "    static void testText() {",
+        "        Cart cart = new Cart();",
+        "        cart.add(20);",
+        "        check(\"text\", cart.toString().equals(\"Cart{items=[20], total=20, currency=INR}\"));",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        testTotal();",
+        "        testAddDoesNotCrash();",
+        "        testText();",
+        "    }",
+        "}",
+        "class Cart {",
+        "    private final List<Integer> prices = new ArrayList<>();",
+        "    void add(int price) { prices.add(price); }",
+        "    int total() { int sum = 0; for (int p : prices) sum += p; return sum; }",
+        "    @Override public String toString() {",
+        "        return \"Cart{items=\" + prices + \", total=\" + total() + \", currency=INR}\";",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "no-assertion",
+          "text": "testAddDoesNotCrash can never fail",
+          "why": "check(\"add works\", true) passes whatever add does. A test needs a real assertion about a result, for example that total() is 20 after the add. A test that cannot fail gives false confidence.",
+          "lines": [
+            16,
+            17,
+            18,
+            19
+          ]
+        },
+        {
+          "id": "brittle-text",
+          "text": "testText compares the whole toString() output character by character",
+          "why": "The test breaks when someone renames the currency, adds a space or reorders the text, although nothing is wrong. It checks the formatting, not the behaviour: assert on total() (or on the part that matters) instead.",
+          "lines": [
+            25
+          ]
+        },
+        {
+          "id": "happy-path-only",
+          "text": "Only normal carts are tested: no empty cart, no zero or negative price",
+          "why": "Bugs live at the edges. A good test set also covers an empty cart (total 0), a boundary such as a price of 0 and the error case, so a wrong rule for negative prices would be noticed.",
+          "lines": [
+            9,
+            10,
+            11,
+            12,
+            13
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "own-cart",
+          "text": "Every test creates its own new Cart instead of sharing one",
+          "why": "That is the goal: each test starts from a fresh state and cannot be disturbed by the others. Sharing one cart would make the results depend on order."
+        },
+        {
+          "id": "hard-coded-35",
+          "text": "The expected value 35 is typed in instead of calculated from 20 and 15",
+          "why": "The expected value should be written by hand. Calculating it with the same logic as the code under test would repeat any bug in both places."
+        },
+        {
+          "id": "manual-main",
+          "text": "main calls each test by hand instead of using a test runner",
+          "why": "For a small plain-Java demo this is fine. JUnit's @Test does the calling for you in real projects, but the checks themselves are the same."
+        }
+      ],
+      "explain": "Review tests as you review code: does every test have an assertion that can fail, does it check behaviour rather than formatting or internals, and do the cases cover normal, edge and error situations?",
+      "concepts": [
+        "test quality",
+        "brittle tests",
+        "edge cases",
+        "reading code critically"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,259 @@
+{
+  "day": 27,
+  "drills": [
+    {
+      "id": "d27-parsons",
+      "type": "parsons",
+      "title": "Retry until the server answers",
+      "viz": true,
+      "prompt": "A flaky server answered 503, 503 and then 200 on three tries. Arrange (and indent) the lines so the program prints every try and stops as soon as the status is 200. Two lines do not belong.",
+      "lines": [
+        "attempts = [503, 503, 200]",
+        "for number, code in enumerate(attempts, start=1):",
+        "print(\"try\", number, \"->\", code)",
+        "if code == 200:",
+        "print(\"success\")",
+        "break"
+      ],
+      "indent": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2
+      ],
+      "distractors": [
+        "if code == \"200\":",
+        "for number, code in attempts:"
+      ],
+      "explain": "Status codes are numbers, so the test is code == 200. Comparing with the text \"200\" is never true, and the loop would run to the end without noticing the success. The try is printed before the check, and break leaves the loop once there is a success, so a real client would not keep calling the server. enumerate(attempts, start=1) gives the pairs (1, 503), (2, 503), (3, 200); without enumerate, unpacking a single number into two names fails.",
+      "concepts": [
+        "status codes",
+        "retry loop",
+        "break",
+        "enumerate"
+      ],
+      "output": "try 1 -> 503\ntry 2 -> 503\ntry 3 -> 200\nsuccess"
+    },
+    {
+      "id": "d27-fill",
+      "type": "fill",
+      "title": "URL parameters and an auth header",
+      "viz": true,
+      "prompt": "Fill the two blanks so the program builds the request URL (the parameters start after a question mark) and an Authorization header that carries a token. Nothing is sent: the program only prints what it would send.",
+      "code": [
+        "from urllib.parse import urlencode",
+        "",
+        "params = {\"latitude\": 18.52, \"current\": \"temperature_2m\"}",
+        "url = \"https://api.example.com/forecast\" + \"___\" + urlencode(params)",
+        "token = \"demo-token\"",
+        "headers = {\"Authorization\": f\"___ {token}\"}",
+        "print(url)",
+        "print(headers)"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "?"
+          ],
+          "options": [
+            "?",
+            "&",
+            "/"
+          ]
+        },
+        {
+          "answers": [
+            "Bearer"
+          ],
+          "options": [
+            "Bearer",
+            "Token",
+            "Basic"
+          ]
+        }
+      ],
+      "explain": "In a URL the query string starts with ? and the pairs are joined with &. urlencode(params) builds latitude=18.52&current=temperature_2m for you and escapes special characters. A token travels in the Authorization header as Bearer <token>, never in the code you commit: here it is a demo value, a real one would come from os.environ.",
+      "concepts": [
+        "query parameters",
+        "urlencode",
+        "Authorization header"
+      ],
+      "output": "https://api.example.com/forecast?latitude=18.52&current=temperature_2m\n{'Authorization': 'Bearer demo-token'}"
+    },
+    {
+      "id": "d27-predict",
+      "type": "predict",
+      "title": "The quote without an author",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "from bs4 import BeautifulSoup",
+        "",
+        "html = (",
+        "    '<div class=\"quote\"><span class=\"text\">Hi</span><small class=\"author\">Ann</small></div>'",
+        "    '<div class=\"quote\"><span class=\"text\">Yo</span></div>'",
+        ")",
+        "soup = BeautifulSoup(html, \"html.parser\")",
+        "for quote in soup.select(\"div.quote\"):",
+        "    author = quote.select_one(\".author\")",
+        "    print(quote.select_one(\".text\").get_text(), author.get_text() if author else None)",
+        "print(len(soup.select(\"span\")), soup.select_one(\"p\"))"
+      ],
+      "explain": "select returns a list of every match (two div.quote blocks, two spans). select_one returns the first match or None when nothing matches, so the second quote has no author and the conditional expression prints None instead of crashing. Without that check, author.get_text() on None would raise an AttributeError. The same applies to select_one(\"p\"): there is no paragraph, so it is None.",
+      "concepts": [
+        "select vs select_one",
+        "None when missing",
+        "get_text"
+      ],
+      "expected": "Hi Ann\nYo None\n2 None"
+    },
+    {
+      "id": "d27-bug",
+      "type": "bug",
+      "title": "A status code is a number",
+      "viz": true,
+      "prompt": "The fake server answered 200, but the program reports a failure. Click the faulty line and choose the fix.",
+      "code": [
+        "class FakeResponse:",
+        "    def __init__(self, status_code, payload):",
+        "        self.status_code = status_code",
+        "        self.payload = payload",
+        "    def json(self):",
+        "        return self.payload",
+        "",
+        "response = FakeResponse(200, {\"temp\": 28.5})",
+        "if response.status_code == \"200\":",
+        "    print(\"temp:\", response.json()[\"temp\"])",
+        "else:",
+        "    print(\"request failed\")"
+      ],
+      "bug_lines": [
+        9
+      ],
+      "answer": 0,
+      "options": [
+        "if response.status_code == 200:",
+        "if response.status_code = 200:",
+        "if response.status_code == \"OK\":",
+        "if str(response.status_code) != \"200\":"
+      ],
+      "fixed_code": [
+        "class FakeResponse:",
+        "    def __init__(self, status_code, payload):",
+        "        self.status_code = status_code",
+        "        self.payload = payload",
+        "    def json(self):",
+        "        return self.payload",
+        "",
+        "response = FakeResponse(200, {\"temp\": 28.5})",
+        "if response.status_code == 200:",
+        "    print(\"temp:\", response.json()[\"temp\"])",
+        "else:",
+        "    print(\"request failed\")"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "request failed"
+      },
+      "explain": "In requests, response.status_code is an int. The int 200 is never equal to the text \"200\", so the check is False without any error and the program takes the failure branch. This kind of bug runs without a traceback, so print the value and its type when a status check seems wrong. Remember too that = assigns and == compares.",
+      "concepts": [
+        "status codes are ints",
+        "== vs =",
+        "fake response"
+      ],
+      "output": "temp: 28.5"
+    },
+    {
+      "id": "d27-review",
+      "type": "review",
+      "title": "Review the AI's book-title scraper",
+      "prompt": "An AI assistant wrote this scraper. For this check it is given a fake response, so it runs and prints two titles. Tick the statements that point at real problems.",
+      "code": [
+        "import requests",
+        "from bs4 import BeautifulSoup",
+        "",
+        "API_KEY = \"sk-live-51Hxample\"",
+        "",
+        "class FakeResponse:",
+        "    status_code = 200",
+        "    text = \"<article><h3>Dune</h3></article><article><h3>Emma</h3></article>\"",
+        "",
+        "def get_titles(url, get=requests.get):",
+        "    response = get(url, headers={\"Authorization\": f\"Bearer {API_KEY}\"})",
+        "    soup = BeautifulSoup(response.text, \"html.parser\")",
+        "    titles = []",
+        "    for card in soup.select(\"article\"):",
+        "        titles.append(card.select_one(\"h3\").get_text(strip=True))",
+        "    return titles",
+        "",
+        "print(get_titles(\"https://books.example.com\", get=lambda url, headers: FakeResponse()))"
+      ],
+      "issues": [
+        {
+          "id": "hardcoded-key",
+          "text": "The API key is typed into the source code",
+          "why": "Code ends up in Git, screenshots and chats, and the key leaks with it. Read it from the environment (os.environ[\"BOOKS_API_KEY\"]) or a .env file that is not committed.",
+          "lines": [
+            4
+          ]
+        },
+        {
+          "id": "no-timeout",
+          "text": "The request has no timeout",
+          "why": "Without timeout= a server that never answers makes the script hang forever. Always pass timeout=10 (or similar) to get().",
+          "lines": [
+            11
+          ]
+        },
+        {
+          "id": "no-status-check",
+          "text": "The status code is never checked before parsing, so an error page is scraped as if it were data",
+          "why": "A 404 or 503 returns an HTML error page, and the function would quietly return an empty list. Check response.status_code (or call raise_for_status()) before reading the body.",
+          "lines": [
+            11,
+            12
+          ]
+        },
+        {
+          "id": "select-one-none",
+          "text": "select_one(\"h3\") can return None, and then .get_text() crashes with an AttributeError",
+          "why": "It works here because both cards have an h3, but real pages have cards with missing parts. Store the result, check it is not None, and decide what to do (skip the card or use a default).",
+          "lines": [
+            15
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "default-get",
+          "text": "get=requests.get as a default parameter is a mutable default argument bug",
+          "why": "The mutable default trap concerns lists and dicts that are changed. A function is never modified here. Passing the getter in is what lets a test supply a fake instead of the internet."
+        },
+        {
+          "id": "html-parser",
+          "text": "html.parser is wrong: BeautifulSoup needs lxml",
+          "why": "html.parser ships with Python and is a normal choice for BeautifulSoup. lxml is only faster."
+        },
+        {
+          "id": "titles-list",
+          "text": "titles = [] inside the function is shared between calls",
+          "why": "The list is created again on every call, so nothing is shared. Only a default argument like titles=[] would be."
+        },
+        {
+          "id": "strip-true",
+          "text": "get_text(strip=True) hides part of the title",
+          "why": "strip=True removes only the whitespace around the text, which is what you want when scraping."
+        }
+      ],
+      "explain": "Scrapers and API clients fail in the places the happy path does not show: secrets, hanging requests, error pages and missing elements. For each network call ask what happens when it is slow, wrong or empty.",
+      "concepts": [
+        "secrets",
+        "timeout",
+        "status codes",
+        "select_one returns None"
+      ]
+    }
+  ]
+}

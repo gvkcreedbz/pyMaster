@@ -1,0 +1,285 @@
+{
+  "day": 14,
+  "drills": [
+    {
+      "id": "j14-parsons",
+      "type": "parsons",
+      "title": "Totals by category",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Arrange the lines so the program adds up the expenses per category. The empty map may be created at any point before the loop. Two lines do not belong.",
+      "lines": [
+        "import java.util.*;",
+        "record Expense(String category, double amount) {}",
+        "List<Expense> list = List.of(new Expense(\"Food\", 1500), new Expense(\"Fun\", 99.5), new Expense(\"Food\", 300));",
+        "Map<String, Double> totals = new TreeMap<>();",
+        "for (Expense e : list) {",
+        "totals.merge(e.category(), e.amount(), Double::sum);",
+        "}",
+        "System.out.println(totals);"
+      ],
+      "distractors": [
+        "totals.put(e.category(), e.amount());",
+        "totals.merge(e.category(), e.amount());"
+      ],
+      "alternatives": [
+        [
+          0,
+          3,
+          1,
+          2,
+          4,
+          5,
+          6,
+          7
+        ],
+        [
+          0,
+          1,
+          3,
+          2,
+          4,
+          5,
+          6,
+          7
+        ]
+      ],
+      "explain": "merge(key, value, Double::sum) means: if the category has no total yet, store the amount, otherwise add it to the old total. put would overwrite the earlier Food total with the last amount, and merge needs all three arguments. A TreeMap prints its keys sorted A to Z.",
+      "concepts": [
+        "grouping with a Map",
+        "merge",
+        "TreeMap"
+      ],
+      "output": "{Food=1800.0, Fun=99.5}"
+    },
+    {
+      "id": "j14-fill",
+      "type": "fill",
+      "title": "Line up the money",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the format patterns so the program prints the goal output. Locale.US keeps the decimal point and commas the same on every computer.",
+      "code": [
+        "import java.util.Locale;",
+        "System.out.println(String.format(Locale.US, \"[%___s]\", \"Food\"));",
+        "System.out.println(String.format(Locale.US, \"Rs. %___f\", 1250.0));",
+        "System.out.println(String.format(Locale.US, \"%.1f___ spent\", 90.0));"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "-8"
+          ],
+          "options": [
+            "-8",
+            "8",
+            "+8"
+          ]
+        },
+        {
+          "answers": [
+            ",9.2"
+          ],
+          "options": [
+            ",9.2",
+            "9.2",
+            "9,2"
+          ]
+        },
+        {
+          "answers": [
+            "%%"
+          ],
+          "options": [
+            "%%",
+            "%",
+            "\\%"
+          ]
+        }
+      ],
+      "explain": "In a format pattern, - left-aligns, the number is the minimum width, a comma adds thousands separators and .2 gives two decimals: %-8s, %,9.2f. A single % always starts a format code, so a real percent sign is written %%.",
+      "concepts": [
+        "String.format",
+        "width and alignment",
+        "%%"
+      ],
+      "output": "[Food    ]\nRs.  1,250.00\n90.0% spent"
+    },
+    {
+      "id": "j14-predict",
+      "type": "predict",
+      "title": "Budget status at the borders",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "class Budget {",
+        "    static String status(double spent, double limit) {",
+        "        double percent = spent / limit * 100;",
+        "        return spent > limit ? \"OVER\" : percent >= 80 ? \"WARN\" : \"OK\";",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        System.out.println(status(1500, 2000));",
+        "        System.out.println(status(1600, 2000));",
+        "        System.out.println(status(2000, 2000));",
+        "        System.out.println(status(2000.5, 2000));",
+        "    }",
+        "}"
+      ],
+      "explain": "The chain is checked from left to right. 75% is below 80, so OK. 1600 is exactly 80%, and >= includes the border, so WARN. Spending exactly the limit is not over it (> is strict), so it is still WARN. Only 2000.5 passes the limit. When you read a boundary check, test the exact border value.",
+      "concepts": [
+        "nested conditional expression",
+        "boundary values",
+        "budget check"
+      ],
+      "expected": "OK\nWARN\nWARN\nOVER"
+    },
+    {
+      "id": "j14-bug",
+      "type": "bug",
+      "title": "One monthly total for everything",
+      "viz": true,
+      "prompt": "The program should print one total per month (2026-11 and 2026-12), but it prints a single total. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Months {",
+        "    record Expense(String date, double amount) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Expense> expenses = List.of(new Expense(\"2026-11-02\", 1500), new Expense(\"2026-11-10\", 1200),",
+        "                new Expense(\"2026-12-01\", 99.5));",
+        "        Map<String, Double> months = new TreeMap<>();",
+        "        for (Expense e : expenses) {",
+        "            months.merge(e.date().substring(0, 6), e.amount(), Double::sum);",
+        "        }",
+        "        System.out.println(months);",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.util.*;",
+        "",
+        "class Months {",
+        "    record Expense(String date, double amount) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Expense> expenses = List.of(new Expense(\"2026-11-02\", 1500), new Expense(\"2026-11-10\", 1200),",
+        "                new Expense(\"2026-12-01\", 99.5));",
+        "        Map<String, Double> months = new TreeMap<>();",
+        "        for (Expense e : expenses) {",
+        "            months.merge(e.date().substring(0, 7), e.amount(), Double::sum);",
+        "        }",
+        "        System.out.println(months);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        11
+      ],
+      "answer": 1,
+      "options": [
+        "months.merge(e.date().substring(5, 7), e.amount(), Double::sum);",
+        "months.merge(e.date().substring(0, 7), e.amount(), Double::sum);",
+        "months.merge(e.date().substring(0, 8), e.amount(), Double::sum);"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "{2026-1=2799.5}"
+      },
+      "explain": "substring(start, end) stops before end. \"2026-11-02\".substring(0, 6) is \"2026-1\", so November and December both become the key 2026-1 and are added together. The month key \"2026-11\" has 7 characters, so the end index is 7. Using 5 to 7 would give only \"11\" and \"12\" and lose the year, and 8 would keep the dash.",
+      "concepts": [
+        "substring end index",
+        "monthly totals",
+        "silent bugs"
+      ],
+      "output": "{2026-11=2700.0, 2026-12=99.5}"
+    },
+    {
+      "id": "j14-review",
+      "type": "review",
+      "title": "Review the AI's tracker helpers",
+      "prompt": "An AI assistant wrote these expense tracker helpers. They compile and run, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Tracker {",
+        "    record Expense(String date, String category, double amount, String note) {}",
+        "",
+        "    static boolean add(List<Expense> list, String date, String category, double amount, String note) {",
+        "        list.add(new Expense(date, category, amount, note));",
+        "        return true;",
+        "    }",
+        "",
+        "    static String budgetLine(String category, double spent, double limit) {",
+        "        double percent = spent / limit * 100;",
+        "        String status = percent > 100 ? \"OVER\" : percent >= 80 ? \"WARN\" : \"OK\";",
+        "        return String.format(\"%-8s %,10.2f of %,.2f (%.1f%%) %s\", category, spent, limit, percent, status);",
+        "    }",
+        "",
+        "    static List<Expense> byCategory(List<Expense> list, String category) {",
+        "        return list.stream().filter(e -> e.category() == category).toList();",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Expense> list = new ArrayList<>();",
+        "        add(list, \"2026-11-02\", \"Food\", 1500, \"Groceries\");",
+        "        add(list, \"2026-11-09\", \"Food\", -300, \"Dinner\");",
+        "        System.out.println(byCategory(list, \"Food\").size() + \" \" + budgetLine(\"Food\", 1200, 2000));",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "no-validation",
+          "text": "add stores any amount, even a negative one, and always returns true",
+          "why": "The tracker must reject amounts of 0 or less and tell the caller (return false). Here the -300 slips in and silently reduces every total.",
+          "lines": [
+            7,
+            8
+          ]
+        },
+        {
+          "id": "no-locale",
+          "text": "String.format is called without Locale.US",
+          "why": "Without a Locale the computer's own settings decide the separators, so the same line can print 1.200,00 on one machine and 1,200.00 on another. Pass Locale.US as the first argument.",
+          "lines": [
+            14
+          ]
+        },
+        {
+          "id": "string-compare",
+          "text": "byCategory compares the category with ==",
+          "why": "== checks for the same object, not the same letters. It happens to work for literals typed in the same program, but a category read with Scanner would never match. Use e.category().equals(category).",
+          "lines": [
+            18
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "double-money",
+          "text": "Money should be a BigDecimal, so double is wrong here",
+          "why": "BigDecimal is what real banks use, but for a learning tracker double is fine, as the lesson says. It is not a bug in this code."
+        },
+        {
+          "id": "over-boundary",
+          "text": "percent > 100 should be >= 100, because spending the whole limit is already over",
+          "why": "Spending exactly the limit is not over it. The strict comparison matches the rule \"OVER means spent is greater than the limit\"."
+        },
+        {
+          "id": "list-parameter",
+          "text": "The list should be a static field so every method can see it",
+          "why": "Passing the list into each method is the better design. It avoids global state and keeps the methods easy to test."
+        }
+      ],
+      "explain": "In generated project code look for missing validation, locale-dependent formatting and == between texts. Those pass a quick demo and fail with real data.",
+      "concepts": [
+        "validation",
+        "Locale.US",
+        "string equality",
+        "reviewing project code"
+      ]
+    }
+  ]
+}

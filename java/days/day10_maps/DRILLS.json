@@ -1,0 +1,317 @@
+{
+  "day": 10,
+  "drills": [
+    {
+      "id": "j10-parsons",
+      "type": "parsons",
+      "title": "Count the words",
+      "viz": true,
+      "prompt": "Arrange the lines into a program that counts how often each word appears (TreeMap keeps the words A-Z). The two imports can go in either order, and so can the text and the map. Two lines do not belong.",
+      "lines": [
+        "import java.util.Map;",
+        "import java.util.TreeMap;",
+        "class Count {",
+        "public static void main(String[] args) {",
+        "String text = \"to be or not to be\";",
+        "Map<String, Integer> counts = new TreeMap<>();",
+        "for (String word : text.split(\" \")) {",
+        "counts.put(word, counts.getOrDefault(word, 0) + 1);",
+        "}",
+        "System.out.println(counts);",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "Map<String, int> counts = new TreeMap<>();",
+        "counts.put(word, counts.getOrDefault(word) + 1);"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        [
+          0,
+          1,
+          2,
+          3,
+          5,
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        [
+          1,
+          0,
+          2,
+          3,
+          5,
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      ],
+      "explain": "This is the counting pattern: for every word, read the old count with a default of 0 for a word not seen yet, add 1 and put it back. getOrDefault needs both the key and the default. A map holds objects, so the value type is Integer, never int. TreeMap prints its keys sorted A-Z.",
+      "concepts": [
+        "counting pattern",
+        "getOrDefault",
+        "TreeMap"
+      ],
+      "output": "{be=2, not=1, or=1, to=2}"
+    },
+    {
+      "id": "j10-fill",
+      "type": "fill",
+      "title": "Put, get and ask",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the program prints the goal output.",
+      "code": [
+        "import java.util.HashMap;",
+        "import java.util.Map;",
+        "Map<String, Integer> menu = new HashMap<>();",
+        "menu.___(\"chai\", 20);",
+        "menu.put(\"samosa\", 15);",
+        "menu.put(\"chai\", 25);",
+        "System.out.println(menu.___(\"chai\"));",
+        "System.out.println(menu.___(\"pizza\", 0));",
+        "System.out.println(menu.___(\"samosa\"));",
+        "System.out.println(menu.size());"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "put"
+          ],
+          "options": [
+            "put",
+            "add",
+            "set"
+          ]
+        },
+        {
+          "answers": [
+            "get"
+          ],
+          "options": [
+            "get",
+            "getValue",
+            "find"
+          ]
+        },
+        {
+          "answers": [
+            "getOrDefault"
+          ],
+          "options": [
+            "getOrDefault",
+            "get",
+            "getOr"
+          ]
+        },
+        {
+          "answers": [
+            "containsKey"
+          ],
+          "options": [
+            "containsKey",
+            "containsValue",
+            "contains"
+          ]
+        }
+      ],
+      "explain": "put adds a key, and putting the same key again replaces its value (chai is 25, and the map still has only two keys). get returns null for a missing key; getOrDefault returns your fallback instead. containsKey asks about keys, containsValue about values, so containsValue(\"samosa\") would be false.",
+      "concepts": [
+        "put and get",
+        "getOrDefault",
+        "containsKey"
+      ],
+      "output": [
+        "25",
+        "0",
+        "true",
+        "2"
+      ]
+    },
+    {
+      "id": "j10-predict",
+      "type": "predict",
+      "title": "Replace, missing and merge",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.util.Map;",
+        "import java.util.TreeMap;",
+        "Map<String, Integer> stock = new TreeMap<>();",
+        "stock.put(\"pen\", 10);",
+        "stock.put(\"book\", 5);",
+        "stock.put(\"pen\", 12);",
+        "System.out.println(stock);",
+        "System.out.println(stock.get(\"bag\"));",
+        "System.out.println(stock.getOrDefault(\"bag\", 0) + stock.size());",
+        "stock.merge(\"book\", -1, Integer::sum);",
+        "System.out.println(stock.get(\"book\"));"
+      ],
+      "explain": "A key is unique: the second put for pen replaced 10 with 12, and a TreeMap prints its keys sorted, so book comes first. get on a missing key gives null, with no crash. getOrDefault gives 0 for the missing key, and 0 + size() (2) is 2. merge(\"book\", -1, Integer::sum) adds -1 to the old value 5, so one book is sold: 4.",
+      "concepts": [
+        "put replaces",
+        "missing key is null",
+        "getOrDefault",
+        "merge"
+      ],
+      "expected": [
+        "{book=5, pen=12}",
+        "null",
+        "2",
+        "4"
+      ]
+    },
+    {
+      "id": "j10-bug",
+      "type": "bug",
+      "title": "The first word crashes",
+      "viz": true,
+      "prompt": "The word counter crashes while it runs, on the very first word. Click the line that crashes, then choose the fix.",
+      "code": [
+        "import java.util.Map;",
+        "import java.util.TreeMap;",
+        "class Words {",
+        "    public static void main(String[] args) {",
+        "        Map<String, Integer> counts = new TreeMap<>();",
+        "        for (String word : \"to be or not to be\".split(\" \")) {",
+        "            counts.put(word, counts.get(word) + 1);",
+        "        }",
+        "        System.out.println(counts);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        7
+      ],
+      "answer": 0,
+      "options": [
+        "counts.put(word, counts.getOrDefault(word, 0) + 1);",
+        "counts.put(word, 1);",
+        "counts.put(word, counts.get(word, 0) + 1);",
+        "counts.put(word, counts.getOrDefault(word) + 1);"
+      ],
+      "fixed_code": [
+        "import java.util.Map;",
+        "import java.util.TreeMap;",
+        "class Words {",
+        "    public static void main(String[] args) {",
+        "        Map<String, Integer> counts = new TreeMap<>();",
+        "        for (String word : \"to be or not to be\".split(\" \")) {",
+        "            counts.put(word, counts.getOrDefault(word, 0) + 1);",
+        "        }",
+        "        System.out.println(counts);",
+        "    }",
+        "}"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "NullPointerException"
+      },
+      "explain": "The first time a word is seen, get(word) returns null (nothing stored yet). Adding 1 to null makes Java unbox it and throw NullPointerException. getOrDefault(word, 0) supplies 0 for a new word. counts.put(word, 1) would run but reset every count to 1.",
+      "concepts": [
+        "missing key is null",
+        "getOrDefault",
+        "NullPointerException"
+      ],
+      "output": "{be=2, not=1, or=1, to=2}"
+    },
+    {
+      "id": "j10-review",
+      "type": "review",
+      "title": "Review the AI's stock report",
+      "prompt": "An AI assistant wrote this stock report. It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.HashMap;",
+        "import java.util.Map;",
+        "",
+        "class Stock {",
+        "    public static void main(String[] args) {",
+        "        Map<String, Integer> stock = new HashMap<>();",
+        "        stock.put(\"pen\", 500);",
+        "        stock.put(\"book\", 500);",
+        "        stock.put(\"bag\", 20);",
+        "        stock.put(\"bag\", 18);",
+        "        System.out.println(\"Sorted report: \" + stock);",
+        "        System.out.println(\"Mugs in stock: \" + stock.get(\"mug\"));",
+        "        if (stock.get(\"pen\") == stock.get(\"book\")) {",
+        "            System.out.println(\"Same stock\");",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "hashmap-order",
+          "text": "The report is called sorted, but a HashMap does not keep its keys in any order",
+          "why": "Use a TreeMap for A-Z order (new TreeMap<>(stock)) or a LinkedHashMap to keep the order of insertion.",
+          "lines": [
+            11
+          ]
+        },
+        {
+          "id": "null-missing",
+          "text": "A missing item prints Mugs in stock: null instead of 0",
+          "why": "get returns null for a missing key. For a count use getOrDefault(\"mug\", 0), so the report says 0 (and an arithmetic use would not crash).",
+          "lines": [
+            12
+          ]
+        },
+        {
+          "id": "integer-equals",
+          "text": "pen and book both have 500, yet the == test never prints Same stock",
+          "why": "get returns Integer objects, and == compares the objects, which are different above 127. Compare values with equals: stock.get(\"pen\").equals(stock.get(\"book\")).",
+          "lines": [
+            13
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "put-twice",
+          "text": "stock.put(\"bag\", 18) fails or duplicates the key because bag already exists",
+          "why": "Keys are unique. Putting an existing key simply replaces its value, which is how you update a map."
+        },
+        {
+          "id": "map-of-int",
+          "text": "The type should be Map<String, int> because the stock is a whole number",
+          "why": "Maps hold objects, so the value type must be Integer. Map<String, int> does not compile."
+        },
+        {
+          "id": "declare-as-map",
+          "text": "stock should be declared as HashMap<String, Integer>",
+          "why": "Declaring Map<...> and choosing the class after new is the standard Java habit."
+        }
+      ],
+      "explain": "Maps hide three quiet traps: key order, null for a missing key and Integer values compared with ==. Each one compiles and gives a plausible report on a small example.",
+      "concepts": [
+        "HashMap vs TreeMap",
+        "getOrDefault",
+        "Integer equals vs =="
+      ]
+    }
+  ]
+}

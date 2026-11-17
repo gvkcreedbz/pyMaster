@@ -1,0 +1,192 @@
+{
+  "day": 4,
+  "drills": [
+    {
+      "id": "d04-parsons",
+      "type": "parsons",
+      "title": "Caption to hashtag",
+      "viz": true,
+      "prompt": "Arrange the lines so the program turns the caption into one CamelCase hashtag. Two lines do not belong.",
+      "lines": [
+        "caption = \"learning python is fun!\"",
+        "text = caption.replace(\"!\", \"\")",
+        "words = text.title().split()",
+        "print(\"#\" + \"\".join(words))"
+      ],
+      "distractors": [
+        "text = caption.replace(\"!\")",
+        "print(\"#\" + words.join(\"\"))"
+      ],
+      "explain": "Clean first, then reshape: replace removes the \"!\", title() capitalises each word, split() turns the text into a list of words, and \"\".join(words) glues them back together with nothing between them. join is a method of the separator string, not of the list, and replace needs both the old and the new text.",
+      "concepts": [
+        "replace / title",
+        "split / join"
+      ],
+      "output": "#LearningPythonIsFun"
+    },
+    {
+      "id": "d04-fill",
+      "type": "fill",
+      "title": "Index and slice",
+      "viz": true,
+      "prompt": "Fill the four blanks so the program prints the goal output. Remember: the first index is 0 and the stop of a slice is not included.",
+      "code": [
+        "word = \"PYTHON\"",
+        "print(word[___])  # first letter",
+        "print(word[___])  # last letter, counted from the end",
+        "print(word[1:___])  # the three letters YTH",
+        "print(word[___])  # the whole word reversed"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "0"
+          ]
+        },
+        {
+          "answers": [
+            "-1"
+          ]
+        },
+        {
+          "answers": [
+            "4"
+          ]
+        },
+        {
+          "answers": [
+            "::-1"
+          ]
+        }
+      ],
+      "explain": "Indexes start at 0, and a negative index counts from the end, so -1 is the last character. word[1:4] starts at index 1 and stops before index 4, which gives 3 letters. A step of -1 walks backwards, so [::-1] reverses a string.",
+      "concepts": [
+        "indexing",
+        "negative index",
+        "slicing"
+      ],
+      "output": "P\nN\nYTH\nNOHTYP"
+    },
+    {
+      "id": "d04-predict",
+      "type": "predict",
+      "title": "Does strip change the name?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "name = \"  aarav  \"",
+        "name.strip()",
+        "print(len(name))",
+        "clean = name.strip().title()",
+        "print(clean, len(clean))",
+        "print(clean[1:4], clean[-1])",
+        "print(\"Apple\" == \"apple\", \"Apple\".lower() == \"apple\")"
+      ],
+      "explain": "Strings are immutable: name.strip() on its own line builds a new string and throws it away, so name still has its 9 characters. Only clean = ... keeps the result. Comparison is case-sensitive, so lower() on one side is how you compare ignoring case.",
+      "concepts": [
+        "immutability",
+        "strip / title",
+        "slicing",
+        "string comparison"
+      ],
+      "expected": "9\nAarav 5\nara v\nFalse True"
+    },
+    {
+      "id": "d04-bug",
+      "type": "bug",
+      "title": "The email that stayed in capitals",
+      "viz": true,
+      "prompt": "The signup form should store the email in lower case, but the program prints it with capitals. Click the faulty line and choose the fix.",
+      "code": [
+        "raw = \"  Aarav@Gmail.COM \"",
+        "email = raw.strip()",
+        "email.lower()",
+        "print(\"Email:\", email)",
+        "print(\"Has @:\", \"@\" in email)"
+      ],
+      "bug_lines": [
+        3
+      ],
+      "answer": 0,
+      "options": [
+        "email = email.lower()",
+        "email = email.lower",
+        "email.lower(email)",
+        "email = lower(email)"
+      ],
+      "fixed_code": [
+        "raw = \"  Aarav@Gmail.COM \"",
+        "email = raw.strip()",
+        "email = email.lower()",
+        "print(\"Email:\", email)",
+        "print(\"Has @:\", \"@\" in email)"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "Email: Aarav@Gmail.COM\nHas @: True"
+      },
+      "explain": "String methods never change the string in place (strings are immutable). email.lower() returns a new string, and on line 3 nobody keeps it. Assign it back: email = email.lower(). When a cleaning step seems to do nothing, check that its result is saved.",
+      "concepts": [
+        "immutability",
+        "methods return new strings"
+      ],
+      "output": "Email: aarav@gmail.com\nHas @: True"
+    },
+    {
+      "id": "d04-review",
+      "type": "review",
+      "title": "Review the AI's username generator",
+      "prompt": "An AI assistant wrote this username generator. It runs, but two things are wrong or fragile. Tick them.",
+      "code": [
+        "def make_username(full_name, year):",
+        "    first, last = full_name.strip().split()",
+        "    short_year = str(year)[:2]",
+        "    return first.lower() + \".\" + last.lower() + short_year",
+        "",
+        "print(make_username(\"Aarav Sharma\", 2001))",
+        "print(make_username(\"Diya Rao\", 1999))"
+      ],
+      "issues": [
+        {
+          "id": "first-two-digits",
+          "text": "str(year)[:2] keeps the FIRST two digits of the year, so 2001 gives 20 instead of 01",
+          "why": "The slice [:2] stops before index 2, so it returns the century. The last two digits are str(year)[-2:]. Here 2001 and 1999 become 20 and 19, so many users would get the same suffix.",
+          "lines": [
+            3
+          ]
+        },
+        {
+          "id": "exactly-two-words",
+          "text": "first, last = ...split() crashes for names that are not exactly two words",
+          "why": "A name like \"Mary Ann Smith\" splits into three words and unpacking raises ValueError (and a one-word name does too). Check len(words) first, or use words[0] and words[-1].",
+          "lines": [
+            2
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "str-needed",
+          "text": "str(year) is pointless because slicing works on numbers",
+          "why": "Slicing only works on text. year is an int, so str(year) is what makes the slice possible."
+        },
+        {
+          "id": "strip-before-split",
+          "text": "strip() is wrong here because split() has already removed the spaces",
+          "why": "It is redundant but harmless. split() with no argument ignores outer spaces anyway, so the line works either way."
+        },
+        {
+          "id": "lower-not-saved",
+          "text": "first.lower() does not change first, so the username is not lower case",
+          "why": "The new string returned by lower() is used right away in the + expression, so it is not lost. Only a bare line like first.lower() would be wasted."
+        }
+      ],
+      "explain": "String code often looks right and still slices the wrong end. Test with one real value and compare it to the output you expect (2001 should give 01), and ask what happens when the input is not shaped the way the author assumed.",
+      "concepts": [
+        "slicing",
+        "split / unpacking",
+        "reading code critically"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,321 @@
+{
+  "day": 13,
+  "drills": [
+    {
+      "id": "j13-parsons",
+      "type": "parsons",
+      "title": "Cafes in one city",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Arrange the lines so the program prints the names of the cafes in Delhi. The empty list may be created at any point before the loop. Two lines do not belong.",
+      "lines": [
+        "import java.util.*;",
+        "record Cafe(String name, String city) {}",
+        "List<Cafe> all = List.of(new Cafe(\"Chai Hub\", \"Delhi\"), new Cafe(\"Dosa\", \"Pune\"), new Cafe(\"Pasta\", \"Delhi\"));",
+        "List<String> names = new ArrayList<>();",
+        "for (Cafe r : all) {",
+        "if (r.city().equals(\"Delhi\")) {",
+        "names.add(r.name());",
+        "}",
+        "}",
+        "System.out.println(names);"
+      ],
+      "distractors": [
+        "if (r.city() = \"Delhi\") {",
+        "names.add(r);"
+      ],
+      "alternatives": [
+        [
+          0,
+          3,
+          1,
+          2,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        [
+          0,
+          1,
+          3,
+          2,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "explain": "A record is declared in one line and read with accessor methods such as r.city() (no get prefix). The loop visits every cafe, the if keeps the Delhi ones, and only the name is added, because the list holds Strings. A single = assigns, so a comparison needs equals for text.",
+      "concepts": [
+        "record",
+        "looping over records",
+        "equals for text"
+      ],
+      "output": "[Chai Hub, Pasta]"
+    },
+    {
+      "id": "j13-fill",
+      "type": "fill",
+      "title": "A record in one line",
+      "viz": true,
+      "prompt": "Fill the blanks so the program prints the goal output.",
+      "code": [
+        "import java.util.List;",
+        "",
+        "class Menu {",
+        "    ___ Dish(String name, int price, List<String> tags) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        Dish d = new Dish(\"Masala Dosa\", 90, List.of(\"south\", \"breakfast\"));",
+        "        Dish same = new Dish(\"Masala Dosa\", 90, List.of(\"south\", \"breakfast\"));",
+        "        System.out.println(d.___() + \" / \" + d.tags().___(1));",
+        "        System.out.println(d.___(same));",
+        "        System.out.println(d);",
+        "    }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "record"
+          ],
+          "options": [
+            "record",
+            "class",
+            "struct"
+          ]
+        },
+        {
+          "answers": [
+            "name"
+          ],
+          "options": [
+            "name",
+            "getName",
+            "Name"
+          ]
+        },
+        {
+          "answers": [
+            "get"
+          ],
+          "options": [
+            "get",
+            "at",
+            "index"
+          ]
+        },
+        {
+          "answers": [
+            "equals"
+          ],
+          "options": [
+            "equals",
+            "equal",
+            "same"
+          ]
+        }
+      ],
+      "explain": "record gives you the constructor, the accessors (name(), price(), tags() with no get prefix), equals and a readable toString in one line. Two records with equal contents are equal, even though they are two different objects. tags() is a list, so get(1) is the second tag.",
+      "concepts": [
+        "record",
+        "accessor methods",
+        "equals",
+        "toString"
+      ],
+      "output": "Masala Dosa / breakfast\ntrue\nDish[name=Masala Dosa, price=90, tags=[south, breakfast]]"
+    },
+    {
+      "id": "j13-predict",
+      "type": "predict",
+      "title": "Equal records and a copied list",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Demo {",
+        "    record Restaurant(String name, String city, List<String> cuisines) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        Restaurant a = new Restaurant(\"Spice Hub\", \"Delhi\", List.of(\"Chinese\"));",
+        "        Restaurant b = new Restaurant(\"Spice Hub\", \"Delhi\", List.of(\"Chinese\"));",
+        "        List<String> copy = new ArrayList<>(a.cuisines());",
+        "        copy.add(\"Thai\");",
+        "        System.out.println(a == b);",
+        "        System.out.println(a.equals(b));",
+        "        System.out.println(a);",
+        "        System.out.println(a.cuisines().size() + \" vs \" + copy.size());",
+        "    }",
+        "}"
+      ],
+      "explain": "== asks whether a and b are the same object (no, they were built separately). A record's equals compares the contents, so it is true. The generated toString shows every field name. new ArrayList<>(...) made an independent list, so adding Thai to the copy leaves the record's list at size 1.",
+      "concepts": [
+        "== vs equals",
+        "record toString",
+        "copying a list"
+      ],
+      "expected": "false\ntrue\nRestaurant[name=Spice Hub, city=Delhi, cuisines=[Chinese]]\n1 vs 2"
+    },
+    {
+      "id": "j13-bug",
+      "type": "bug",
+      "title": "Grouping into an unchangeable list",
+      "viz": true,
+      "prompt": "The program should group the restaurant names by city, but it crashes while it runs. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Grouping {",
+        "    record Restaurant(String name, String city) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Restaurant> all = List.of(new Restaurant(\"Spice Hub\", \"Delhi\"),",
+        "                new Restaurant(\"Dosa Corner\", \"Pune\"), new Restaurant(\"Pasta Palace\", \"Delhi\"));",
+        "        Map<String, List<String>> byCity = new TreeMap<>();",
+        "        for (Restaurant r : all) {",
+        "            byCity.computeIfAbsent(r.city(), c -> List.of()).add(r.name());",
+        "        }",
+        "        System.out.println(byCity);",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.util.*;",
+        "",
+        "class Grouping {",
+        "    record Restaurant(String name, String city) {}",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<Restaurant> all = List.of(new Restaurant(\"Spice Hub\", \"Delhi\"),",
+        "                new Restaurant(\"Dosa Corner\", \"Pune\"), new Restaurant(\"Pasta Palace\", \"Delhi\"));",
+        "        Map<String, List<String>> byCity = new TreeMap<>();",
+        "        for (Restaurant r : all) {",
+        "            byCity.computeIfAbsent(r.city(), c -> new ArrayList<>()).add(r.name());",
+        "        }",
+        "        System.out.println(byCity);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        11
+      ],
+      "answer": 2,
+      "options": [
+        "byCity.computeIfAbsent(r.city(), c -> List.of(r.name())).add(r.name());",
+        "byCity.computeIfAbsent(r.city(), c -> new List<>()).add(r.name());",
+        "byCity.computeIfAbsent(r.city(), c -> new ArrayList<>()).add(r.name());"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "UnsupportedOperationException"
+      },
+      "explain": "List.of() builds a list that can never change, so the add that follows throws UnsupportedOperationException. The list that computeIfAbsent creates must be a changeable one: new ArrayList<>(). List is an interface, so new List<>() cannot be built.",
+      "concepts": [
+        "computeIfAbsent",
+        "immutable List.of",
+        "UnsupportedOperationException"
+      ],
+      "output": "{Delhi=[Spice Hub, Pasta Palace], Pune=[Dosa Corner]}"
+    },
+    {
+      "id": "j13-review",
+      "type": "review",
+      "title": "Review the AI's restaurant report",
+      "prompt": "An AI assistant wrote these helpers for a restaurant API. They compile and run on the sample data, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Report {",
+        "    record Restaurant(String name, String city, double rating, List<String> cuisines) {}",
+        "",
+        "    static String firstCuisine(Restaurant r) {",
+        "        return r.cuisines().get(0);",
+        "    }",
+        "",
+        "    static double averageRating(List<Restaurant> list) {",
+        "        double sum = 0;",
+        "        for (Restaurant r : list) {",
+        "            sum += r.rating();",
+        "        }",
+        "        return sum / list.size();",
+        "    }",
+        "",
+        "    static Map<String, List<String>> byCity(List<Restaurant> list) {",
+        "        Map<String, List<String>> result = new TreeMap<>();",
+        "        for (Restaurant r : list) {",
+        "            result.computeIfAbsent(r.city(), c -> new ArrayList<>()).add(r.name());",
+        "        }",
+        "        return result;",
+        "    }",
+        "",
+        "    static String toJson(Restaurant r) {",
+        "        return \"{\\\"name\\\":\\\"\" + r.name() + \"\\\",\\\"city\\\":\\\"\" + r.city() + \"\\\"}\";",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        Restaurant a = new Restaurant(\"Spice Hub\", \"Delhi\", 4.5, List.of(\"Chinese\"));",
+        "        Restaurant b = new Restaurant(\"Dosa Corner\", \"Pune\", 4.2, List.of(\"South Indian\"));",
+        "        List<Restaurant> list = List.of(a, b);",
+        "        String stats = firstCuisine(a) + \" \" + averageRating(list);",
+        "        System.out.println(stats + \" \" + byCity(list) + \" \" + toJson(a));",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "empty-cuisines",
+          "text": "firstCuisine crashes for a restaurant with no cuisines",
+          "why": "get(0) on an empty list throws IndexOutOfBoundsException. Check isEmpty() first and return a default such as \"unknown\".",
+          "lines": [
+            7
+          ]
+        },
+        {
+          "id": "empty-average",
+          "text": "averageRating returns NaN for an empty list",
+          "why": "0.0 / 0 is not an error for doubles, it silently gives NaN, which then spreads through later calculations. Return 0 (or say so) when the list is empty.",
+          "lines": [
+            15
+          ]
+        },
+        {
+          "id": "json-escape",
+          "text": "toJson does not escape quotes, so a name like Biryani \"King\" produces broken JSON",
+          "why": "A \" inside the name ends the JSON string early. Replace \\ and \" with escaped versions before joining, as the lesson's toJson does.",
+          "lines": [
+            27
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "overwrite-list",
+          "text": "computeIfAbsent replaces the earlier names for a city each time",
+          "why": "It only creates a new list when the city has no list yet. Later restaurants of the same city are added to the existing list."
+        },
+        {
+          "id": "get-prefix",
+          "text": "The accessors must be written r.getName() and r.getRating()",
+          "why": "A record's accessors have the field's own name: r.name(), r.rating(). A get prefix would not compile."
+        },
+        {
+          "id": "array-instead",
+          "text": "The cuisines should be a String[] instead of a List<String>",
+          "why": "A List is the normal choice for a collection that varies in size. Nothing in this code needs an array."
+        }
+      ],
+      "explain": "Generated data code usually handles the sample data and nothing else. Ask what happens with an empty list, an empty average and text that contains JSON's special characters.",
+      "concepts": [
+        "empty data",
+        "JSON escaping",
+        "reviewing records"
+      ]
+    }
+  ]
+}

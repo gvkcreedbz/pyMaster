@@ -19,7 +19,7 @@ from portal import drills_core as core  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8777"
 TRACK = sys.argv[2] if len(sys.argv) > 2 else "python"
-DAYS = [int(x) for x in sys.argv[3:]] or [1, 2, 3]
+DAYS = [int(x) for x in sys.argv[3:]] or list(range(1, 31))
 CHROME = os.path.expandvars(r"%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe")
 PORT = 9391
 DAYS_DIR = ROOT / ("java/days" if TRACK == "java" else "days")
@@ -99,7 +99,7 @@ SOLVERS = {
         if (els.length !== vals.length) return 'blank count ' + els.length + ' vs ' + vals.length;
         els.forEach((e, i) => { let v = vals[i]; if (wrong) { v = 'zzz'; if (e.tagName === 'SELECT') { const o = [...e.options].find(o => o.value && o.value !== vals[i]); v = o ? o.value : v; } } e.value = v; e.dispatchEvent(new Event('change', {bubbles: true})); }); return true; }""",
     "bug": """(lines, fix) => { for (const n of lines) document.querySelector('.dr-line[data-n="' + n + '"]').click();
-        const lab = [...document.querySelectorAll('.dr-opt')].find(l => l.textContent.trim() === fix);
+        const lab = [...document.querySelectorAll('.dr-opt')].find(l => l.textContent.trim() === fix.trim());
         if (!lab) return 'no option ' + fix; lab.querySelector('input').click(); return true; }""",
     "review": """(texts) => { const labs = [...document.querySelectorAll('.dr-card .dr-opt')];
         for (const t of texts) { const lab = labs.find(l => l.textContent.trim().startsWith(t.trim())); if (!lab) return 'no item ' + t.slice(0, 40); lab.querySelector('input').click(); } return true; }""",

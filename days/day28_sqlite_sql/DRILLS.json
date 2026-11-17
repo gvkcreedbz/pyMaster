@@ -1,0 +1,274 @@
+{
+  "day": 28,
+  "drills": [
+    {
+      "id": "d28-parsons",
+      "type": "parsons",
+      "title": "All-or-nothing money transfer",
+      "viz": true,
+      "prompt": "Arrange (and indent) the lines so the program moves Rs. 500 from account 1 to account 2 inside one transaction and then prints both balances. The two UPDATE lines may come in either order. Two lines do not belong.",
+      "lines": [
+        "import sqlite3",
+        "conn = sqlite3.connect(\":memory:\")",
+        "conn.execute(\"CREATE TABLE accounts (id INTEGER, balance INTEGER)\")",
+        "conn.executemany(\"INSERT INTO accounts VALUES (?, ?)\", [(1, 1000), (2, 200)])",
+        "with conn:",
+        "conn.execute(\"UPDATE accounts SET balance = balance - ? WHERE id = ?\", (500, 1))",
+        "conn.execute(\"UPDATE accounts SET balance = balance + ? WHERE id = ?\", (500, 2))",
+        "print(conn.execute(\"SELECT id, balance FROM accounts ORDER BY id\").fetchall())"
+      ],
+      "indent": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0
+      ],
+      "alternatives": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          5,
+          7
+        ]
+      ],
+      "distractors": [
+        "with conn",
+        "conn.execute(\"UPDATE accounts SET balance = balance + ? WHERE id = ?\", 500, 2)"
+      ],
+      "explain": "with conn: opens a transaction. Both UPDATE lines are committed together when the block ends normally, and both are rolled back if an exception escapes in between, so money can never be taken from one account without being added to the other. The ? placeholders take their values as ONE tuple (500, 2), not as separate arguments, and the with line needs its colon.",
+      "concepts": [
+        "transactions",
+        "with conn:",
+        "? placeholders"
+      ],
+      "output": "[(1, 500), (2, 700)]"
+    },
+    {
+      "id": "d28-fill",
+      "type": "fill",
+      "title": "Filter the groups, not the rows",
+      "viz": true,
+      "prompt": "Fill the two blanks so the query adds up the amounts per region and keeps only the regions whose total is above 250.",
+      "code": [
+        "import sqlite3",
+        "",
+        "conn = sqlite3.connect(\":memory:\")",
+        "conn.execute(\"CREATE TABLE orders (region TEXT, amount INTEGER)\")",
+        "rows = [(\"East\", 300), (\"West\", 500), (\"East\", 400), (\"North\", 100)]",
+        "conn.executemany(\"INSERT INTO orders VALUES (?, ?)\", rows)",
+        "sql = \"SELECT region, SUM(amount) FROM orders ___ BY region ___ SUM(amount) > 250 ORDER BY region\"",
+        "print(conn.execute(sql).fetchall())"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "GROUP",
+            "group"
+          ],
+          "options": [
+            "GROUP",
+            "ORDER",
+            "SORT"
+          ]
+        },
+        {
+          "answers": [
+            "HAVING",
+            "having"
+          ],
+          "options": [
+            "HAVING",
+            "WHERE",
+            "AND"
+          ]
+        }
+      ],
+      "explain": "GROUP BY makes one result row per region. WHERE filters rows before the grouping, so it cannot see a total: a condition on SUM(...) belongs in HAVING, which filters the groups after the grouping. That is why the clause order is SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY. North adds up to only 100 and disappears.",
+      "concepts": [
+        "GROUP BY",
+        "HAVING vs WHERE",
+        "clause order"
+      ],
+      "output": "[('East', 700), ('West', 500)]"
+    },
+    {
+      "id": "d28-predict",
+      "type": "predict",
+      "title": "LEFT JOIN keeps the customer with no purchases",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import sqlite3",
+        "",
+        "conn = sqlite3.connect(\":memory:\")",
+        "conn.execute(\"CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT)\")",
+        "conn.execute(\"CREATE TABLE purchases (customer_id INTEGER, amount INTEGER)\")",
+        "conn.executemany(\"INSERT INTO customers (name) VALUES (?)\", [(\"Asha\",), (\"Ravi\",), (\"Meena\",)])",
+        "conn.executemany(\"INSERT INTO purchases VALUES (?, ?)\", [(1, 500), (1, 250), (1, 100), (3, 400)])",
+        "sql = (\"SELECT c.name, COALESCE(SUM(p.amount), 0) FROM customers c \"",
+        "       \"LEFT JOIN purchases p ON p.customer_id = c.id GROUP BY c.id ORDER BY c.name\")",
+        "print(conn.execute(sql).fetchall())",
+        "inner = \"SELECT COUNT(*) FROM customers c JOIN purchases p ON p.customer_id = c.id\"",
+        "print(conn.execute(inner).fetchone()[0])"
+      ],
+      "explain": "The ids are assigned automatically: Asha 1, Ravi 2, Meena 3. LEFT JOIN keeps every customer; Ravi has no purchase, so the joined columns are NULL and SUM(NULL) is NULL, which COALESCE turns into 0. An INNER JOIN (plain JOIN) returns only matching pairs: one row per purchase (3 for Asha, 1 for Meena), and Ravi is gone. GROUP BY c.id turns Asha's three rows into one total.",
+      "concepts": [
+        "LEFT JOIN",
+        "INNER JOIN",
+        "COALESCE",
+        "GROUP BY"
+      ],
+      "expected": "[('Asha', 850), ('Meena', 400), ('Ravi', 0)]\n4"
+    },
+    {
+      "id": "d28-bug",
+      "type": "bug",
+      "title": "The discount that never applies",
+      "viz": true,
+      "prompt": "The Watch costs 2000 with a 10 % discount, so the query should return 1800.0, but it returns the full price. Click the faulty line and choose the fix.",
+      "code": [
+        "import sqlite3",
+        "",
+        "conn = sqlite3.connect(\":memory:\")",
+        "conn.execute(\"CREATE TABLE orders (item TEXT, price INTEGER, discount_pct INTEGER)\")",
+        "conn.execute(\"INSERT INTO orders VALUES ('Watch', 2000, 10)\")",
+        "sql = \"SELECT item, price * (1 - discount_pct / 100) FROM orders\"",
+        "print(conn.execute(sql).fetchall())"
+      ],
+      "bug_lines": [
+        6
+      ],
+      "answer": 0,
+      "options": [
+        "sql = \"SELECT item, price * (1 - discount_pct / 100.0) FROM orders\"",
+        "sql = \"SELECT item, price * (1 - discount_pct // 100) FROM orders\"",
+        "sql = \"SELECT item, price * (1 - CAST(discount_pct / 100 AS INTEGER)) FROM orders\"",
+        "sql = \"SELECT item, price * (1 - discount_pct % 100) FROM orders\""
+      ],
+      "fixed_code": [
+        "import sqlite3",
+        "",
+        "conn = sqlite3.connect(\":memory:\")",
+        "conn.execute(\"CREATE TABLE orders (item TEXT, price INTEGER, discount_pct INTEGER)\")",
+        "conn.execute(\"INSERT INTO orders VALUES ('Watch', 2000, 10)\")",
+        "sql = \"SELECT item, price * (1 - discount_pct / 100.0) FROM orders\"",
+        "print(conn.execute(sql).fetchall())"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "[('Watch', 2000)]"
+      },
+      "explain": "In SQLite, dividing two integers gives an integer: 10 / 100 is 0, so the price is multiplied by (1 - 0) and nothing is discounted. No error is raised. Make one side a decimal (100.0) to get 0.1. SQL has no // operator, and CAST(... AS INTEGER) of 0.1 is 0 again. Whenever a percentage turns into 0 in SQL, suspect integer division.",
+      "concepts": [
+        "integer division in SQL",
+        "100.0",
+        "silent wrong result"
+      ],
+      "output": "[('Watch', 1800.0)]"
+    },
+    {
+      "id": "d28-review",
+      "type": "review",
+      "title": "Review the AI's customer helpers",
+      "prompt": "An AI assistant wrote these three database helpers. For this check it runs on an in-memory database and prints sensible results. Tick the statements that point at real problems.",
+      "code": [
+        "import sqlite3",
+        "",
+        "def find_customer(conn, name):",
+        "    return conn.execute(f\"SELECT id, name FROM customers WHERE name = '{name}'\").fetchall()",
+        "",
+        "def add_purchase(conn, customer_id, amount):",
+        "    conn.execute(\"INSERT INTO purchases VALUES (?, ?)\", (customer_id, amount))",
+        "",
+        "def totals(conn):",
+        "    result = {}",
+        "    for cid, name in conn.execute(\"SELECT id, name FROM customers\").fetchall():",
+        "        row = conn.execute(\"SELECT SUM(amount) FROM purchases WHERE customer_id = ?\", (cid,)).fetchone()",
+        "        result[name] = row[0]",
+        "    return result",
+        "",
+        "conn = sqlite3.connect(\":memory:\")",
+        "conn.execute(\"CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT)\")",
+        "conn.execute(\"CREATE TABLE purchases (customer_id INTEGER, amount INTEGER)\")",
+        "conn.executemany(\"INSERT INTO customers (name) VALUES (?)\", [(\"Asha\",), (\"Ravi\",)])",
+        "add_purchase(conn, 1, 500)",
+        "print(find_customer(conn, \"Asha\"))",
+        "print(totals(conn))"
+      ],
+      "issues": [
+        {
+          "id": "sql-injection",
+          "text": "find_customer builds the SQL with an f-string, so a name like x' OR '1'='1 changes the query",
+          "why": "Values pasted into SQL text can rewrite the query (SQL injection). Pass them separately with a placeholder: execute(\"... WHERE name = ?\", (name,)).",
+          "lines": [
+            4
+          ]
+        },
+        {
+          "id": "missing-commit",
+          "text": "add_purchase never commits, so with a real database file the purchase is lost when the connection closes",
+          "why": "The same connection sees its own uncommitted rows, which is why the demo works. Without conn.commit() (or with conn:) nothing is saved for anyone else.",
+          "lines": [
+            7
+          ]
+        },
+        {
+          "id": "n-plus-one",
+          "text": "totals runs one extra query per customer, where one JOIN with GROUP BY would do",
+          "why": "With 10,000 customers this makes 10,001 queries. Let the database do the work: LEFT JOIN purchases, GROUP BY customer, SUM the amounts.",
+          "lines": [
+            11,
+            12,
+            13
+          ]
+        },
+        {
+          "id": "null-total",
+          "text": "A customer without purchases gets None as the total instead of 0",
+          "why": "SUM of no rows is NULL. Ravi shows up as None in the result, which breaks later maths. Use COALESCE(SUM(amount), 0) or a LEFT JOIN with COALESCE.",
+          "lines": [
+            12,
+            13
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "tuple-comma",
+          "text": "(cid,) should be written (cid) in the placeholder call",
+          "why": "(cid) is just cid in brackets, not a tuple. The trailing comma makes the one-element tuple that execute expects, so the code is right."
+        },
+        {
+          "id": "memory-db",
+          "text": "Using \":memory:\" is wrong because nothing is stored",
+          "why": "An in-memory database is a normal choice for demos and tests: it is fast, private and disappears when the connection closes."
+        },
+        {
+          "id": "fetchone-index",
+          "text": "row[0] will fail because fetchone may return nothing",
+          "why": "An aggregate query without GROUP BY always returns exactly one row, even when no rows match, so row[0] is safe (its value is None when there is nothing to sum)."
+        },
+        {
+          "id": "auto-id",
+          "text": "Customers are inserted without an id, which is an error",
+          "why": "An INTEGER PRIMARY KEY column is filled in automatically by SQLite (1, 2, ...), so the INSERT only needs the name."
+        }
+      ],
+      "explain": "In database code, check how values get into the SQL, whether changes are committed, and how many queries a loop makes. Also ask what the query returns when there is no data.",
+      "concepts": [
+        "SQL injection",
+        "commit",
+        "JOIN vs loop of queries",
+        "NULL"
+      ]
+    }
+  ]
+}

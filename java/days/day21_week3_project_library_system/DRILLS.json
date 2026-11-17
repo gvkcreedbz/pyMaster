@@ -1,0 +1,331 @@
+{
+  "day": 21,
+  "drills": [
+    {
+      "id": "j21-parsons",
+      "type": "parsons",
+      "title": "The late fee",
+      "viz": true,
+      "prompt": "Arrange the lines into the library's late-fee calculation: a book borrowed on 1 Nov and returned on 20 Nov, a 14-day loan period and Rs. 5 per late day. Two lines do not belong.",
+      "lines": [
+        "import java.time.LocalDate;",
+        "import java.time.temporal.ChronoUnit;",
+        "class Fees {",
+        "public static void main(String[] args) {",
+        "LocalDate out = LocalDate.parse(\"2026-11-01\");",
+        "LocalDate back = LocalDate.parse(\"2026-11-20\");",
+        "long days = ChronoUnit.DAYS.between(out, back);",
+        "long late = Math.max(0, days - 14);",
+        "int fee = (int) late * 5;",
+        "System.out.println(\"Fee: Rs. \" + fee);",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "int days = ChronoUnit.DAYS.between(out, back);",
+        "LocalDate back = new LocalDate(\"2026-11-20\");"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        [
+          0,
+          1,
+          2,
+          3,
+          5,
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      ],
+      "explain": "ChronoUnit.DAYS.between returns a long, so it cannot be stored in an int without a cast (the compiler reports a lossy conversion). Math.max(0, days - 14) keeps the late days from going negative for an early return, and the (int) cast turns the long into the int fee. LocalDate has no public constructor: use parse or of.",
+      "concepts": [
+        "ChronoUnit.DAYS.between",
+        "Math.max",
+        "long to int cast"
+      ],
+      "output": "Fee: Rs. 25"
+    },
+    {
+      "id": "j21-fill",
+      "type": "fill",
+      "title": "Check the rules before changing anything",
+      "viz": true,
+      "prompt": "Fill the blanks so checkout rejects an unknown or sold-out book with a LibraryError and only changes the stock when every rule has passed.",
+      "code": [
+        "import java.util.Map;",
+        "import java.util.TreeMap;",
+        "",
+        "class Library {",
+        "    private final Map<String, Integer> copies = new TreeMap<>();",
+        "",
+        "    void checkout(String isbn) {",
+        "        if (!copies.___(isbn)) {",
+        "            throw new LibraryError(\"Unknown book\");",
+        "        }",
+        "        if (copies.get(isbn) < 1) {",
+        "            throw new LibraryError(\"No copies available\");",
+        "        }",
+        "        copies.___(isbn, copies.get(isbn) - 1);",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        Library lib = new Library();",
+        "        lib.copies.put(\"B1\", 1);",
+        "        lib.checkout(\"B1\");",
+        "        try {",
+        "            lib.checkout(\"B1\");",
+        "        } catch (LibraryError e) {",
+        "            System.out.println(e.getMessage() + \" \" + lib.copies);",
+        "        }",
+        "    }",
+        "}",
+        "class LibraryError extends ___ {",
+        "    LibraryError(String message) { super(message); }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "containsKey"
+          ],
+          "options": [
+            "containsKey",
+            "contains",
+            "hasKey"
+          ]
+        },
+        {
+          "answers": [
+            "put"
+          ],
+          "options": [
+            "put",
+            "set",
+            "add"
+          ]
+        },
+        {
+          "answers": [
+            "RuntimeException"
+          ],
+          "options": [
+            "RuntimeException",
+            "Exception",
+            "Throwable"
+          ]
+        }
+      ],
+      "explain": "Map has containsKey (not contains or hasKey) and put, which also replaces an existing value. Both checks come before put, so a failed checkout leaves the stock exactly as it was: the output still shows B1=0 from the first, successful call. LibraryError extends RuntimeException, so callers are not forced to catch it; extending Exception would make every checkout declare throws.",
+      "concepts": [
+        "business rules",
+        "custom exception",
+        "Map.containsKey",
+        "check before change"
+      ],
+      "output": "No copies available {B1=0}"
+    },
+    {
+      "id": "j21-predict",
+      "type": "predict",
+      "title": "Records never change",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.util.Map;",
+        "import java.util.TreeMap;",
+        "record Book(String isbn, String title, int copies) {",
+        "    Book withMoreCopies(int extra) { return new Book(isbn, title, copies + extra); }",
+        "}",
+        "Book dune = new Book(\"B1\", \"Dune\", 2);",
+        "Map<String, Book> shelf = new TreeMap<>();",
+        "shelf.put(dune.isbn(), dune);",
+        "shelf.put(\"B1\", shelf.get(\"B1\").withMoreCopies(3));",
+        "System.out.println(shelf.get(\"B1\").copies());",
+        "System.out.println(dune.copies());",
+        "System.out.println(dune.equals(new Book(\"B1\", \"Dune\", 2)));",
+        "System.out.println(shelf.get(\"B1\"));"
+      ],
+      "explain": "A record cannot change, so withMoreCopies builds a new Book with 5 copies and put stores it under the same key. The original dune object still has 2 copies. equals on records compares all the components (so the second Book(\"B1\", \"Dune\", 2) is equal), and toString prints the type with name=value pairs.",
+      "concepts": [
+        "records",
+        "withMoreCopies",
+        "equals on records"
+      ],
+      "expected": "5\n2\ntrue\nBook[isbn=B1, title=Dune, copies=5]"
+    },
+    {
+      "id": "j21-bug",
+      "type": "bug",
+      "title": "The line that split into letters",
+      "viz": true,
+      "prompt": "load reads one saved line, BOOK|B1|Dune|3, but the program crashes. Click the faulty line, then choose the fix.",
+      "code": [
+        "class Loader {",
+        "    public static void main(String[] args) {",
+        "        String line = \"BOOK|B1|Dune|3\";",
+        "        String[] part = line.split(\"|\");",
+        "        String title = part[2];",
+        "        int copies = Integer.parseInt(part[3]);",
+        "        System.out.println(title + \" has \" + copies + \" copies\");",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "class Loader {",
+        "    public static void main(String[] args) {",
+        "        String line = \"BOOK|B1|Dune|3\";",
+        "        String[] part = line.split(\"\\\\|\");",
+        "        String title = part[2];",
+        "        int copies = Integer.parseInt(part[3]);",
+        "        System.out.println(title + \" has \" + copies + \" copies\");",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        4
+      ],
+      "answer": 0,
+      "options": [
+        "String[] part = line.split(\"\\\\|\");",
+        "String[] part = line.split(\"\\|\");",
+        "String[] part = line.split(\"||\");",
+        "String[] part = line.split('|');"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "NumberFormatException"
+      },
+      "explain": "split takes a regular expression, and | means \"or\" in a regex, so split(\"|\") cuts the line after every character. part[3] is then the letter K, and parseInt fails. To match a real bar, escape it for the regex (\\|) and escape the backslash for Java (\\\\|). A single \\| is not a legal Java string escape, and split('|') passes a char instead of a String.",
+      "concepts": [
+        "split with regex",
+        "escaping |",
+        "parseInt"
+      ],
+      "output": "Dune has 3 copies"
+    },
+    {
+      "id": "j21-review",
+      "type": "review",
+      "title": "Review the AI's Library class",
+      "prompt": "An AI assistant wrote this part of the library system. It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "import java.time.LocalDate;",
+        "import java.time.temporal.ChronoUnit;",
+        "import java.util.ArrayList;",
+        "import java.util.List;",
+        "",
+        "class Library {",
+        "    private static final int MAX_LOANS = 2;",
+        "    private static final int LOAN_DAYS = 14;",
+        "    private static final int FEE_PER_DAY = 5;",
+        "    private final List<Loan> loans = new ArrayList<>();",
+        "",
+        "    void checkout(String isbn, String member) {",
+        "        loans.add(new Loan(isbn, member));",
+        "        if (loansOf(member) > MAX_LOANS) {",
+        "            throw new IllegalStateException(\"Loan limit reached\");",
+        "        }",
+        "    }",
+        "",
+        "    int loansOf(String member) {",
+        "        int count = 0;",
+        "        for (Loan loan : loans) {",
+        "            if (loan.member() == member) {",
+        "                count++;",
+        "            }",
+        "        }",
+        "        return count;",
+        "    }",
+        "",
+        "    long lateFee(String out, String back) {",
+        "        long days = ChronoUnit.DAYS.between(LocalDate.parse(out), LocalDate.parse(back));",
+        "        return (days - LOAN_DAYS) * FEE_PER_DAY;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        Library lib = new Library();",
+        "        lib.checkout(\"B1\", \"Asha\");",
+        "        System.out.println(lib.loansOf(\"Asha\") + \" \" + lib.lateFee(\"2026-11-01\", \"2026-11-10\"));",
+        "    }",
+        "}",
+        "record Loan(String isbn, String member) {}"
+      ],
+      "issues": [
+        {
+          "id": "change-then-check",
+          "text": "checkout adds the loan first and checks the limit afterwards",
+          "why": "When the rule fails, the exception is thrown but the extra loan is already in the list, so the failed checkout changed the library. Check loansOf(member) >= MAX_LOANS first and add the loan last.",
+          "lines": [
+            13,
+            14,
+            15
+          ]
+        },
+        {
+          "id": "string-equality",
+          "text": "loansOf compares member names with ==",
+          "why": "== asks whether both variables are the same object, not whether the names match. It happens to work with two literals in main, but a name read from a file or typed by a user is a different object and is never counted. Use loan.member().equals(member).",
+          "lines": [
+            22
+          ]
+        },
+        {
+          "id": "negative-fee",
+          "text": "lateFee goes negative for a book returned on time",
+          "why": "Returned after 9 days, days - LOAN_DAYS is -5 and the fee is -25, as if the library paid the member. Use Math.max(0, days - LOAN_DAYS) so only late days are charged.",
+          "lines": [
+            31
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "record-loan",
+          "text": "Loan should be a normal class with setters, so loans can be edited",
+          "why": "A record is the right tool for plain data that should not change after creation. To change a loan you build a new one."
+        },
+        {
+          "id": "long-fee",
+          "text": "lateFee returns a long, so it must be cast to int",
+          "why": "Nothing requires an int here. The long that comes from ChronoUnit is returned as it is and prints normally."
+        },
+        {
+          "id": "constants",
+          "text": "The three constants should be instance fields",
+          "why": "Fixed rules that are the same for every library belong in private static final constants, and the names tell the reader what 14, 5 and 2 mean."
+        },
+        {
+          "id": "list-scan",
+          "text": "loansOf loops over the list instead of using a Map",
+          "why": "For a few loans a simple loop is clear and correct. A Map could be added later if the numbers grow."
+        }
+      ],
+      "explain": "In rule-heavy classes check the order inside each method (rules first, changes last), the way text values are compared (equals, not ==) and the edge cases of every formula (what happens at zero or below zero?).",
+      "concepts": [
+        "business rules",
+        "== vs equals",
+        "edge cases",
+        "reading code critically"
+      ]
+    }
+  ]
+}

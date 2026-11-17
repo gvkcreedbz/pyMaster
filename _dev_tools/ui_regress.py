@@ -154,7 +154,7 @@ async def main():
                 days = range(1, 31) if w == 1440 else (1, 8, 14, 22, 28, 30)
                 tabs = ("learn", "along", "practice", "quiz", "notes") if w == 1440 and not QUICK else ("learn", "practice")
                 for d in days:
-                    for t in tabs + (("drills",) if d <= 3 else ()):                   # drills exist for days 1-3 so far
+                    for t in tabs + ("drills",):                                        # every day has drills
                         await visit(f"#/day/{d}/{t}", f"[{w}] day {d}/{t}", 0.25)
                 await visit("#/insights", f"[{w}] insights", 0.8)
                 await visit("#/library", f"[{w}] library")

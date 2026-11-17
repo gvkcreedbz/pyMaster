@@ -1,0 +1,249 @@
+{
+  "day": 4,
+  "drills": [
+    {
+      "id": "j04-parsons",
+      "type": "parsons",
+      "title": "Initials from a messy name",
+      "viz": true,
+      "wrap": true,
+      "prompt": "A signup form gives you a name with extra spaces. Arrange the lines so the program prints the initials. Two lines do not belong.",
+      "lines": [
+        "String name = \"  aarav   sharma \";",
+        "String clean = name.strip();",
+        "String[] parts = clean.split(\"\\\\s+\");",
+        "String first = parts[0].substring(0, 1).toUpperCase();",
+        "String last = parts[1].substring(0, 1).toUpperCase();",
+        "System.out.println(first + \".\" + last + \".\");"
+      ],
+      "distractors": [
+        "String[] parts = clean.split(\" \");",
+        "String first = parts[0].charAt(0).toUpperCase();"
+      ],
+      "explain": "strip() removes the outer spaces, and split(\"\\\\s+\") cuts on any run of spaces. A single-space split would leave empty pieces between the words and parts[1] would be \"\". substring(0, 1) is the first letter as a String, so it has toUpperCase(); charAt gives a plain char, which has no methods.",
+      "concepts": [
+        "strip and split",
+        "substring",
+        "String methods"
+      ],
+      "output": "A.S."
+    },
+    {
+      "id": "j04-fill",
+      "type": "fill",
+      "title": "Clean, find, cut and join",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the program prints the goal output.",
+      "hint": "Count the letters of Learning, or ask the text where the first space is.",
+      "code": [
+        "String s = \"  Learning Java  \";",
+        "String t = s.___();",
+        "System.out.println(t.___(\"Java\"));",
+        "System.out.println(t.substring(0, ___));",
+        "System.out.println(String.___(\"-\", \"2026\", \"11\", \"16\"));"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "strip",
+            "trim"
+          ],
+          "options": [
+            "strip",
+            "trim",
+            "clean"
+          ]
+        },
+        {
+          "answers": [
+            "indexOf"
+          ],
+          "options": [
+            "indexOf",
+            "contains",
+            "find"
+          ]
+        },
+        {
+          "answers": [
+            "8",
+            "t.indexOf(\" \")"
+          ]
+        },
+        {
+          "answers": [
+            "join"
+          ],
+          "options": [
+            "join",
+            "concat",
+            "merge"
+          ]
+        }
+      ],
+      "explain": "strip() (or the older trim()) removes the outer spaces. indexOf gives the position of the first match, or -1 when there is none, while contains only says true or false. substring(0, 8) stops before index 8, so it keeps the 8 letters of Learning. String.join glues the pieces with the separator in front.",
+      "concepts": [
+        "strip",
+        "indexOf",
+        "substring",
+        "String.join"
+      ],
+      "output": [
+        "9",
+        "Learning",
+        "2026-11-16"
+      ]
+    },
+    {
+      "id": "j04-predict",
+      "type": "predict",
+      "title": "New texts, old texts",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "String s = \"Java\";",
+        "s.toUpperCase();",
+        "System.out.println(s);",
+        "String word = \"PYTHON\";",
+        "System.out.println(word.substring(1, 4) + \" \" + word.substring(3));",
+        "System.out.println(\"hello world\".indexOf(\"z\"));",
+        "System.out.println(\"a,b,c\".split(\",\").length);"
+      ],
+      "explain": "A String never changes: toUpperCase() returns a new text and line 2 throws it away, so s is still Java. substring(1, 4) takes indexes 1, 2 and 3 (the end is not included), substring(3) runs from index 3 to the end. indexOf answers -1 when the text is not found. split gives an array of 3 pieces, and length is its size.",
+      "concepts": [
+        "immutability",
+        "substring",
+        "indexOf",
+        "split"
+      ],
+      "expected": [
+        "Java",
+        "YTH HON",
+        "-1",
+        "3"
+      ]
+    },
+    {
+      "id": "j04-bug",
+      "type": "bug",
+      "title": "One step past the end",
+      "viz": true,
+      "prompt": "The program should print the last digit of a card number, but it crashes while it runs. Click the line that crashes, then choose the fix.",
+      "code": [
+        "class Card {",
+        "    public static void main(String[] args) {",
+        "        String card = \"4111222233334321\";",
+        "        String last4 = card.substring(card.length() - 4);",
+        "        char lastDigit = card.charAt(card.length());",
+        "        System.out.println(\"Ends with \" + last4 + \", last digit \" + lastDigit);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        5
+      ],
+      "answer": 0,
+      "options": [
+        "char lastDigit = card.charAt(card.length() - 1);",
+        "char lastDigit = card.charAt(card.length() - 2);",
+        "char lastDigit = card.charAt(-1);",
+        "char lastDigit = card.charAt(card.length);"
+      ],
+      "fixed_code": [
+        "class Card {",
+        "    public static void main(String[] args) {",
+        "        String card = \"4111222233334321\";",
+        "        String last4 = card.substring(card.length() - 4);",
+        "        char lastDigit = card.charAt(card.length() - 1);",
+        "        System.out.println(\"Ends with \" + last4 + \", last digit \" + lastDigit);",
+        "    }",
+        "}"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "StringIndexOutOfBoundsException"
+      },
+      "explain": "Positions start at 0, so a text of 16 characters has indexes 0 to 15 and charAt(16) does not exist. The last character is always at length() - 1. Java has no negative indexes like card[-1] in Python, and length() needs its brackets for a String.",
+      "concepts": [
+        "indexing",
+        "length() - 1",
+        "StringIndexOutOfBoundsException"
+      ],
+      "output": "Ends with 4321, last digit 1"
+    },
+    {
+      "id": "j04-review",
+      "type": "review",
+      "title": "Review the AI's signup check",
+      "prompt": "An AI assistant wrote this signup code. It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "class Signup {",
+        "    public static void main(String[] args) {",
+        "        String email = \"  Aarav@Gmail.com \";",
+        "        String name = \"Aarav\";",
+        "        String plan = \"PRO\".toLowerCase();",
+        "        email.strip();",
+        "        if (plan == \"pro\") {",
+        "            System.out.println(\"Pro features on\");",
+        "        }",
+        "        String domain = email.substring(email.indexOf(\"@\"));",
+        "        System.out.println(name.substring(0, 1) + \" \" + domain);",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "strip-ignored",
+          "text": "email.strip() does nothing: the cleaned text is never saved",
+          "why": "Strings cannot change. strip() returns a new String and the result is thrown away, so email still has its spaces. Write email = email.strip();",
+          "lines": [
+            6
+          ]
+        },
+        {
+          "id": "double-equals",
+          "text": "plan == \"pro\" is false even though plan holds the letters pro, so Pro features never turn on",
+          "why": "== asks whether both sides are the very same object. A text built at run time (here by toLowerCase()) is a different object. Use plan.equals(\"pro\").",
+          "lines": [
+            5,
+            7
+          ]
+        },
+        {
+          "id": "domain-includes-at",
+          "text": "domain starts at the @, so it is @Gmail.com instead of Gmail.com",
+          "why": "substring(start) includes the character at start. Begin one position later: email.substring(email.indexOf(\"@\") + 1).",
+          "lines": [
+            10
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "first-two-letters",
+          "text": "name.substring(0, 1) returns two letters because it goes from 0 to 1",
+          "why": "The end index is not included, so substring(0, 1) is only the character at index 0: A."
+        },
+        {
+          "id": "indexof-char",
+          "text": "indexOf(\"@\") must be indexOf('@') because it looks for one character",
+          "why": "indexOf accepts both a String and a single char. Either works."
+        },
+        {
+          "id": "use-stringbuilder",
+          "text": "The last line should use a StringBuilder instead of +",
+          "why": "StringBuilder pays off when you append many times in a loop. Joining three small pieces once with + is fine."
+        }
+      ],
+      "explain": "Three Day 4 rules hide in generated code: methods return new Strings, equals instead of ==, and substring(start) includes the start position. All three compile without a warning and fail quietly.",
+      "concepts": [
+        "immutability",
+        "equals vs ==",
+        "substring",
+        "reviewing text code"
+      ]
+    }
+  ]
+}

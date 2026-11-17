@@ -1,0 +1,244 @@
+{
+  "day": 7,
+  "drills": [
+    {
+      "id": "d07-parsons",
+      "type": "parsons",
+      "title": "ATM withdrawal check",
+      "viz": true,
+      "prompt": "Arrange and indent the lines so the function refuses a withdrawal that is not a multiple of 100, then checks the balance, and the program prints the result for 750 rupees. Two lines do not belong.",
+      "lines": [
+        "def validate_withdrawal(balance, amount):",
+        "if amount <= 0 or amount % 100 != 0:",
+        "return \"Invalid amount\"",
+        "if amount > balance:",
+        "return \"Insufficient balance\"",
+        "return \"OK\"",
+        "print(validate_withdrawal(5000, 750))"
+      ],
+      "indent": [
+        0,
+        1,
+        2,
+        1,
+        2,
+        1,
+        0
+      ],
+      "distractors": [
+        "if amount <= 0 and amount % 100 != 0:",
+        "return OK"
+      ],
+      "explain": "Each rule is an if that returns early, and the final return \"OK\" is reached only when no rule fired. Order matters because the first return ends the function. Use or to join two reasons for refusing (an amount that is zero or negative, or not a multiple of 100); with and, 750 would slip through. A text result needs quotes: OK without them is a NameError.",
+      "concepts": [
+        "validation rules",
+        "early return",
+        "or vs and"
+      ],
+      "output": "Invalid amount"
+    },
+    {
+      "id": "d07-fill",
+      "type": "fill",
+      "title": "Deposit and format the balance",
+      "viz": true,
+      "prompt": "Fill the three blanks so the program deposits 2500 rupees, shows the balance with a thousands comma and two decimals, and checks that the amount is a multiple of 100.",
+      "code": [
+        "balance = 10300",
+        "amount = 2500",
+        "balance ___ amount",
+        "print(f\"Balance: Rs. {balance___}\")",
+        "print(\"Multiple of 100?\", amount ___ 100 == 0)"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "+="
+          ],
+          "options": [
+            "+=",
+            "=",
+            "-="
+          ]
+        },
+        {
+          "answers": [
+            ":,.2f"
+          ],
+          "options": [
+            ":,.2f",
+            ":.2f",
+            ".2f",
+            ":,"
+          ]
+        },
+        {
+          "answers": [
+            "%"
+          ],
+          "options": [
+            "%",
+            "//",
+            "/"
+          ]
+        }
+      ],
+      "explain": "balance += amount adds to the existing value (a plain = would replace the balance with the deposit). In an f-string, a colon after the value starts the format: , adds the thousands comma and .2f shows two decimals. A number is a multiple of 100 when the remainder of dividing by 100 (%) is 0.",
+      "concepts": [
+        "+=",
+        "f-string formatting",
+        "% remainder"
+      ],
+      "output": "Balance: Rs. 12,800.00\nMultiple of 100? True"
+    },
+    {
+      "id": "d07-predict",
+      "type": "predict",
+      "title": "Which rule fires first?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "def validate_withdrawal(balance, amount, withdrawn_today):",
+        "    if amount <= 0 or amount % 100 != 0:",
+        "        return \"Invalid amount\"",
+        "    if amount > balance:",
+        "        return \"Insufficient balance\"",
+        "    if withdrawn_today + amount > 20000:",
+        "        return \"Daily limit exceeded\"",
+        "    return \"OK\"",
+        "",
+        "print(validate_withdrawal(500, 750, 0))",
+        "print(validate_withdrawal(500, 1000, 0))",
+        "print(validate_withdrawal(50000, 5000, 18000))",
+        "print(validate_withdrawal(50000, 5000, 15000))"
+      ],
+      "explain": "The function returns the first problem it finds, so the order of the checks decides the message. 750 is both not a multiple of 100 and above the 500 balance, but the amount check comes first. In the last two calls the day total is 23000 (over the limit) and exactly 20000 (not over it, because the test is > and not >=).",
+      "concepts": [
+        "order of checks",
+        "return",
+        "boundary values"
+      ],
+      "expected": "Invalid amount\nInsufficient balance\nDaily limit exceeded\nOK"
+    },
+    {
+      "id": "d07-bug",
+      "type": "bug",
+      "title": "Exit that does not exit",
+      "viz": true,
+      "prompt": "After choosing 4 (Exit) the program says \"Thank you!\" but then keeps going and shows the balance again. Click the faulty line and choose the fix.",
+      "code": [
+        "choices = (\"1\", \"2\", \"4\", \"1\")",
+        "balance = 10300",
+        "for choice in choices:",
+        "    if choice == \"4\":",
+        "        print(\"Thank you!\")",
+        "        continue",
+        "    elif choice == \"2\":",
+        "        balance += 500",
+        "    print(f\"Balance: Rs. {balance}\")"
+      ],
+      "bug_lines": [
+        6
+      ],
+      "answer": 0,
+      "options": [
+        "        break",
+        "        pass",
+        "        stop",
+        "        return"
+      ],
+      "fixed_code": [
+        "choices = (\"1\", \"2\", \"4\", \"1\")",
+        "balance = 10300",
+        "for choice in choices:",
+        "    if choice == \"4\":",
+        "        print(\"Thank you!\")",
+        "        break",
+        "    elif choice == \"2\":",
+        "        balance += 500",
+        "    print(f\"Balance: Rs. {balance}\")"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "Balance: Rs. 10300\nBalance: Rs. 10800\nThank you!\nBalance: Rs. 10800"
+      },
+      "explain": "continue only skips to the next round, so the remaining choices are still processed. break leaves the loop completely, which is what Exit means in a menu loop. pass does nothing, stop is not a Python word, and return only works inside a function.",
+      "concepts": [
+        "break vs continue",
+        "menu loop"
+      ],
+      "output": "Balance: Rs. 10300\nBalance: Rs. 10800\nThank you!"
+    },
+    {
+      "id": "d07-review",
+      "type": "review",
+      "title": "Review the AI's withdraw function",
+      "prompt": "The ATM rules: the amount must be a positive multiple of 100, it must not exceed the balance, and the day's total must not pass 20,000. An AI assistant wrote this withdraw function. It runs, but it breaks the rules in three ways. Tick them.",
+      "code": [
+        "def withdraw(balance, amount, withdrawn_today):",
+        "    if amount > balance:",
+        "        print(\"Insufficient balance\")",
+        "    balance -= amount",
+        "    withdrawn_today += amount",
+        "    print(f\"Collect your cash: Rs. {amount}\")",
+        "    return balance",
+        "",
+        "print(withdraw(5000, 1500, 0))",
+        "print(withdraw(500, 1000, 0))"
+      ],
+      "issues": [
+        {
+          "id": "no-stop",
+          "text": "After printing \"Insufficient balance\" the function still takes the money, so the balance becomes negative",
+          "why": "The if only prints a message. Nothing returns or skips the rest, so the next lines run anyway. Return the unchanged balance (or use else) when the check fails.",
+          "lines": [
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "id": "no-amount-check",
+          "text": "Zero, negative and non-multiples of 100 are accepted",
+          "why": "withdraw(5000, -500, 0) would add 500 to the balance and withdraw(5000, 750, 0) hands out 750. The first rule needs amount <= 0 or amount % 100 != 0.",
+          "lines": [
+            2
+          ]
+        },
+        {
+          "id": "limit-lost",
+          "text": "The daily limit is never checked, and the updated withdrawn_today is thrown away",
+          "why": "withdrawn_today += amount only changes the function's own copy, and the function returns just the balance. The caller never learns the new total, so the 20,000 limit cannot be enforced.",
+          "lines": [
+            5,
+            7
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "param-changes-caller",
+          "text": "balance -= amount also changes the caller's balance variable",
+          "why": "Numbers are not changed in place. The function only changes its own local name, and the caller gets the new value through the return line."
+        },
+        {
+          "id": "plus-equals-style",
+          "text": "balance -= amount should be written balance = balance - amount",
+          "why": "They are the same operation. -= is just the shorter form."
+        },
+        {
+          "id": "fstring-decimals",
+          "text": "The cash amount must be shown with two decimals",
+          "why": "ATM notes are whole rupees, so printing the integer amount is correct. Two decimals matter for balances that can hold paise."
+        }
+      ],
+      "explain": "A validation message is not a validation: the code must also stop. When reviewing rule-based code, take each rule from the spec and try one input that breaks it (-500, 750, 1000 on a 500 balance) and see whether anything actually prevents the withdrawal.",
+      "concepts": [
+        "validation",
+        "early return",
+        "functions and state",
+        "reading code critically"
+      ]
+    }
+  ]
+}

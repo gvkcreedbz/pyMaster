@@ -1,0 +1,288 @@
+{
+  "day": 18,
+  "drills": [
+    {
+      "id": "j18-parsons",
+      "type": "parsons",
+      "title": "Days until the sale ends",
+      "viz": true,
+      "prompt": "Arrange the lines into a program that counts the days from 16 Nov 2026 to the end of the Diwali sale on 25 Nov 2026. Two lines do not belong.",
+      "lines": [
+        "import java.time.LocalDate;",
+        "import java.time.temporal.ChronoUnit;",
+        "class Sale {",
+        "public static void main(String[] args) {",
+        "LocalDate today = LocalDate.of(2026, 11, 16);",
+        "LocalDate end = LocalDate.of(2026, 11, 25);",
+        "long days = ChronoUnit.DAYS.between(today, end);",
+        "System.out.println(\"Days left: \" + days);",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "LocalDate today = new LocalDate(2026, 11, 16);",
+        "import java.time.ChronoUnit;"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        [
+          0,
+          1,
+          2,
+          3,
+          5,
+          4,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "explain": "Imports come first and name the full path of each class: ChronoUnit lives in java.time.temporal, not directly in java.time. LocalDate has no public constructor, you get one from a factory method such as LocalDate.of(year, month, day). ChronoUnit.DAYS.between(a, b) counts the days from a to b.",
+      "concepts": [
+        "import",
+        "java.time",
+        "ChronoUnit.DAYS.between"
+      ],
+      "output": "Days left: 9"
+    },
+    {
+      "id": "j18-fill",
+      "type": "fill",
+      "title": "Parse, format, add a week",
+      "viz": true,
+      "prompt": "Fill the blanks so the program turns the text into a date, prints it as 25 Dec 2026, then shows the date a week later and its weekday.",
+      "code": [
+        "import java.time.LocalDate;",
+        "import java.time.format.DateTimeFormatter;",
+        "import java.util.Locale;",
+        "",
+        "class Pretty {",
+        "    public static void main(String[] args) {",
+        "        LocalDate event = LocalDate.___(\"2026-12-25\");",
+        "        DateTimeFormatter pretty = DateTimeFormatter.ofPattern(\"dd ___ yyyy\", Locale.ENGLISH);",
+        "        System.out.println(event.format(pretty));",
+        "        System.out.println(event.___(7));",
+        "        System.out.println(event.getDayOfWeek());",
+        "    }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "parse"
+          ],
+          "options": [
+            "parse",
+            "of",
+            "from"
+          ]
+        },
+        {
+          "answers": [
+            "MMM"
+          ],
+          "options": [
+            "MMM",
+            "mmm",
+            "MM"
+          ]
+        },
+        {
+          "answers": [
+            "plusDays"
+          ],
+          "options": [
+            "plusDays",
+            "addDays",
+            "plusDay"
+          ]
+        }
+      ],
+      "explain": "LocalDate.parse reads text in the form yyyy-MM-dd (LocalDate.of takes three numbers instead). In a pattern, capital M is the month and lowercase m is the minute: MMM gives the short name Dec, MM would give 12. plusDays(7) returns a new date, because java.time objects never change.",
+      "concepts": [
+        "LocalDate.parse",
+        "DateTimeFormatter patterns",
+        "plusDays"
+      ],
+      "output": "25 Dec 2026\n2027-01-01\nFRIDAY"
+    },
+    {
+      "id": "j18-predict",
+      "type": "predict",
+      "title": "Does plusDays change the date?",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.time.LocalDate;",
+        "import java.time.temporal.ChronoUnit;",
+        "LocalDate today = LocalDate.of(2026, 11, 16);",
+        "LocalDate later = today.plusDays(30);",
+        "today.plusDays(1);",
+        "System.out.println(today);",
+        "System.out.println(later);",
+        "System.out.println(today.isBefore(later));",
+        "System.out.println(ChronoUnit.DAYS.between(today, later));"
+      ],
+      "explain": "java.time objects are immutable: plusDays builds a new date and leaves the old one alone. The call on line 5 creates 17 Nov and throws it away, so today is still 16 Nov. Only later, which stored the result of plusDays(30), holds 16 Dec.",
+      "concepts": [
+        "immutable dates",
+        "plusDays",
+        "isBefore"
+      ],
+      "expected": "2026-11-16\n2026-12-16\ntrue\n30"
+    },
+    {
+      "id": "j18-bug",
+      "type": "bug",
+      "title": "A date the parser cannot read",
+      "viz": true,
+      "prompt": "The customer typed the date as 16/11/2026, and the program crashes when it runs. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.time.LocalDate;",
+        "import java.time.format.DateTimeFormatter;",
+        "",
+        "class Reminder {",
+        "    public static void main(String[] args) {",
+        "        String text = \"16/11/2026\";",
+        "        LocalDate date = LocalDate.parse(text);",
+        "        System.out.println(\"Reminder set for \" + date.plusDays(7));",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.time.LocalDate;",
+        "import java.time.format.DateTimeFormatter;",
+        "",
+        "class Reminder {",
+        "    public static void main(String[] args) {",
+        "        String text = \"16/11/2026\";",
+        "        LocalDate date = LocalDate.parse(text, DateTimeFormatter.ofPattern(\"dd/MM/yyyy\"));",
+        "        System.out.println(\"Reminder set for \" + date.plusDays(7));",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        7
+      ],
+      "answer": 0,
+      "options": [
+        "LocalDate date = LocalDate.parse(text, DateTimeFormatter.ofPattern(\"dd/MM/yyyy\"));",
+        "LocalDate date = LocalDate.parse(text, DateTimeFormatter.ofPattern(\"dd/mm/yyyy\"));",
+        "LocalDate date = LocalDate.parse(text, DateTimeFormatter.ofPattern(\"MM/dd/yyyy\"));",
+        "LocalDate date = LocalDate.of(text);"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "DateTimeParseException"
+      },
+      "explain": "LocalDate.parse(text) without a formatter only understands yyyy-MM-dd, so the slashes make it throw DateTimeParseException at run time. Give it a formatter that describes your text: dd/MM/yyyy. Lowercase mm means minutes, and MM/dd would read 16 as the month. LocalDate.of takes numbers, not text.",
+      "concepts": [
+        "LocalDate.parse",
+        "DateTimeFormatter",
+        "DateTimeParseException"
+      ],
+      "output": "Reminder set for 2026-11-23"
+    },
+    {
+      "id": "j18-review",
+      "type": "review",
+      "title": "Review the AI's reminder helpers",
+      "prompt": "An AI assistant wrote these date helpers. They compile and run, but tick the real problems (there are three).",
+      "code": [
+        "import java.time.LocalDate;",
+        "import java.time.format.DateTimeFormatter;",
+        "import java.time.temporal.ChronoUnit;",
+        "",
+        "class Reminder {",
+        "    static String label(LocalDate date) {",
+        "        return date.format(DateTimeFormatter.ofPattern(\"dd MMM YYYY\"));",
+        "    }",
+        "",
+        "    static LocalDate dueDate(LocalDate start) {",
+        "        start.plusDays(30);",
+        "        return start;",
+        "    }",
+        "",
+        "    static long daysLeft(LocalDate from, LocalDate to) {",
+        "        return ChronoUnit.DAYS.between(from, to);",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        LocalDate start = LocalDate.of(2026, 11, 16);",
+        "        LocalDate due = dueDate(start);",
+        "        System.out.println(label(due) + \", \" + daysLeft(start, due) + \" days\");",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "week-year",
+          "text": "The pattern uses YYYY for the year",
+          "why": "YYYY is the week-based year. Around New Year it prints the wrong year (29 Dec 2026 would show 2027). Use yyyy for the normal calendar year.",
+          "lines": [
+            7
+          ]
+        },
+        {
+          "id": "no-locale",
+          "text": "ofPattern(\"dd MMM ...\") is called without a Locale",
+          "why": "MMM prints a month name in the computer's language, so Nov can come out as nov. or Nov. on another machine. Pass Locale.ENGLISH as the second argument.",
+          "lines": [
+            7
+          ]
+        },
+        {
+          "id": "discarded-plus",
+          "text": "dueDate ignores the result of plusDays and returns the original date",
+          "why": "Dates are immutable, so start.plusDays(30) builds a new date and drops it. The method returns start unchanged (the output says 0 days). Write return start.plusDays(30).",
+          "lines": [
+            11,
+            12
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "long-days",
+          "text": "daysLeft returns long, so it should return int",
+          "why": "ChronoUnit.between returns a long on purpose, because a span of days can be big. Narrowing it to int would be the questionable choice."
+        },
+        {
+          "id": "fixed-date",
+          "text": "main uses LocalDate.of(...) instead of LocalDate.now()",
+          "why": "A fixed date makes the demo repeat exactly. The helpers take the date as a parameter, which is what lets you test them with fixed dates."
+        },
+        {
+          "id": "three-imports",
+          "text": "The three imports should be replaced by import java.time.*",
+          "why": "java.time.* does not include the sub-packages format and temporal, so those imports would still be needed. Naming each class is fine."
+        },
+        {
+          "id": "static-methods",
+          "text": "The helpers should be instance methods",
+          "why": "They use only their parameters and keep no state, so static methods are the right choice."
+        }
+      ],
+      "explain": "With dates, check every pattern letter (yyyy, MM vs mm, MMM plus a Locale) and every call that returns a new object: if its result is not stored or returned, nothing happened.",
+      "concepts": [
+        "DateTimeFormatter patterns",
+        "Locale",
+        "immutable dates",
+        "reading code critically"
+      ]
+    }
+  ]
+}

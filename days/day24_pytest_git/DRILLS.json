@@ -1,0 +1,248 @@
+{
+  "day": 24,
+  "drills": [
+    {
+      "id": "d24-parsons",
+      "type": "parsons",
+      "title": "Arrange, act, assert",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them) into one small test: set up the data, do the work, check the result. The last two lines run the test by hand and report. Two lines do not belong.",
+      "lines": [
+        "def test_cart_total():",
+        "prices = [100, 250]",
+        "total = sum(prices)",
+        "assert total == 350",
+        "test_cart_total()",
+        "print(\"test passed\")"
+      ],
+      "indent": [
+        0,
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "distractors": [
+        "assert total = 350",
+        "def cart_total_test():"
+      ],
+      "explain": "A good test follows Arrange (build the input), Act (call the code) and Assert (compare with the expected result). The assert must come after the result exists, and = would be an assignment (a SyntaxError), so a check needs ==. pytest only collects functions whose names start with test_, so cart_total_test would be silently ignored. Here the function is called by hand because a plain script has no test runner.",
+      "concepts": [
+        "assert",
+        "test_ functions",
+        "arrange, act, assert"
+      ],
+      "output": "test passed"
+    },
+    {
+      "id": "d24-fill",
+      "type": "fill",
+      "title": "Floats and expected errors",
+      "viz": true,
+      "prompt": "Fill the three blanks. The first test compares floats with a tolerance, the second checks that int(\"abc\") raises the right error.",
+      "code": [
+        "import pytest",
+        "",
+        "def test_float_total():",
+        "    assert 0.1 + 0.2 == pytest.___(0.3)",
+        "",
+        "def test_bad_text_rejected():",
+        "    with pytest.___(___):",
+        "        int(\"abc\")",
+        "",
+        "test_float_total()",
+        "test_bad_text_rejected()",
+        "print(\"2 tests passed\")"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "approx"
+          ],
+          "options": [
+            "approx",
+            "isclose",
+            "equal"
+          ]
+        },
+        {
+          "answers": [
+            "raises"
+          ],
+          "options": [
+            "raises",
+            "raise",
+            "catch"
+          ]
+        },
+        {
+          "answers": [
+            "ValueError"
+          ],
+          "options": [
+            "ValueError",
+            "TypeError",
+            "KeyError"
+          ]
+        }
+      ],
+      "explain": "0.1 + 0.2 is 0.30000000000000004, so == 0.3 would fail; pytest.approx(0.3) compares with a small tolerance. pytest.raises(SomeError) passes only if the block inside raises exactly that kind of error (int(\"abc\") raises a ValueError); if no error or a different one occurs, the test fails. A wrong type such as TypeError lets the real ValueError escape and the test crashes.",
+      "concepts": [
+        "pytest.approx",
+        "pytest.raises",
+        "testing errors"
+      ],
+      "output": "2 tests passed"
+    },
+    {
+      "id": "d24-predict",
+      "type": "predict",
+      "title": "How close is close?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output. pytest is installed.",
+      "code": [
+        "import pytest",
+        "",
+        "print(0.1 + 0.2)",
+        "print(0.1 + 0.2 == 0.3)",
+        "print(0.1 + 0.2 == pytest.approx(0.3))",
+        "print(100 == pytest.approx(100.5))"
+      ],
+      "explain": "Floats are stored in binary, so 0.1 + 0.2 is 0.30000000000000004 and a plain == with 0.3 is False. pytest.approx allows a tiny relative error (about one part in a million), enough to forgive that rounding noise. It is not a loose match: 100.5 differs from 100 by far more than that, so it is still False.",
+      "concepts": [
+        "float comparison",
+        "pytest.approx"
+      ],
+      "expected": "0.30000000000000004\nFalse\nTrue\nFalse"
+    },
+    {
+      "id": "d24-bug",
+      "type": "bug",
+      "title": "The boundary the test caught",
+      "viz": true,
+      "prompt": "Orders of Rs. 500 or more get free delivery. The test below fails with an AssertionError. Click the line of the shop code that is wrong, then choose the right fix.",
+      "code": [
+        "def free_delivery(total):",
+        "    return total > 500",
+        "",
+        "def test_free_delivery_at_limit():",
+        "    assert free_delivery(500) is True",
+        "",
+        "test_free_delivery_at_limit()",
+        "print(\"passed\")"
+      ],
+      "bug_lines": [
+        2
+      ],
+      "answer": 0,
+      "options": [
+        "    return total >= 500",
+        "    return total < 500",
+        "    return total > 500.0",
+        "    return total >= 501"
+      ],
+      "fixed_code": [
+        "def free_delivery(total):",
+        "    return total >= 500",
+        "",
+        "def test_free_delivery_at_limit():",
+        "    assert free_delivery(500) is True",
+        "",
+        "test_free_delivery_at_limit()",
+        "print(\"passed\")"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "AssertionError"
+      },
+      "explain": "\"500 or more\" includes 500, so the comparison must be >=. With > the order of exactly Rs. 500 is refused. The test sits right on the boundary, which is where this kind of bug (< instead of <=) hides, so always test the edge value as well as values inside the range. When assert fails, read which call produced the wrong value and compare it with the rule.",
+      "concepts": [
+        "assert",
+        "boundary values",
+        "off-by-one"
+      ],
+      "output": "passed"
+    },
+    {
+      "id": "d24-review",
+      "type": "review",
+      "title": "Review the AI's discount tests",
+      "prompt": "An AI assistant wrote apply_discount and these tests. All of them pass. The last three lines only exist so this page can run the file; pytest would find the tests by itself. Tick the statements that point at real problems.",
+      "code": [
+        "def apply_discount(price, percent):",
+        "    return round(price * (1 - percent / 100), 2)",
+        "",
+        "def test_discount():",
+        "    assert apply_discount(200, 10) == 180",
+        "    assert apply_discount(100, 0) == 100",
+        "    assert apply_discount(50, 50) == 25",
+        "",
+        "def test_discount_returns_something():",
+        "    result = apply_discount(80, 25)",
+        "    assert result",
+        "",
+        "test_discount()",
+        "test_discount_returns_something()",
+        "print(\"all tests passed\")"
+      ],
+      "issues": [
+        {
+          "id": "weak-assert",
+          "text": "assert result only checks that the value is not zero, so almost any wrong answer passes it",
+          "why": "If apply_discount returned 79 or 1000 this test would still pass. Compare with the exact expected value: assert apply_discount(80, 25) == 60.",
+          "lines": [
+            10,
+            11
+          ]
+        },
+        {
+          "id": "no-edge-or-error",
+          "text": "No test covers 100 percent, or invalid input such as a negative price or a percent above 100",
+          "why": "apply_discount(100, 150) returns -50.0 and nobody notices. Good tests cover normal, edge (0, 100, empty) and error cases, and the function may need to raise ValueError for impossible input (tested with pytest.raises).",
+          "lines": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "id": "one-big-test",
+          "text": "test_discount packs three cases into one function with a vague name",
+          "why": "If the first assert fails, the other two never run, and the name does not say which case broke. Use one small test per case or @pytest.mark.parametrize with a table of inputs and expected values.",
+          "lines": [
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "needs-approx",
+          "text": "== 180 should be pytest.approx(180) because the function returns floats",
+          "why": "The function rounds to 2 decimals and these results are exact (180.0 == 180 is True), so approx is not needed. It becomes useful when a value such as 0.1 + 0.2 is compared."
+        },
+        {
+          "id": "needs-import",
+          "text": "The tests must import pytest or they will not run",
+          "why": "pytest finds functions named test_* by itself. The import is needed only when the test uses pytest.raises, pytest.approx or similar helpers."
+        },
+        {
+          "id": "round-hides-error",
+          "text": "round(..., 2) in the function is a bug because it changes the price",
+          "why": "Prices are shown in rupees and paise, so rounding to 2 decimals is intended."
+        }
+      ],
+      "explain": "A passing test suite is only as good as what it asserts. When you review AI-written tests, ask: would this test fail if the code were wrong in the obvious ways (wrong number, boundary, bad input)? Tests that cannot fail give false confidence.",
+      "concepts": [
+        "assert",
+        "test coverage of edge cases",
+        "pytest.mark.parametrize",
+        "reading code critically"
+      ]
+    }
+  ]
+}

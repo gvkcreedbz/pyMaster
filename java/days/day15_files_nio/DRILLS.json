@@ -1,0 +1,289 @@
+{
+  "day": 15,
+  "drills": [
+    {
+      "id": "j15-parsons",
+      "type": "parsons",
+      "title": "Write, append, read back",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Arrange the lines so the program creates a temporary to-do file, writes one task, appends a second task, reads the file back and cleans up. The delete may also come right after the read. Two lines do not belong.",
+      "lines": [
+        "import java.nio.file.*;",
+        "Path file = Files.createTempFile(\"todo\", \".txt\");",
+        "Files.writeString(file, \"Buy milk\\n\");",
+        "Files.writeString(file, \"Call mom\\n\", StandardOpenOption.APPEND);",
+        "String text = Files.readString(file);",
+        "System.out.println(text.strip());",
+        "Files.deleteIfExists(file);"
+      ],
+      "distractors": [
+        "Files.writeString(file, \"Call mom\\n\");",
+        "Files.writeString(file, \"Call mom\\n\", APPEND);"
+      ],
+      "alternatives": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          5
+        ]
+      ],
+      "explain": "writeString without an option creates the file or overwrites it, so the second task needs StandardOpenOption.APPEND to be added at the end. The option is a member of StandardOpenOption, so it cannot be written alone. The file must exist before it is read, and it is deleted when we are done with it.",
+      "concepts": [
+        "writeString",
+        "APPEND",
+        "readString",
+        "temporary files"
+      ],
+      "output": "Buy milk\nCall mom"
+    },
+    {
+      "id": "j15-fill",
+      "type": "fill",
+      "title": "Path and Files methods",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks with the right Path or Files method so the program prints the goal output. It works in a temporary folder and deletes it again.",
+      "code": [
+        "import java.nio.file.*;",
+        "import java.util.List;",
+        "Path folder = Files.createTempDirectory(\"demo\");",
+        "Path file = folder.___(\"notes.txt\");",
+        "Files.___(file, List.of(\"Buy milk\", \"Learn Java\"));",
+        "System.out.println(file.___());",
+        "System.out.println(Files.___(file).size());",
+        "Files.delete(file);",
+        "Files.delete(folder);"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "resolve"
+          ],
+          "options": [
+            "resolve",
+            "join",
+            "add"
+          ]
+        },
+        {
+          "answers": [
+            "write"
+          ],
+          "options": [
+            "write",
+            "writeString",
+            "save"
+          ]
+        },
+        {
+          "answers": [
+            "getFileName"
+          ],
+          "options": [
+            "getFileName",
+            "getName",
+            "name"
+          ]
+        },
+        {
+          "answers": [
+            "readAllLines"
+          ],
+          "options": [
+            "readAllLines",
+            "readString",
+            "lines"
+          ]
+        }
+      ],
+      "explain": "resolve joins a name onto a folder and adds the right separator for the operating system. Files.write takes a list and writes one line per item (writeString takes one String). getFileName gives the last part of the path. readAllLines returns a List<String>, so size() counts the lines, while readString would give one big String.",
+      "concepts": [
+        "Path.resolve",
+        "Files.write",
+        "readAllLines",
+        "getFileName"
+      ],
+      "output": "notes.txt\n2"
+    },
+    {
+      "id": "j15-predict",
+      "type": "predict",
+      "title": "Overwrite or append?",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.nio.file.*;",
+        "Path file = Files.createTempFile(\"log\", \".txt\");",
+        "Files.writeString(file, \"one\\n\");",
+        "Files.writeString(file, \"two\\n\");",
+        "Files.writeString(file, \"three\\n\", StandardOpenOption.APPEND);",
+        "System.out.println(Files.readAllLines(file));",
+        "System.out.println(Files.readString(file).length());",
+        "Files.delete(file);",
+        "System.out.println(Files.exists(file));"
+      ],
+      "explain": "The second writeString has no option, so it erases \"one\" and writes \"two\". The third appends, so the file holds \"two\\nthree\\n\". readAllLines removes the line endings, but length() counts them: 4 + 6 characters. After the delete the path no longer exists.",
+      "concepts": [
+        "overwrite vs append",
+        "readAllLines",
+        "Files.exists"
+      ],
+      "expected": "[two, three]\n10\nfalse"
+    },
+    {
+      "id": "j15-bug",
+      "type": "bug",
+      "title": "Unreported exception",
+      "viz": true,
+      "prompt": "This program does not compile: reading a file can fail, and the compiler says the exception is not reported. Click the line that has to change, then choose the fix.",
+      "code": [
+        "import java.io.IOException;",
+        "import java.nio.file.*;",
+        "import java.util.List;",
+        "",
+        "class Notes {",
+        "    static List<String> load(Path path) {",
+        "        return Files.readAllLines(path);",
+        "    }",
+        "",
+        "    public static void main(String[] args) throws IOException {",
+        "        Path file = Files.createTempFile(\"notes\", \".txt\");",
+        "        Files.writeString(file, \"Buy milk\\nLearn Java\\n\");",
+        "        System.out.println(load(file));",
+        "        Files.delete(file);",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.io.IOException;",
+        "import java.nio.file.*;",
+        "import java.util.List;",
+        "",
+        "class Notes {",
+        "    static List<String> load(Path path) throws IOException {",
+        "        return Files.readAllLines(path);",
+        "    }",
+        "",
+        "    public static void main(String[] args) throws IOException {",
+        "        Path file = Files.createTempFile(\"notes\", \".txt\");",
+        "        Files.writeString(file, \"Buy milk\\nLearn Java\\n\");",
+        "        System.out.println(load(file));",
+        "        Files.delete(file);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        6
+      ],
+      "answer": 2,
+      "options": [
+        "static void load(Path path) throws IOException {",
+        "static List<String> load(Path path) throws Exception {",
+        "static List<String> load(Path path) throws IOException {"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "unreported exception"
+      },
+      "explain": "Files.readAllLines is declared with throws IOException, so every method that calls it must either handle the error (Day 17) or pass the duty on with throws IOException in its own header. main already does, so load can simply do the same. Changing the return type to void would break the return, and throws Exception would move the problem to main, which only admits IOException.",
+      "concepts": [
+        "throws IOException",
+        "compile errors"
+      ],
+      "output": "[Buy milk, Learn Java]"
+    },
+    {
+      "id": "j15-review",
+      "type": "review",
+      "title": "Review the AI's notes helpers",
+      "prompt": "An AI assistant wrote these file helpers. They compile and run, but tick the real problems (there are three).",
+      "code": [
+        "import java.io.IOException;",
+        "import java.nio.file.*;",
+        "import java.util.stream.Stream;",
+        "",
+        "class Notes {",
+        "    static void addNote(Path file, String text) throws IOException {",
+        "        Files.writeString(file, text + \"\\n\");",
+        "    }",
+        "",
+        "    static long countErrors(Path log) throws IOException {",
+        "        Stream<String> lines = Files.lines(log);",
+        "        return lines.filter(l -> l.contains(\"ERROR\")).count();",
+        "    }",
+        "",
+        "    static Path reportPath(String folder, String name) {",
+        "        return Path.of(folder + \"/\" + name + \".txt\");",
+        "    }",
+        "",
+        "    public static void main(String[] args) throws IOException {",
+        "        Path dir = Files.createTempDirectory(\"notes\");",
+        "        Path file = dir.resolve(\"todo.txt\");",
+        "        addNote(file, \"Buy milk\");",
+        "        addNote(file, \"Learn Java\");",
+        "        System.out.println(Files.readAllLines(file) + \" \" + reportPath(\"out\", \"jan\").getFileName());",
+        "        Files.delete(file);",
+        "        Files.delete(dir);",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "overwrites",
+          "text": "addNote erases the file every time, so only the last note survives",
+          "why": "writeString without options creates or overwrites. For a list of notes add StandardOpenOption.CREATE and StandardOpenOption.APPEND. The program above ends up with just [Learn Java].",
+          "lines": [
+            7
+          ]
+        },
+        {
+          "id": "stream-not-closed",
+          "text": "The stream from Files.lines is never closed",
+          "why": "Files.lines keeps the file open until the stream is closed. Put it in try (Stream<String> lines = Files.lines(log)) { ... } so it is closed even when something fails.",
+          "lines": [
+            11,
+            12
+          ]
+        },
+        {
+          "id": "glued-path",
+          "text": "reportPath builds the path by gluing \"/\" between the names",
+          "why": "Path.of(folder, name + \".txt\") or folder.resolve(...) adds the correct separator for every operating system and avoids a double slash when the folder already ends with one.",
+          "lines": [
+            16
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "throws-everywhere",
+          "text": "Every method should catch the IOException instead of declaring it",
+          "why": "Declaring throws IOException is correct at this stage: the caller decides what to do when a file fails. Handling errors properly is the topic of Day 17."
+        },
+        {
+          "id": "newline-added",
+          "text": "Adding \"\\n\" in addNote is wrong because writeString already ends the line",
+          "why": "writeString writes exactly the text it is given and never adds a line ending. Without the \\n the notes would stick together."
+        },
+        {
+          "id": "count-long",
+          "text": "countErrors should return int, because a log is not that large",
+          "why": "count() returns a long, and a method that simply passes it on should return a long too."
+        }
+      ],
+      "explain": "File code that runs once on a small file hides its mistakes. Check every write for overwrite vs append, every Files.lines / Files.list for a try block, and every hand-made path.",
+      "concepts": [
+        "append",
+        "closing streams",
+        "Path.of",
+        "reviewing file code"
+      ]
+    }
+  ]
+}

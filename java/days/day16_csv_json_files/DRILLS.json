@@ -1,0 +1,284 @@
+{
+  "day": 16,
+  "drills": [
+    {
+      "id": "j16-parsons",
+      "type": "parsons",
+      "title": "Revenue per region from CSV rows",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Arrange the lines so the program totals quantity x price per region from CSV text (the first line is the header). The map may be created before the list. Two lines do not belong.",
+      "lines": [
+        "import java.util.*;",
+        "List<String> lines = List.of(\"region,qty,price\", \"North,2,100\", \"South,1,250\", \"North,3,100\");",
+        "Map<String, Integer> totals = new TreeMap<>();",
+        "for (String row : lines.subList(1, lines.size())) {",
+        "String[] cells = row.split(\",\");",
+        "totals.merge(cells[0], Integer.parseInt(cells[1]) * Integer.parseInt(cells[2]), Integer::sum);",
+        "}",
+        "System.out.println(totals);"
+      ],
+      "distractors": [
+        "for (String row : lines) {",
+        "totals.merge(cells[0], cells[1] * cells[2], Integer::sum);"
+      ],
+      "alternatives": [
+        [
+          0,
+          2,
+          1,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      ],
+      "explain": "Row 0 is the header, so the loop starts at subList(1, ...); otherwise parseInt would meet the text \"qty\" and crash. split(\",\") gives text cells, and text cannot be multiplied: convert each one with Integer.parseInt first. merge then adds to the old total of the region or starts a new one.",
+      "concepts": [
+        "skip the header",
+        "split",
+        "parseInt",
+        "group and total"
+      ],
+      "output": "{North=500, South=250}"
+    },
+    {
+      "id": "j16-fill",
+      "type": "fill",
+      "title": "One CSV row to revenue",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the program splits one CSV row, converts the cells and prints the goal output.",
+      "code": [
+        "String line = \"ORD1,2026-01-02,West,2,1000,25\";",
+        "String[] cells = line.___(\",\", -1);",
+        "int qty = Integer.___(cells[3]);",
+        "int price = Integer.parseInt(cells[4]);",
+        "int discount = Integer.parseInt(cells[5]);",
+        "double revenue = qty * price * (1 - discount / ___);",
+        "System.out.println(cells.length + \" \" + revenue);",
+        "System.out.println(String.___(\",\", \"region\", \"revenue\"));"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "split"
+          ],
+          "options": [
+            "split",
+            "divide",
+            "cut"
+          ]
+        },
+        {
+          "answers": [
+            "parseInt"
+          ],
+          "options": [
+            "parseInt",
+            "toInt",
+            "parse"
+          ]
+        },
+        {
+          "answers": [
+            "100.0"
+          ],
+          "options": [
+            "100.0",
+            "100",
+            "10.0"
+          ]
+        },
+        {
+          "answers": [
+            "join"
+          ],
+          "options": [
+            "join",
+            "concat",
+            "merge"
+          ]
+        }
+      ],
+      "explain": "split cuts the row into text cells (the -1 keeps empty cells at the end), and Integer.parseInt turns a cell into a number. Dividing by the int 100 would make 25 / 100 equal 0 and give no discount, so the divisor must be 100.0. String.join glues the items with a separator: how a CSV line is written.",
+      "concepts": [
+        "split",
+        "parseInt",
+        "100.0 division",
+        "String.join"
+      ],
+      "output": "6 1500.0\nregion,revenue"
+    },
+    {
+      "id": "j16-predict",
+      "type": "predict",
+      "title": "Empty cells and text cells",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "String row = \"North,2,,\";",
+        "System.out.println(row.split(\",\").length);",
+        "System.out.println(row.split(\",\", -1).length);",
+        "String[] cells = \"ORD1,West,4,100\".split(\",\");",
+        "System.out.println(cells[2] + cells[3]);",
+        "System.out.println(Integer.parseInt(cells[2]) + Integer.parseInt(cells[3]));"
+      ],
+      "explain": "Without -1, split silently drops the empty cells at the end, so only North and 2 remain (2). With -1 all four cells are kept (4). Every cell is text: \"4\" + \"100\" glues them into 4100, and only after parseInt does + add them up to 104.",
+      "concepts": [
+        "split with -1",
+        "cells are text",
+        "parseInt"
+      ],
+      "expected": "2\n4\n4100\n104"
+    },
+    {
+      "id": "j16-bug",
+      "type": "bug",
+      "title": "The header is not a sale",
+      "viz": true,
+      "prompt": "The program crashes while it runs. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class Sales {",
+        "    public static void main(String[] args) {",
+        "        List<String> lines = List.of(\"region,quantity\", \"North,2\", \"South,1\", \"North,3\");",
+        "        int total = 0;",
+        "        for (String row : lines) {",
+        "            total += Integer.parseInt(row.split(\",\")[1]);",
+        "        }",
+        "        System.out.println(\"Units sold: \" + total);",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.util.*;",
+        "",
+        "class Sales {",
+        "    public static void main(String[] args) {",
+        "        List<String> lines = List.of(\"region,quantity\", \"North,2\", \"South,1\", \"North,3\");",
+        "        int total = 0;",
+        "        for (String row : lines.subList(1, lines.size())) {",
+        "            total += Integer.parseInt(row.split(\",\")[1]);",
+        "        }",
+        "        System.out.println(\"Units sold: \" + total);",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        7
+      ],
+      "answer": 1,
+      "options": [
+        "for (String row : lines.subList(0, lines.size() - 1)) {",
+        "for (String row : lines.subList(1, lines.size())) {",
+        "for (String row : lines.subList(2, lines.size())) {"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "NumberFormatException"
+      },
+      "explain": "The first line of a CSV file holds the column names, so the loop meets the text \"quantity\" and parseInt throws NumberFormatException. subList(1, size) starts after the header. subList(0, size - 1) still contains the header, and subList(2, ...) would skip the first real sale and print a wrong total.",
+      "concepts": [
+        "CSV header",
+        "subList",
+        "NumberFormatException"
+      ],
+      "output": "Units sold: 6"
+    },
+    {
+      "id": "j16-review",
+      "type": "review",
+      "title": "Review the AI's sales report code",
+      "prompt": "An AI assistant wrote this CSV code. It compiles and runs on the sample rows, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.*;",
+        "",
+        "class SalesReport {",
+        "    record Sale(String region, int quantity, int unitPrice, int discountPct) {",
+        "        double revenue() {",
+        "            return quantity * unitPrice * (1 - discountPct / 100);",
+        "        }",
+        "    }",
+        "",
+        "    static Sale parse(String row) {",
+        "        String[] c = row.split(\",\");",
+        "        return new Sale(c[0], Integer.parseInt(c[1]), Integer.parseInt(c[2]), Integer.parseInt(c[3]));",
+        "    }",
+        "",
+        "    static double total(List<String> lines) {",
+        "        double sum = 0;",
+        "        for (String row : lines.subList(1, lines.size())) {",
+        "            sum += parse(row).revenue();",
+        "        }",
+        "        return sum;",
+        "    }",
+        "",
+        "    static String toCsvLine(String name, double revenue) {",
+        "        return name + \",\" + revenue;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<String> lines = List.of(\"region,quantity,unit_price,discount_pct\",",
+        "                \"North,2,1000,25\", \"South,1,500,0\");",
+        "        double total = total(lines);",
+        "        System.out.println(total + \" \" + toCsvLine(\"Chai, masala\", total));",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "int-division",
+          "text": "discountPct / 100 is a whole-number division, so no discount is ever applied",
+          "why": "25 / 100 is 0 in int arithmetic, so the North order is charged in full (the total is 2500.0, not 2000.0). Divide by 100.0.",
+          "lines": [
+            6
+          ]
+        },
+        {
+          "id": "split-no-minus-one",
+          "text": "split(\",\") drops empty cells at the end of a row",
+          "why": "A row like North,2,1000, loses its last cell and c[3] throws ArrayIndexOutOfBoundsException instead of being handled. split(\",\", -1) keeps every cell, so the problem can be reported properly.",
+          "lines": [
+            11
+          ]
+        },
+        {
+          "id": "unquoted-csv",
+          "text": "toCsvLine writes the name without quotes",
+          "why": "A name that contains a comma, such as Chai, masala, adds an extra cell and breaks the file. Wrap such a value in double quotes (and double any inner quotes).",
+          "lines": [
+            24
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "skip-first",
+          "text": "subList(1, lines.size()) skips the first sale",
+          "why": "Index 0 is the header line with the column names. Starting at 1 is exactly how a CSV loop avoids it."
+        },
+        {
+          "id": "record-method",
+          "text": "A record is not allowed to have a method such as revenue()",
+          "why": "Records may have methods. Only the fields are fixed."
+        },
+        {
+          "id": "parse-int-cells",
+          "text": "The cells must be converted with Double.parseDouble, not Integer.parseInt",
+          "why": "Quantity, unit price and discount are whole numbers in this file, so Integer.parseInt is the right conversion."
+        }
+      ],
+      "explain": "Generated CSV code usually works on the happy path. Check the numeric division, empty cells and special characters in values before you trust it with a real export.",
+      "concepts": [
+        "int division",
+        "split -1",
+        "CSV quoting",
+        "reviewing data code"
+      ]
+    }
+  ]
+}

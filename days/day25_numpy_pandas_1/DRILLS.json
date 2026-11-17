@@ -1,0 +1,208 @@
+{
+  "day": 25,
+  "drills": [
+    {
+      "id": "d25-parsons",
+      "type": "parsons",
+      "title": "Revenue column, then the top sellers",
+      "viz": true,
+      "prompt": "Arrange the lines so the program adds a revenue column to the small orders table, sorts it with the biggest revenue first and prints the top two rows. Two lines do not belong.",
+      "lines": [
+        "import pandas as pd",
+        "df = pd.DataFrame({\"product\": [\"Phone\", \"Cable\", \"Watch\"], \"qty\": [2, 10, 3], \"price\": [500, 20, 150]})",
+        "df[\"revenue\"] = df[\"qty\"] * df[\"price\"]",
+        "top = df.sort_values(\"revenue\", ascending=False)",
+        "print(top.head(2).to_string(index=False))"
+      ],
+      "distractors": [
+        "df.sort_values(\"revenue\", ascending=False)",
+        "top = df.sort_values(revenue, ascending=False)"
+      ],
+      "explain": "Column maths works on the whole column at once, so no loop is needed: qty * price gives one revenue per row. sort_values does not change df. It returns a new, sorted table, so the result has to be assigned (top = ...) before you can use it. Without the assignment the sorted copy is thrown away and top does not exist. The column name must be a string (\"revenue\"); a bare revenue is a NameError.",
+      "concepts": [
+        "new column from column maths",
+        "sort_values",
+        "methods return a new object"
+      ],
+      "output": "product  qty  price  revenue\n  Phone    2    500     1000\n  Watch    3    150      450"
+    },
+    {
+      "id": "d25-fill",
+      "type": "fill",
+      "title": "Totals per column, one column out",
+      "viz": true,
+      "prompt": "The grid holds units sold: one row per store, one column per product. Fill the blanks so the program prints the grid's shape, the total of each product (one number per column) and the second column.",
+      "code": [
+        "import numpy as np",
+        "",
+        "units = np.array([[1, 2, 3], [4, 5, 6]])",
+        "print(units.shape)",
+        "print(units.sum(axis=___))",
+        "print(units[___, 1])"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "0"
+          ],
+          "options": [
+            "0",
+            "1",
+            "2"
+          ]
+        },
+        {
+          "answers": [
+            ":"
+          ],
+          "options": [
+            ":",
+            "0",
+            "1"
+          ]
+        }
+      ],
+      "explain": "shape is (rows, columns). axis=0 collapses the rows, so you get one total per column: [5 7 9]. axis=1 would collapse the columns and give one total per row. In units[row, column] a colon means all of them, so units[:, 1] is every row of column 1. units[0, 1] would be one single number, not a column.",
+      "concepts": [
+        "array shape",
+        "axis",
+        "slicing a column"
+      ],
+      "output": "(2, 3)\n[5 7 9]\n[2 5]"
+    },
+    {
+      "id": "d25-predict",
+      "type": "predict",
+      "title": "Labels versus positions",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import pandas as pd",
+        "",
+        "df = pd.DataFrame({\"product\": [\"Phone\", \"Cable\", \"Watch\", \"Case\"], \"quantity\": [2, 10, 3, 7]})",
+        "big = df[df[\"quantity\"] >= 3]",
+        "print(big.index.tolist())",
+        "print(big.iloc[0][\"product\"])",
+        "print(big.loc[2, \"product\"])",
+        "print(big.iloc[2][\"product\"])"
+      ],
+      "explain": "Filtering keeps the original row labels, so big has labels 1, 2, 3 (Phone, label 0, was removed). iloc counts positions from 0 in the table you have now: position 0 is Cable and position 2 is Case. loc uses the labels: label 2 is Watch. Mixing the two up is the classic bug after a filter. Print big.index when unsure.",
+      "concepts": [
+        "loc vs iloc",
+        "boolean mask",
+        "row labels"
+      ],
+      "expected": "[1, 2, 3]\nCable\nWatch\nCase"
+    },
+    {
+      "id": "d25-bug",
+      "type": "bug",
+      "title": "Two conditions, one filter",
+      "viz": true,
+      "prompt": "The program should count the West orders with quantity 5 or more, but it stops with an error. Click the faulty line and choose the fix.",
+      "code": [
+        "import pandas as pd",
+        "",
+        "df = pd.DataFrame({\"region\": [\"West\", \"East\", \"West\"], \"quantity\": [5, 8, 3]})",
+        "big_west = df[df[\"region\"] == \"West\" and df[\"quantity\"] >= 5]",
+        "print(len(big_west))"
+      ],
+      "bug_lines": [
+        4
+      ],
+      "answer": 0,
+      "options": [
+        "big_west = df[(df[\"region\"] == \"West\") & (df[\"quantity\"] >= 5)]",
+        "big_west = df[(df[\"region\"] == \"West\") and (df[\"quantity\"] >= 5)]",
+        "big_west = df[df[\"region\"] == \"West\" & df[\"quantity\"] >= 5]",
+        "big_west = df[(df[\"region\"] == \"West\") | (df[\"quantity\"] >= 5)]"
+      ],
+      "fixed_code": [
+        "import pandas as pd",
+        "",
+        "df = pd.DataFrame({\"region\": [\"West\", \"East\", \"West\"], \"quantity\": [5, 8, 3]})",
+        "big_west = df[(df[\"region\"] == \"West\") & (df[\"quantity\"] >= 5)]",
+        "print(len(big_west))"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "ambiguous"
+      },
+      "explain": "Python's and / or work on single True/False values, but a comparison on a column gives a whole column of booleans, and Python refuses to guess what 'and' means for it (\"truth value of a Series is ambiguous\"). Combine masks with & (and), | (or) and ~ (not), and put each condition in its own brackets, because & binds tighter than == and >=. Using | would also run, but it keeps every order that matches either condition.",
+      "concepts": [
+        "boolean masks",
+        "& | ~ with brackets",
+        "reading a traceback"
+      ],
+      "output": "1"
+    },
+    {
+      "id": "d25-review",
+      "type": "review",
+      "title": "Review the AI's top-orders report",
+      "prompt": "An AI assistant wrote this report on the two biggest orders. It runs and prints a plausible answer. Tick the statements that point at real problems.",
+      "code": [
+        "import pandas as pd",
+        "",
+        "orders = pd.DataFrame({",
+        "    \"region\": [\"West\", \"East\", \"West\", \"East\"],",
+        "    \"quantity\": [1, 2, 3, 8],",
+        "    \"unit_price\": [100, 300, 40, 60],",
+        "})",
+        "revenue = []",
+        "for _, row in orders.iterrows():",
+        "    revenue.append(row[\"quantity\"] * row[\"unit_price\"])",
+        "orders[\"revenue\"] = revenue",
+        "",
+        "orders.sort_values(\"revenue\", ascending=False)",
+        "print(\"Top 2 regions:\", orders.head(2)[\"region\"].tolist())",
+        "print(\"West orders:\", len(orders[orders.region == \"West\"]))"
+      ],
+      "issues": [
+        {
+          "id": "iterrows-maths",
+          "text": "A row-by-row loop builds the revenue column, which column maths does in one line",
+          "why": "orders[\"quantity\"] * orders[\"unit_price\"] works on the whole column at once. The loop is longer and, on a table with millions of rows, far slower. Loops over rows are the pattern to avoid in pandas.",
+          "lines": [
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "id": "sort-discarded",
+          "text": "sort_values returns a new table, which is thrown away, so head(2) does not give the two biggest orders",
+          "why": "The orders table is still in its original order. head(2) returns the first two rows, so the report prints West and East, while the two biggest orders are both East (600 and 480). Assign the result (orders = orders.sort_values(...)) or chain .sort_values(...).head(2). Methods in pandas do not sort or change the table in place.",
+          "lines": [
+            13,
+            14
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "attribute-access",
+          "text": "orders.region should be orders[\"region\"]",
+          "why": "Attribute access works for a column whose name is a valid identifier and does not clash with an existing DataFrame attribute. region is fine. Square brackets are the safer habit, but this line is not wrong."
+        },
+        {
+          "id": "list-as-column",
+          "text": "Assigning a plain list to a column is not allowed",
+          "why": "A list with exactly one value per row can be assigned as a new column. Here the list has four values for four rows, so it works."
+        },
+        {
+          "id": "underscore-name",
+          "text": "The loop variable _ is a bug because it is never used",
+          "why": "iterrows gives (label, row) pairs. Naming the unused label _ is the usual convention and is correct."
+        }
+      ],
+      "explain": "When you review pandas code, look for loops over rows and for results that are computed but never stored. Both run without errors and look reasonable, which is why they survive in code written by an assistant.",
+      "concepts": [
+        "no loops over rows",
+        "methods return new objects",
+        "sort_values"
+      ]
+    }
+  ]
+}

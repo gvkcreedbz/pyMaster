@@ -1,0 +1,269 @@
+{
+  "day": 22,
+  "drills": [
+    {
+      "id": "d22-parsons",
+      "type": "parsons",
+      "title": "Wrap a function with a log line",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them) so the decorator prints a log line before every call of the decorated function and still returns the function's result. Two lines do not belong.",
+      "lines": [
+        "import functools",
+        "def log_call(func):",
+        "@functools.wraps(func)",
+        "def wrapper(*args, **kwargs):",
+        "print(\"calling\", func.__name__)",
+        "return func(*args, **kwargs)",
+        "return wrapper",
+        "@log_call",
+        "def brew(cups):",
+        "return cups * 2",
+        "print(brew(3))"
+      ],
+      "indent": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "distractors": [
+        "return wrapper()",
+        "@log_call()"
+      ],
+      "explain": "A decorator is a function that takes a function (func), defines an inner wrapper that adds behaviour around the call, and returns the wrapper itself. The line @log_call above def brew means brew = log_call(brew), so the decorator must be defined first. return wrapper hands back the function; return wrapper() would call it right away. @log_call() would call log_call with no function, which is the pattern for decorators with arguments, not this one.",
+      "concepts": [
+        "decorators",
+        "functools.wraps",
+        "*args, **kwargs"
+      ],
+      "output": "calling brew\n6"
+    },
+    {
+      "id": "d22-fill",
+      "type": "fill",
+      "title": "Pause and resume a generator",
+      "viz": true,
+      "prompt": "Fill the three blanks so countdown becomes a generator that hands out one number per request, then ask it for two numbers by hand.",
+      "code": [
+        "def countdown(n):",
+        "    while n > 0:",
+        "        ___ n",
+        "        n -= 1",
+        "",
+        "gen = countdown(3)",
+        "print(___(gen))",
+        "print(___(gen))",
+        "print(list(gen))"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "yield"
+          ],
+          "options": [
+            "yield",
+            "return",
+            "print"
+          ]
+        },
+        {
+          "answers": [
+            "next"
+          ],
+          "options": [
+            "next",
+            "iter",
+            "len"
+          ]
+        },
+        {
+          "answers": [
+            "next"
+          ],
+          "options": [
+            "next",
+            "iter",
+            "len"
+          ]
+        }
+      ],
+      "explain": "yield hands out a value and pauses the function right there; the next request resumes after the yield with n still remembered. next(gen) is that request, so the first two calls give 3 and 2. A generator can be used only once and keeps its place, so list(gen) collects what is left: [1]. return would end the function at the first number and make a normal function, not a generator.",
+      "concepts": [
+        "yield",
+        "next()",
+        "generators are lazy"
+      ],
+      "output": "3\n2\n[1]"
+    },
+    {
+      "id": "d22-predict",
+      "type": "predict",
+      "title": "What did the decorator do to the name?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import functools",
+        "",
+        "def plain(func):",
+        "    def wrapper(*args, **kwargs):",
+        "        return func(*args, **kwargs)",
+        "    return wrapper",
+        "",
+        "def careful(func):",
+        "    @functools.wraps(func)",
+        "    def wrapper(*args, **kwargs):",
+        "        return func(*args, **kwargs)",
+        "    return wrapper",
+        "",
+        "@plain",
+        "def brew():",
+        "    return \"chai\"",
+        "",
+        "@careful",
+        "def serve():",
+        "    return \"served\"",
+        "",
+        "print(brew(), serve())",
+        "print(brew.__name__, serve.__name__)"
+      ],
+      "explain": "Both decorators return the result of the original function, so the calls print chai and served. The name is different: @plain replaces brew by the inner function called wrapper, so brew.__name__ is wrapper. functools.wraps copies the name (and docstring) of the original onto the wrapper, so serve keeps its name. Lost names make logs and error messages hard to read.",
+      "concepts": [
+        "decorators",
+        "functools.wraps",
+        "__name__"
+      ],
+      "expected": "chai served\nwrapper serve"
+    },
+    {
+      "id": "d22-bug",
+      "type": "bug",
+      "title": "A generator that is not one",
+      "viz": true,
+      "prompt": "The program stops with a TypeError instead of printing the countdown list. Click the line that causes it, then choose the right fix.",
+      "code": [
+        "def countdown(n):",
+        "    while n > 0:",
+        "        return n",
+        "        n -= 1",
+        "",
+        "print(list(countdown(3)))"
+      ],
+      "bug_lines": [
+        3
+      ],
+      "answer": 0,
+      "options": [
+        "        yield n",
+        "        yield from n",
+        "        return [n]",
+        "        print(n)"
+      ],
+      "fixed_code": [
+        "def countdown(n):",
+        "    while n > 0:",
+        "        yield n",
+        "        n -= 1",
+        "",
+        "print(list(countdown(3)))"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "TypeError"
+      },
+      "explain": "return ends the function at the first number and gives back a plain int, so list() cannot loop over it (TypeError: 'int' object is not iterable). yield makes countdown a generator: it hands out 3, pauses, and resumes after the yield to hand out 2 and 1. A generator yields values one at a time; it does not return a list. yield from needs something iterable, not a single number.",
+      "concepts": [
+        "yield vs return",
+        "generators",
+        "TypeError"
+      ],
+      "output": "[3, 2, 1]"
+    },
+    {
+      "id": "d22-review",
+      "type": "review",
+      "title": "Review the AI's retry decorator",
+      "prompt": "An AI assistant wrote this retry decorator. It runs, but tick the statements that point at real problems.",
+      "code": [
+        "import functools",
+        "",
+        "def retry(times):",
+        "    def decorator(func):",
+        "        def wrapper(*args, **kwargs):",
+        "            for attempt in range(times):",
+        "                try:",
+        "                    return func(*args, **kwargs)",
+        "                except Exception:",
+        "                    pass",
+        "        return wrapper",
+        "    return decorator",
+        "",
+        "state = {\"calls\": 0}",
+        "",
+        "@retry(3)",
+        "def flaky_download():",
+        "    state[\"calls\"] += 1",
+        "    if state[\"calls\"] < 3:",
+        "        raise ConnectionError(\"network blip\")",
+        "    return \"downloaded\"",
+        "",
+        "@retry(2)",
+        "def always_down():",
+        "    raise ConnectionError(\"server is down\")",
+        "",
+        "print(flaky_download(), flaky_download.__name__)",
+        "print(always_down())"
+      ],
+      "issues": [
+        {
+          "id": "no-wraps",
+          "text": "wrapper is not decorated with functools.wraps, so the function loses its name (the import is unused)",
+          "why": "The program prints wrapper instead of flaky_download. Debugging, logs and frameworks that read __name__ or the docstring all see the wrong function. Add @functools.wraps(func) above def wrapper.",
+          "lines": [
+            1,
+            5
+          ]
+        },
+        {
+          "id": "silent-failure",
+          "text": "When every attempt fails the decorator returns None without any error",
+          "why": "always_down() prints None, so the caller cannot tell a failed download from a function that returns nothing. After the last attempt the original exception should be raised again (and attempts could be logged).",
+          "lines": [
+            6,
+            9,
+            10
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "three-levels",
+          "text": "Three nested functions are too many; retry(times) should take func directly",
+          "why": "A decorator that takes its own argument needs one extra level: retry(times) returns decorator, which takes func and returns wrapper. That is why @retry(3) is written with brackets."
+        },
+        {
+          "id": "args-kwargs",
+          "text": "*args and **kwargs in wrapper are unnecessary",
+          "why": "They let the wrapper accept and pass on whatever arguments the decorated function takes, so one decorator works for any function."
+        },
+        {
+          "id": "unused-attempt",
+          "text": "range(times) runs one attempt too few or too many",
+          "why": "range(3) gives 3 values, so the function is tried at most 3 times, as @retry(3) promises. The unused loop variable attempt is harmless (it is often written _)."
+        }
+      ],
+      "explain": "When you review a decorator, check what happens to the result, the name and the errors. This one keeps the result but loses the name and hides the final failure. The nesting and *args, **kwargs are the normal shape of a decorator with an argument.",
+      "concepts": [
+        "decorators with arguments",
+        "functools.wraps",
+        "swallowed exceptions"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "day": 30,
+  "drills": [
+    {
+      "id": "d30-parsons",
+      "type": "parsons",
+      "title": "Your first endpoint",
+      "viz": true,
+      "prompt": "Arrange (and indent) the lines so the program defines a /health endpoint that answers a GET request with a small JSON object, and then calls it through the test client. The two import lines may come in either order. Two lines do not belong.",
+      "lines": [
+        "from fastapi import FastAPI",
+        "from fastapi.testclient import TestClient",
+        "app = FastAPI()",
+        "@app.get(\"/health\")",
+        "def health():",
+        "return {\"status\": \"ok\"}",
+        "print(TestClient(app).get(\"/health\").json())"
+      ],
+      "indent": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      ],
+      "distractors": [
+        "@app.post(\"/health\")",
+        "print(TestClient(app).get(\"/health\").json)"
+      ],
+      "explain": "The decorator @app.get(\"/health\") goes directly above the function it registers: 'when someone GETs /health, run this'. The function returns a dict, which FastAPI turns into JSON. The app must exist before the decorator can use it. @app.post would register a POST route, so the GET in the test would get 405 Method Not Allowed. Calling .json without brackets prints the method object instead of the data.",
+      "concepts": [
+        "@app.get",
+        "return a dict, get JSON",
+        "TestClient"
+      ],
+      "output": "{'status': 'ok'}"
+    },
+    {
+      "id": "d30-fill",
+      "type": "fill",
+      "title": "Get one product or a 404",
+      "viz": true,
+      "prompt": "Fill the two blanks so the endpoint takes the product id from the path as a number and answers a missing product with a 404 error and a message.",
+      "code": [
+        "from fastapi import FastAPI, HTTPException",
+        "from fastapi.testclient import TestClient",
+        "",
+        "app = FastAPI()",
+        "PRODUCTS = [{\"id\": 1, \"name\": \"Tea\"}, {\"id\": 2, \"name\": \"Coffee\"}]",
+        "",
+        "@app.get(\"/products/{product_id}\")",
+        "def get_product(product_id: ___):",
+        "    for p in PRODUCTS:",
+        "        if p[\"id\"] == product_id:",
+        "            return p",
+        "    raise ___(status_code=404, detail=\"Product not found\")",
+        "",
+        "client = TestClient(app)",
+        "print(client.get(\"/products/2\").json())",
+        "r = client.get(\"/products/9\")",
+        "print(r.status_code, r.json())"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "int"
+          ],
+          "options": [
+            "int",
+            "str"
+          ]
+        },
+        {
+          "answers": [
+            "HTTPException"
+          ],
+          "options": [
+            "HTTPException",
+            "ValueError",
+            "Exception"
+          ]
+        }
+      ],
+      "explain": "The type hint does the work. With product_id: int FastAPI converts the \"2\" in the URL into the number 2 (and answers 422 for /products/abc). With str the comparison p[\"id\"] == \"2\" would never be true, so every product would be 404. To send an error status you raise HTTPException(status_code=404, detail=...). Any other exception becomes a 500 server error with no useful message for the client.",
+      "concepts": [
+        "path parameters",
+        "type hints validate",
+        "HTTPException"
+      ],
+      "output": "{'id': 2, 'name': 'Coffee'}\n404 {'detail': 'Product not found'}"
+    },
+    {
+      "id": "d30-predict",
+      "type": "predict",
+      "title": "A query parameter that is not a number",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "from fastapi import FastAPI",
+        "from fastapi.testclient import TestClient",
+        "",
+        "app = FastAPI()",
+        "",
+        "@app.get(\"/products\")",
+        "def products(min_price: float = 0):",
+        "    return {\"min_price\": min_price}",
+        "",
+        "client = TestClient(app)",
+        "print(client.get(\"/products\").json())",
+        "print(client.get(\"/products?min_price=50\").json())",
+        "r = client.get(\"/products\", params={\"min_price\": \"abc\"})",
+        "print(r.status_code)",
+        "print(r.json()[\"detail\"][0][\"loc\"])"
+      ],
+      "explain": "A parameter that is not in the path is a query parameter. Without it in the URL the default is used as it is written, the int 0 (no conversion). When it is given, FastAPI converts the text \"50\" to the float 50.0. The text \"abc\" cannot be a float, so FastAPI answers 422 (Unprocessable Entity) before your function even runs, and the error body says where the problem is: in the query, in min_price.",
+      "concepts": [
+        "query parameters",
+        "defaults",
+        "422 validation error"
+      ],
+      "expected": "{'min_price': 0}\n{'min_price': 50.0}\n422\n['query', 'min_price']"
+    },
+    {
+      "id": "d30-bug",
+      "type": "bug",
+      "title": "The endpoint that answers null",
+      "viz": true,
+      "prompt": "The product is created and the status is 201, but the client receives None instead of the new product. Click the faulty line and choose the fix.",
+      "code": [
+        "from fastapi import FastAPI",
+        "from fastapi.testclient import TestClient",
+        "from pydantic import BaseModel, Field",
+        "",
+        "app = FastAPI()",
+        "PRODUCTS = [{\"id\": 1, \"name\": \"Tea\", \"price\": 30.0}, {\"id\": 2, \"name\": \"Coffee\", \"price\": 45.0}]",
+        "",
+        "class ProductIn(BaseModel):",
+        "    name: str = Field(min_length=1)",
+        "    price: float = Field(gt=0)",
+        "",
+        "@app.post(\"/products\", status_code=201)",
+        "def create_product(item: ProductIn):",
+        "    new = {\"id\": len(PRODUCTS) + 1, \"name\": item.name, \"price\": item.price}",
+        "    PRODUCTS.append(new)",
+        "    new",
+        "",
+        "r = TestClient(app).post(\"/products\", json={\"name\": \"Pen\", \"price\": 10})",
+        "print(r.status_code, r.json())"
+      ],
+      "bug_lines": [
+        16
+      ],
+      "answer": 0,
+      "options": [
+        "    return new",
+        "    print(new)",
+        "    return PRODUCTS",
+        "    return item"
+      ],
+      "fixed_code": [
+        "from fastapi import FastAPI",
+        "from fastapi.testclient import TestClient",
+        "from pydantic import BaseModel, Field",
+        "",
+        "app = FastAPI()",
+        "PRODUCTS = [{\"id\": 1, \"name\": \"Tea\", \"price\": 30.0}, {\"id\": 2, \"name\": \"Coffee\", \"price\": 45.0}]",
+        "",
+        "class ProductIn(BaseModel):",
+        "    name: str = Field(min_length=1)",
+        "    price: float = Field(gt=0)",
+        "",
+        "@app.post(\"/products\", status_code=201)",
+        "def create_product(item: ProductIn):",
+        "    new = {\"id\": len(PRODUCTS) + 1, \"name\": item.name, \"price\": item.price}",
+        "    PRODUCTS.append(new)",
+        "    return new",
+        "",
+        "r = TestClient(app).post(\"/products\", json={\"name\": \"Pen\", \"price\": 10})",
+        "print(r.status_code, r.json())"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "201 None"
+      },
+      "explain": "A function without return gives back None, and FastAPI turns None into the JSON null. The line new on its own evaluates the dictionary and throws it away, so no error appears. print(new) shows it on the server console, not in the response. Returning PRODUCTS would send the whole list, and returning item would send the request body back without the new id. Whatever the client should receive must be returned.",
+      "concepts": [
+        "return the response",
+        "POST with a Pydantic model",
+        "status 201"
+      ],
+      "output": "201 {'id': 3, 'name': 'Pen', 'price': 10.0}"
+    },
+    {
+      "id": "d30-review",
+      "type": "review",
+      "title": "Review the AI's product API",
+      "prompt": "An AI assistant wrote this small API. It runs and answers every request. Tick the statements that point at real problems.",
+      "code": [
+        "from fastapi import FastAPI",
+        "from fastapi.testclient import TestClient",
+        "",
+        "app = FastAPI()",
+        "PRODUCTS = [{\"id\": 1, \"name\": \"Tea\", \"price\": 30.0}]",
+        "",
+        "@app.get(\"/products/{product_id}\")",
+        "async def get_product(product_id: int):",
+        "    for p in PRODUCTS:",
+        "        if p[\"id\"] == product_id:",
+        "            return p",
+        "    return {\"error\": \"not found\"}",
+        "",
+        "@app.post(\"/products\")",
+        "async def create_product(item: dict):",
+        "    new = {\"id\": len(PRODUCTS) + 1, **item}",
+        "    PRODUCTS.append(new)",
+        "    return new",
+        "",
+        "client = TestClient(app)",
+        "print(client.get(\"/products/9\").status_code)",
+        "print(client.post(\"/products\", json={\"name\": \"Pen\", \"price\": -5}).json())"
+      ],
+      "issues": [
+        {
+          "id": "not-found-200",
+          "text": "A missing product answers 200 OK with an error message in the body",
+          "why": "Clients (and monitoring) look at the status code first. A missing item should raise HTTPException(status_code=404, detail=\"Product not found\"), so the status says what happened.",
+          "lines": [
+            12
+          ]
+        },
+        {
+          "id": "dict-body",
+          "text": "The POST body is a plain dict, so nothing is validated: the price -5 is accepted and a client can even send its own id",
+          "why": "A Pydantic model (name: str = Field(min_length=1), price: float = Field(gt=0)) makes FastAPI reject bad bodies with 422. Because **item comes after the id, the client's id also overwrites the generated one.",
+          "lines": [
+            15,
+            16
+          ]
+        },
+        {
+          "id": "created-status",
+          "text": "Creating a product answers 200 instead of 201",
+          "why": "201 Created tells the client that a new resource exists. Declare it in the decorator: @app.post(\"/products\", status_code=201).",
+          "lines": [
+            14
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "async-no-await",
+          "text": "async def is wrong because the functions never await anything",
+          "why": "It works. FastAPI runs async def and plain def endpoints correctly. A plain def is the simpler choice while you do not need await, but it is not a bug."
+        },
+        {
+          "id": "append-global",
+          "text": "PRODUCTS.append needs a global statement",
+          "why": "global is only needed to rebind the name (PRODUCTS = [...]). append changes the existing list in place, so no global is needed."
+        },
+        {
+          "id": "early-return-loop",
+          "text": "Returning inside the for loop skips the other products",
+          "why": "That is the point: once the matching product is found, nothing else has to be checked."
+        },
+        {
+          "id": "int-hint",
+          "text": "product_id: int will crash on /products/abc",
+          "why": "The type hint is the validation. FastAPI answers 422 for text that is not a number, and your function is not called."
+        }
+      ],
+      "explain": "For every endpoint ask what the client sees in the failure cases: the status code, the body, and what bad input is accepted. FastAPI gives you validation and error codes almost for free, but only if you use type hints, models and HTTPException.",
+      "concepts": [
+        "404 with HTTPException",
+        "Pydantic body validation",
+        "201 Created"
+      ]
+    }
+  ]
+}

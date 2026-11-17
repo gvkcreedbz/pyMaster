@@ -1,0 +1,298 @@
+{
+  "day": 20,
+  "drills": [
+    {
+      "id": "j20-parsons",
+      "type": "parsons",
+      "title": "Program against an interface",
+      "viz": true,
+      "prompt": "Arrange the lines into an alert program: an interface Notifier, a class Email that implements it, and a main that calls it through the interface type. The first class must hold main. Interface and Email can go in either order. Two lines do not belong.",
+      "lines": [
+        "class Alerts {",
+        "public static void main(String[] args) {",
+        "Notifier n = new Email();",
+        "System.out.println(n.send(\"Sale starts\"));",
+        "}",
+        "}",
+        "interface Notifier {",
+        "String send(String message);",
+        "}",
+        "class Email implements Notifier {",
+        "public String send(String message) {",
+        "return \"Email: \" + message;",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "String send(String message) {",
+        "class Email extends Notifier {"
+      ],
+      "alternatives": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          9,
+          10,
+          11,
+          12,
+          13,
+          6,
+          7,
+          8
+        ]
+      ],
+      "explain": "A class implements an interface with implements (extends is for a parent class). Interface methods are automatically public, so the implementing method must say public too: a plain String send(...) would be rejected for \"weaker access privileges\". The variable has the interface type, so main does not care which notifier it really is.",
+      "concepts": [
+        "interfaces",
+        "implements",
+        "public methods"
+      ],
+      "output": "Email: Sale starts"
+    },
+    {
+      "id": "j20-fill",
+      "type": "fill",
+      "title": "Switch over a sealed type",
+      "viz": true,
+      "prompt": "Fill the blanks so the receipt method handles both payment types without a default branch, and the program prints the goal output.",
+      "code": [
+        "class Checkout {",
+        "    static String receipt(Payment p) {",
+        "        return ___ (p) {",
+        "            case Cash c -> \"Cash \" + c.amount();",
+        "            case Upi u -> \"UPI \" + u.___();",
+        "        };",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        System.out.println(receipt(new Cash(200)));",
+        "        System.out.println(receipt(new Upi(350, \"asha@bank\")));",
+        "    }",
+        "}",
+        "sealed interface Payment ___ Cash, Upi {}",
+        "record Cash(int amount) implements Payment {}",
+        "record Upi(int amount, String handle) implements Payment {}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "switch"
+          ],
+          "options": [
+            "switch",
+            "match",
+            "select"
+          ]
+        },
+        {
+          "answers": [
+            "handle"
+          ],
+          "options": [
+            "handle",
+            "getHandle",
+            "handle()"
+          ]
+        },
+        {
+          "answers": [
+            "permits"
+          ],
+          "options": [
+            "permits",
+            "extends",
+            "allows"
+          ]
+        }
+      ],
+      "explain": "A sealed interface lists the only types allowed to implement it (permits), so the compiler knows the switch covers every case and no default is needed. A record gets accessor methods named after its components, so it is u.handle(), not getHandle(). If you add a third payment type, this switch stops compiling until you handle it.",
+      "concepts": [
+        "sealed",
+        "switch pattern matching",
+        "record accessors"
+      ],
+      "output": "Cash 200\nUPI asha@bank"
+    },
+    {
+      "id": "j20-predict",
+      "type": "predict",
+      "title": "Which pay() runs?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "class Payroll {",
+        "    public static void main(String[] args) {",
+        "        Employee asha = new Employee(\"Asha\", 50000);",
+        "        Employee ravi = new Manager(\"Ravi\", 80000, 20000);",
+        "        System.out.println(asha.describe());",
+        "        System.out.println(ravi.describe());",
+        "        System.out.println(ravi instanceof Manager);",
+        "        System.out.println(asha instanceof Manager);",
+        "    }",
+        "}",
+        "class Employee {",
+        "    private final String name;",
+        "    private final int salary;",
+        "    Employee(String name, int salary) { this.name = name; this.salary = salary; }",
+        "    int pay() { return salary; }",
+        "    String describe() { return name + \": \" + pay(); }",
+        "}",
+        "class Manager extends Employee {",
+        "    private final int bonus;",
+        "    Manager(String name, int salary, int bonus) { super(name, salary); this.bonus = bonus; }",
+        "    @Override int pay() { return super.pay() + bonus; }",
+        "}"
+      ],
+      "explain": "ravi is declared as an Employee but the object is a Manager, and Java runs the pay() of the real object. describe() is only written in Employee, yet the call to pay() inside it still reaches Manager.pay(), so Ravi shows 100000. instanceof also looks at the real object: true for ravi, false for asha.",
+      "concepts": [
+        "polymorphism",
+        "override",
+        "instanceof"
+      ],
+      "expected": "Asha: 50000\nRavi: 100000\ntrue\nfalse"
+    },
+    {
+      "id": "j20-bug",
+      "type": "bug",
+      "title": "Weaker access",
+      "viz": true,
+      "prompt": "This program does not compile. Click the line the compiler complains about, then choose the fix.",
+      "code": [
+        "class Alerts {",
+        "    public static void main(String[] args) {",
+        "        Notifier n = new Sms();",
+        "        System.out.println(n.send(\"Order shipped\"));",
+        "    }",
+        "}",
+        "interface Notifier {",
+        "    String send(String message);",
+        "}",
+        "class Sms implements Notifier {",
+        "    String send(String message) {",
+        "        return \"SMS: \" + message;",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "class Alerts {",
+        "    public static void main(String[] args) {",
+        "        Notifier n = new Sms();",
+        "        System.out.println(n.send(\"Order shipped\"));",
+        "    }",
+        "}",
+        "interface Notifier {",
+        "    String send(String message);",
+        "}",
+        "class Sms implements Notifier {",
+        "    public String send(String message) {",
+        "        return \"SMS: \" + message;",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        11
+      ],
+      "answer": 0,
+      "options": [
+        "public String send(String message) {",
+        "protected String send(String message) {",
+        "public static String send(String message) {",
+        "private String send(String message) {"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "weaker access"
+      },
+      "explain": "Every method in an interface is public, and an implementing method may not be less visible than the one it implements. Without a modifier the method is package-private, which is weaker, so the compiler refuses. protected and private are weaker too, and static would make it a different kind of method.",
+      "concepts": [
+        "interfaces",
+        "access modifiers",
+        "compile errors"
+      ],
+      "output": "SMS: Order shipped"
+    },
+    {
+      "id": "j20-review",
+      "type": "review",
+      "title": "Review the AI's checkout code",
+      "prompt": "An AI assistant wrote this checkout code. It compiles and runs, but tick the real problems (there are two).",
+      "code": [
+        "class Checkout {",
+        "    static String receipt(Payment p) {",
+        "        return switch (p) {",
+        "            case Cash c -> \"Cash \" + c.amount();",
+        "            case Upi u -> \"UPI \" + u.handle();",
+        "            default -> \"Other\";",
+        "        };",
+        "    }",
+        "",
+        "    static int fee(Payment p) {",
+        "        if (p instanceof Cash) {",
+        "            return 0;",
+        "        } else if (p instanceof Upi) {",
+        "            return 2;",
+        "        }",
+        "        return 0;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        System.out.println(receipt(new Cash(200)) + \" \" + fee(new Upi(350, \"asha@bank\")));",
+        "    }",
+        "}",
+        "sealed interface Payment permits Cash, Upi {}",
+        "record Cash(int amount) implements Payment {}",
+        "record Upi(int amount, String handle) implements Payment {}"
+      ],
+      "issues": [
+        {
+          "id": "default-hides",
+          "text": "The switch has a default branch even though Payment is sealed",
+          "why": "Without default the compiler proves every payment type is handled, and it stops compiling the day someone adds Card. With default the new type silently prints Other.",
+          "lines": [
+            6
+          ]
+        },
+        {
+          "id": "instanceof-chain",
+          "text": "fee uses an instanceof chain that ends in a catch-all return 0",
+          "why": "A new payment type would get fee 0 without any warning. A switch over the sealed type (or a method on Payment itself) lets the compiler flag the missing case.",
+          "lines": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "no-getters",
+          "text": "The records need getAmount() and getHandle() methods",
+          "why": "A record creates accessors named after its components: c.amount() and u.handle(). Writing getters would only add noise."
+        },
+        {
+          "id": "empty-interface",
+          "text": "Payment has no methods, so it should be an abstract class",
+          "why": "A sealed interface with no methods is a normal way to say \"these are the only variants\". The records cannot extend a class anyway, since they already extend Record."
+        },
+        {
+          "id": "casts",
+          "text": "case Cash c needs a cast before c.amount() can be used",
+          "why": "A pattern case names the variable with the right type already, so no cast is needed."
+        }
+      ],
+      "explain": "When a type family is sealed, let the compiler check it: no default in the switch, and no instanceof ladders with a silent fallback. Adding a new case then becomes a compile error you can fix, not a quiet bug.",
+      "concepts": [
+        "sealed",
+        "exhaustive switch",
+        "reading code critically"
+      ]
+    }
+  ]
+}

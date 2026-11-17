@@ -1,0 +1,264 @@
+{
+  "day": 8,
+  "drills": [
+    {
+      "id": "j08-parsons",
+      "type": "parsons",
+      "title": "Row totals of a sales table",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Two shops sold items on three days. Arrange the lines so the program prints the total of each shop on its own line. Two lines do not belong.",
+      "lines": [
+        "int[][] sales = {{120, 80, 150}, {90, 100, 60}};",
+        "for (int[] row : sales) {",
+        "int rowTotal = 0;",
+        "for (int amount : row) {",
+        "rowTotal += amount;",
+        "}",
+        "System.out.println(rowTotal);",
+        "}"
+      ],
+      "distractors": [
+        "for (int amount : sales) {",
+        "rowTotal =+ amount;"
+      ],
+      "explain": "A table is an array of arrays, so the outer loop gives one row (an int[]) at a time and the inner loop gives the numbers of that row. rowTotal is created inside the outer loop so every shop starts again at 0. Looping directly over sales with an int does not compile, because each item of sales is a whole row. Also be careful with the update: += adds, while =+ just assigns a positive number.",
+      "concepts": [
+        "arrays of arrays",
+        "nested for-each",
+        "accumulator"
+      ],
+      "output": [
+        "350",
+        "250"
+      ]
+    },
+    {
+      "id": "j08-fill",
+      "type": "fill",
+      "title": "Last item, copy and sort",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the program prints the goal output. The original scores must stay in their order.",
+      "code": [
+        "import java.util.Arrays;",
+        "String[] cart = {\"milk\", \"bread\", \"eggs\"};",
+        "System.out.println(cart[cart.length ___ 1]);",
+        "int[] scores = {72, 95, 88, 60};",
+        "int[] sorted = Arrays.___(scores, scores.length);",
+        "Arrays.___(sorted);",
+        "System.out.println(Arrays.___(scores));",
+        "System.out.println(Arrays.toString(sorted));"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "-"
+          ],
+          "options": [
+            "-",
+            "+"
+          ]
+        },
+        {
+          "answers": [
+            "copyOf"
+          ],
+          "options": [
+            "copyOf",
+            "clone",
+            "copy"
+          ]
+        },
+        {
+          "answers": [
+            "sort"
+          ],
+          "options": [
+            "sort",
+            "sorted",
+            "order"
+          ]
+        },
+        {
+          "answers": [
+            "toString"
+          ],
+          "options": [
+            "toString",
+            "deepToString",
+            "print"
+          ]
+        }
+      ],
+      "explain": "An array of 3 items has indexes 0 to 2, so the last one is at length - 1 (there is no cart[-1] in Java). Arrays.copyOf makes a real copy and Arrays.sort sorts it in place, so the original scores keep their order. println(array) alone would print junk like [I@1b6d3586, Arrays.toString shows the items.",
+      "concepts": [
+        "last index",
+        "Arrays.copyOf",
+        "Arrays.sort",
+        "Arrays.toString"
+      ],
+      "output": [
+        "eggs",
+        "[72, 95, 88, 60]",
+        "[60, 72, 88, 95]"
+      ]
+    },
+    {
+      "id": "j08-predict",
+      "type": "predict",
+      "title": "Slots start with defaults",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.util.Arrays;",
+        "int[] marks = new int[3];",
+        "marks[1] = 5;",
+        "String[] names = new String[2];",
+        "double[] prices = {49.5, 30, 120};",
+        "int[] scores = {72, 95, 88, 60};",
+        "System.out.println(Arrays.toString(marks) + \" \" + Arrays.toString(names));",
+        "System.out.println(prices.length + \" \" + prices[1]);",
+        "System.out.println(Arrays.toString(Arrays.copyOfRange(scores, 1, 3)));"
+      ],
+      "explain": "new int[3] fills every slot with 0 and new String[2] with null (nothing here yet), so only marks[1] is a real value. A double array turns the 30 into 30.0, and length is a field with no brackets. copyOfRange(scores, 1, 3) takes indexes 1 and 2: the end is not included, exactly like substring.",
+      "concepts": [
+        "default values",
+        "length",
+        "copyOfRange"
+      ],
+      "expected": [
+        "[0, 5, 0] [null, null]",
+        "3 30.0",
+        "[95, 88]"
+      ]
+    },
+    {
+      "id": "j08-bug",
+      "type": "bug",
+      "title": "The backup that is not a copy",
+      "viz": true,
+      "prompt": "The program should show the original order of the scores and then the sorted order. Both lines show the sorted scores. The program runs without error. Click the faulty line and choose the fix.",
+      "code": [
+        "import java.util.Arrays;",
+        "class Leaderboard {",
+        "    public static void main(String[] args) {",
+        "        int[] scores = {72, 95, 88, 60};",
+        "        int[] original = scores;",
+        "        Arrays.sort(scores);",
+        "        System.out.println(\"Original: \" + Arrays.toString(original));",
+        "        System.out.println(\"Sorted:   \" + Arrays.toString(scores));",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        5
+      ],
+      "answer": 0,
+      "options": [
+        "int[] original = scores.clone();",
+        "int[] original = new int[scores.length];",
+        "int[] original = Arrays.copyOf(scores);",
+        "int[] original = scores.copy();"
+      ],
+      "fixed_code": [
+        "import java.util.Arrays;",
+        "class Leaderboard {",
+        "    public static void main(String[] args) {",
+        "        int[] scores = {72, 95, 88, 60};",
+        "        int[] original = scores.clone();",
+        "        Arrays.sort(scores);",
+        "        System.out.println(\"Original: \" + Arrays.toString(original));",
+        "        System.out.println(\"Sorted:   \" + Arrays.toString(scores));",
+        "    }",
+        "}"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "Original: [60, 72, 88, 95]\nSorted:   [60, 72, 88, 95]"
+      },
+      "explain": "int[] original = scores does not copy the array: it gives the same array a second name. Arrays.sort then sorts that one array, and both names show the result. clone() (or Arrays.copyOf(scores, scores.length)) builds a real copy first. A new empty array of the same size would hold zeros, not your scores.",
+      "concepts": [
+        "the copy trap",
+        "clone",
+        "Arrays.sort sorts in place"
+      ],
+      "output": [
+        "Original: [72, 95, 88, 60]",
+        "Sorted:   [60, 72, 88, 95]"
+      ]
+    },
+    {
+      "id": "j08-review",
+      "type": "review",
+      "title": "Review the AI's leaderboard",
+      "prompt": "An AI assistant wrote this leaderboard. It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.Arrays;",
+        "",
+        "class Leaderboard {",
+        "    public static void main(String[] args) {",
+        "        int[] scores = {72, 95, 88, 60};",
+        "        int[] ranked = scores;",
+        "        Arrays.sort(ranked);",
+        "        System.out.println(\"Best: \" + ranked[ranked.length - 1]);",
+        "        System.out.println(\"Entered: \" + scores);",
+        "        int[] backup = {60, 72, 88, 95};",
+        "        System.out.println(\"Same as ranked? \" + (ranked == backup));",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "alias-sort",
+          "text": "ranked is not a copy: sorting it also sorts scores, so the entered order is lost",
+          "why": "int[] ranked = scores gives the same array a second name, and Arrays.sort works in place. Copy first: int[] ranked = scores.clone(); or Arrays.copyOf(scores, scores.length).",
+          "lines": [
+            6,
+            7
+          ]
+        },
+        {
+          "id": "print-array",
+          "text": "Concatenating the array prints a code like [I@1b6d3586 instead of the scores",
+          "why": "An array has no readable text form of its own. Use Arrays.toString(scores).",
+          "lines": [
+            9
+          ]
+        },
+        {
+          "id": "array-equals",
+          "text": "ranked == backup is false even though both hold the same numbers",
+          "why": "== asks whether both names point to the very same array. To compare the content use Arrays.equals(ranked, backup).",
+          "lines": [
+            11
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "last-index",
+          "text": "ranked[ranked.length - 1] goes past the end of the array",
+          "why": "The last index is length - 1, which is exactly the biggest value in a sorted array."
+        },
+        {
+          "id": "sort-result",
+          "text": "The result of Arrays.sort(ranked) is not stored anywhere",
+          "why": "Arrays.sort changes the array itself and returns nothing, so there is nothing to store."
+        },
+        {
+          "id": "needs-new",
+          "text": "int[] scores = {72, 95, 88, 60}; must be written with new int[4]",
+          "why": "The curly-brace list already creates an array of the right size."
+        }
+      ],
+      "explain": "Arrays behave like the lists you know from Python: two names can share one array, == compares identity and printing needs Arrays.toString. Each one compiles and runs, so only a careful read finds it.",
+      "concepts": [
+        "the copy trap",
+        "Arrays.toString",
+        "Arrays.equals"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,335 @@
+{
+  "day": 19,
+  "drills": [
+    {
+      "id": "j19-parsons",
+      "type": "parsons",
+      "title": "A class with a constructor and toString",
+      "viz": true,
+      "prompt": "Arrange the lines into a Product class: private fields, a constructor that fills them, a toString and a main that prints one product. The constructor and toString can go in either order. Two lines do not belong.",
+      "lines": [
+        "class Product {",
+        "private final String name;",
+        "private final double price;",
+        "Product(String name, double price) {",
+        "this.name = name;",
+        "this.price = price;",
+        "}",
+        "public String toString() {",
+        "return name + \" costs \" + price;",
+        "}",
+        "public static void main(String[] args) {",
+        "System.out.println(new Product(\"Pen\", 10));",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "name = name;",
+        "void Product(String name, double price) {"
+      ],
+      "alternatives": [
+        [
+          0,
+          1,
+          2,
+          7,
+          8,
+          9,
+          3,
+          4,
+          5,
+          6,
+          10,
+          11,
+          12,
+          13
+        ],
+        [
+          0,
+          1,
+          2,
+          3,
+          5,
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ]
+      ],
+      "explain": "A constructor has the class name and no return type (void Product(...) would be an ordinary method, and new Product(...) would not find a constructor). Inside it the parameter hides the field, so this.name = name copies the parameter into the field; plain name = name only assigns the parameter to itself. toString decides how println shows the object.",
+      "concepts": [
+        "constructor",
+        "this",
+        "toString"
+      ],
+      "output": "Pen costs 10.0"
+    },
+    {
+      "id": "j19-fill",
+      "type": "fill",
+      "title": "A counter shared by every account",
+      "viz": true,
+      "prompt": "Fill the blanks so every Account keeps its own owner while all accounts share one counter of how many were opened.",
+      "code": [
+        "class Account {",
+        "    private ___ int opened = 0;",
+        "    private final String owner;",
+        "",
+        "    Account(String owner) {",
+        "        ___.owner = owner;",
+        "        opened++;",
+        "    }",
+        "",
+        "    ___ int getOpened() {",
+        "        return opened;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        new Account(\"Asha\");",
+        "        new Account(\"Ravi\");",
+        "        System.out.println(Account.getOpened());",
+        "    }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "static"
+          ],
+          "options": [
+            "static",
+            "final",
+            "public"
+          ]
+        },
+        {
+          "answers": [
+            "this"
+          ],
+          "options": [
+            "this",
+            "self",
+            "Account"
+          ]
+        },
+        {
+          "answers": [
+            "static"
+          ],
+          "options": [
+            "static",
+            "public",
+            "final"
+          ]
+        }
+      ],
+      "explain": "A static field exists once for the whole class, so both new Account(...) calls increase the same counter. Without static every object would have its own opened and Account.getOpened() could not be called on the class. this.owner means the field of this object; Java has no self (that is Python). final would forbid opened++.",
+      "concepts": [
+        "static field",
+        "static method",
+        "this"
+      ],
+      "output": "2"
+    },
+    {
+      "id": "j19-predict",
+      "type": "predict",
+      "title": "Same object or same SKU?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.util.HashSet;",
+        "import java.util.Set;",
+        "",
+        "class Sku {",
+        "    private final String code;",
+        "    Sku(String code) { this.code = code; }",
+        "    @Override public boolean equals(Object o) { return o instanceof Sku that && code.equals(that.code); }",
+        "    @Override public int hashCode() { return code.hashCode(); }",
+        "",
+        "    public static void main(String[] args) {",
+        "        Sku a = new Sku(\"P100\");",
+        "        Sku b = new Sku(\"P100\");",
+        "        Sku c = a;",
+        "        System.out.println((a == b) + \" \" + a.equals(b) + \" \" + (a == c));",
+        "        Set<Sku> set = new HashSet<>();",
+        "        set.add(a);",
+        "        set.add(b);",
+        "        System.out.println(set.size());",
+        "    }",
+        "}"
+      ],
+      "explain": "== asks whether two variables point at the very same object. a and b are two separate objects, so it is false, while c is another name for a, so it is true. equals compares the codes, so a.equals(b) is true, and the HashSet (which uses equals and hashCode) keeps only one of them.",
+      "concepts": [
+        "== vs equals",
+        "hashCode",
+        "HashSet"
+      ],
+      "expected": "false true true\n1"
+    },
+    {
+      "id": "j19-bug",
+      "type": "bug",
+      "title": "The price that stays 0.0",
+      "viz": true,
+      "prompt": "The program runs, but it prints a price of 0.0 instead of 10.0. Click the faulty line, then choose the fix.",
+      "code": [
+        "class Product {",
+        "    private String name;",
+        "    private double price;",
+        "",
+        "    Product(String name, double price) {",
+        "        this.name = name;",
+        "        price = price;",
+        "    }",
+        "",
+        "    public String toString() {",
+        "        return name + \" costs \" + price;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        System.out.println(new Product(\"Pen\", 10));",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "class Product {",
+        "    private String name;",
+        "    private double price;",
+        "",
+        "    Product(String name, double price) {",
+        "        this.name = name;",
+        "        this.price = price;",
+        "    }",
+        "",
+        "    public String toString() {",
+        "        return name + \" costs \" + price;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        System.out.println(new Product(\"Pen\", 10));",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        7
+      ],
+      "answer": 0,
+      "options": [
+        "this.price = price;",
+        "this.price = this.price;",
+        "price = this.price;",
+        "Product.price = price;"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "Pen costs 0.0"
+      },
+      "explain": "Inside the constructor the parameter price hides the field price. price = price copies the parameter onto itself and never touches the field, which keeps its default 0.0. Write this.price = price. this.price = this.price also does nothing, price = this.price copies in the wrong direction, and Product.price would look for a static field.",
+      "concepts": [
+        "this",
+        "shadowing",
+        "silent bugs"
+      ],
+      "output": "Pen costs 10.0"
+    },
+    {
+      "id": "j19-review",
+      "type": "review",
+      "title": "Review the AI's BankAccount",
+      "prompt": "An AI assistant wrote this BankAccount. It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.ArrayList;",
+        "import java.util.List;",
+        "",
+        "class BankAccount {",
+        "    public int balance;",
+        "    private final List<String> history = new ArrayList<>();",
+        "    private final String owner;",
+        "",
+        "    BankAccount(String owner) {",
+        "        this.owner = owner;",
+        "    }",
+        "",
+        "    void deposit(int amount) {",
+        "        balance += amount;",
+        "        history.add(owner + \" deposit \" + amount);",
+        "    }",
+        "",
+        "    List<String> getHistory() {",
+        "        return history;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        BankAccount acc = new BankAccount(\"Asha\");",
+        "        acc.deposit(500);",
+        "        acc.getHistory().clear();",
+        "        System.out.println(acc.balance + \" \" + acc.getHistory());",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "public-balance",
+          "text": "balance is a public field",
+          "why": "Any code can write acc.balance = -100 and skip every rule. Make it private and expose it through a getBalance() method plus deposit and withdraw that check their input.",
+          "lines": [
+            5
+          ]
+        },
+        {
+          "id": "leaks-history",
+          "text": "getHistory returns the internal list itself",
+          "why": "The caller receives the same list object, so acc.getHistory().clear() wipes the account's record (main does exactly that). Return a copy: new ArrayList<>(history), or List.copyOf(history).",
+          "lines": [
+            18,
+            19
+          ]
+        },
+        {
+          "id": "no-validation",
+          "text": "deposit accepts any amount, including zero and negative numbers",
+          "why": "deposit(-500) would quietly take money out and log it as a deposit. The class should protect its own rule: if (amount <= 0) throw new IllegalArgumentException(...).",
+          "lines": [
+            13,
+            14
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "final-list",
+          "text": "history is final, so add() cannot work on it",
+          "why": "final fixes which list the variable points to, not what is inside the list. Adding entries is allowed."
+        },
+        {
+          "id": "field-init",
+          "text": "history should be created inside the constructor",
+          "why": "A field initializer runs for every new object, so each account gets its own list. Both styles are fine."
+        },
+        {
+          "id": "no-owner-setter",
+          "text": "owner needs a setter",
+          "why": "A final field with no setter is what you want for something that must never change after construction."
+        },
+        {
+          "id": "package-private",
+          "text": "deposit should be declared public",
+          "why": "Package-private is fine inside one package, and there is no rule that every method must be public. The real gap is what deposit checks, not who can call it."
+        }
+      ],
+      "explain": "In generated classes check three places: fields (private?), anything a getter hands out (a live list or a copy?), and every method that changes state (does it guard its own rules?).",
+      "concepts": [
+        "encapsulation",
+        "defensive copy",
+        "validation",
+        "reading code critically"
+      ]
+    }
+  ]
+}

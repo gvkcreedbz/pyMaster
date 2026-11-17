@@ -1,0 +1,290 @@
+{
+  "day": 23,
+  "drills": [
+    {
+      "id": "j23-parsons",
+      "type": "parsons",
+      "title": "Find every order id",
+      "viz": true,
+      "prompt": "Arrange the lines into a program that prints every order id (ORD followed by digits) found in a message. The two imports can go in either order. Two lines do not belong.",
+      "lines": [
+        "import java.util.regex.Matcher;",
+        "import java.util.regex.Pattern;",
+        "class Orders {",
+        "public static void main(String[] args) {",
+        "String text = \"Orders ORD1001 and ORD1002 shipped\";",
+        "Matcher m = Pattern.compile(\"ORD\\\\d+\").matcher(text);",
+        "while (m.find()) {",
+        "System.out.println(m.group());",
+        "}",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "Matcher m = Pattern.compile(\"ORD\\d+\").matcher(text);",
+        "while (m.matches()) {"
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      ],
+      "explain": "In a Java string every regex backslash is doubled: \"\\\\d\" reaches the regex engine as \\d. A single \\d is an illegal escape and does not compile. find() looks for the next match anywhere in the text, so the loop prints both ids, while matches() asks whether the whole text is one match, which is false here, so the loop would print nothing.",
+      "concepts": [
+        "Pattern and Matcher",
+        "find vs matches",
+        "escaping backslashes"
+      ],
+      "output": "ORD1001\nORD1002"
+    },
+    {
+      "id": "j23-fill",
+      "type": "fill",
+      "title": "Groups, validation and replacing",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the program pulls the year and month out of an order line, checks a PIN code and masks the digits. Match the goal output.",
+      "code": [
+        "import java.util.regex.Matcher;",
+        "import java.util.regex.Pattern;",
+        "String text = \"Order ORD1001 on 2026-11-03 for Rs. 899\";",
+        "Matcher m = Pattern.compile(\"(?<y>\\\\d{4})-(?<m>\\\\d{2})-(?<d>\\\\d{2})\").matcher(text);",
+        "if (m.___()) {",
+        "    System.out.println(m.group(\"y\") + \"/\" + m.group(\"m\"));",
+        "}",
+        "System.out.println(\"560001\".___(\"[1-9]\\\\d{5}\"));",
+        "System.out.println(\"a1b22\".___(\"\\\\d\", \"#\"));"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "find"
+          ],
+          "options": [
+            "find",
+            "matches",
+            "lookingAt"
+          ]
+        },
+        {
+          "answers": [
+            "matches"
+          ],
+          "options": [
+            "matches",
+            "contains",
+            "equals"
+          ]
+        },
+        {
+          "answers": [
+            "replaceAll"
+          ],
+          "options": [
+            "replaceAll",
+            "replaceFirst",
+            "replace"
+          ]
+        }
+      ],
+      "explain": "The date sits in the middle of the text, so find() (somewhere inside) is the right call. matches() and lookingAt() need the pattern to cover the whole text or start at the beginning, so they would be false here. String.matches validates a whole value, which is what a PIN code check needs. replaceAll treats its first argument as a regex and replaces every match; replace takes literal text, and replaceFirst stops after one.",
+      "concepts": [
+        "named groups",
+        "find vs matches",
+        "replaceAll"
+      ],
+      "output": "2026/11\ntrue\na#b##"
+    },
+    {
+      "id": "j23-predict",
+      "type": "predict",
+      "title": "Nothing changes in place",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.util.ArrayList;",
+        "import java.util.List;",
+        "String name = \"chai\";",
+        "name.toUpperCase();",
+        "System.out.println(name);",
+        "String loud = name.toUpperCase();",
+        "System.out.println(loud);",
+        "List<String> menu = List.of(\"Chai\", \"Coffee\");",
+        "try {",
+        "    menu.add(\"Tea\");",
+        "} catch (UnsupportedOperationException e) {",
+        "    System.out.println(\"cannot add\");",
+        "}",
+        "List<String> copy = new ArrayList<>(menu);",
+        "copy.add(\"Tea\");",
+        "System.out.println(copy.size() + \" \" + menu.size());"
+      ],
+      "explain": "String methods never change the text: toUpperCase returns a new String, and the call on line 4 throws it away, so name is still chai. List.of builds an unmodifiable list, so add throws UnsupportedOperationException. new ArrayList<>(menu) is a separate, changeable copy: it grows to 3 while menu stays at 2.",
+      "concepts": [
+        "immutable String",
+        "List.of",
+        "defensive copy"
+      ],
+      "expected": "chai\nCHAI\ncannot add\n3 2"
+    },
+    {
+      "id": "j23-bug",
+      "type": "bug",
+      "title": "The tag that swallowed everything",
+      "viz": true,
+      "prompt": "The program should print only the first tag, <b>, but it prints much more. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.util.regex.Matcher;",
+        "import java.util.regex.Pattern;",
+        "",
+        "class Tags {",
+        "    public static void main(String[] args) {",
+        "        String html = \"<b>Chai</b> and <b>Samosa</b>\";",
+        "        Matcher m = Pattern.compile(\"<.+>\").matcher(html);",
+        "        if (m.find()) {",
+        "            System.out.println(\"First tag: \" + m.group());",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.util.regex.Matcher;",
+        "import java.util.regex.Pattern;",
+        "",
+        "class Tags {",
+        "    public static void main(String[] args) {",
+        "        String html = \"<b>Chai</b> and <b>Samosa</b>\";",
+        "        Matcher m = Pattern.compile(\"<.+?>\").matcher(html);",
+        "        if (m.find()) {",
+        "            System.out.println(\"First tag: \" + m.group());",
+        "        }",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        7
+      ],
+      "answer": 0,
+      "options": [
+        "Matcher m = Pattern.compile(\"<.+?>\").matcher(html);",
+        "Matcher m = Pattern.compile(\"<.*>\").matcher(html);",
+        "Matcher m = Pattern.compile(\"<.+>?\").matcher(html);"
+      ],
+      "buggy_runs": {
+        "fails": false,
+        "output": "First tag: <b>Chai</b> and <b>Samosa</b>"
+      },
+      "explain": "+ and * are greedy: .+ takes as many characters as it can and then backs off only until the last > fits, so the match runs from the first < to the last >. A ? after the quantifier makes it lazy, so it stops at the first >. <.*> is just as greedy, and a ? after the > only makes that final > optional.",
+      "concepts": [
+        "greedy vs lazy",
+        "Matcher.group",
+        "silent bugs"
+      ],
+      "output": "First tag: <b>"
+    },
+    {
+      "id": "j23-review",
+      "type": "review",
+      "title": "Review the AI's contact helpers",
+      "prompt": "An AI assistant wrote these helpers. They compile and run, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.ArrayList;",
+        "import java.util.List;",
+        "import java.util.regex.Matcher;",
+        "import java.util.regex.Pattern;",
+        "",
+        "class Contacts {",
+        "    static List<String> findEmails(List<String> lines) {",
+        "        List<String> found = new ArrayList<>();",
+        "        for (String line : lines) {",
+        "            Matcher m = Pattern.compile(\"[\\\\w.]+@[\\\\w.]+\\\\.[a-z]{2,}\").matcher(line);",
+        "            while (m.find()) {",
+        "                found.add(m.group());",
+        "            }",
+        "        }",
+        "        return found;",
+        "    }",
+        "",
+        "    static double f(double p) {",
+        "        return p * 1.18;",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        List<String> lines = new ArrayList<>(List.of(\"mail asha@shop.in\", \"bill 100\"));",
+        "        Basket basket = new Basket(lines);",
+        "        lines.add(\"ravi@shop.in\");",
+        "        System.out.println(findEmails(basket.items()) + \" \" + f(100));",
+        "    }",
+        "}",
+        "final class Basket {",
+        "    private final List<String> items;",
+        "    Basket(List<String> items) { this.items = items; }",
+        "    List<String> items() { return items; }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "pattern-in-loop",
+          "text": "Pattern.compile is called again for every line",
+          "why": "Compiling a regex is the expensive part, and the pattern never changes. Build it once, for example private static final Pattern EMAIL = Pattern.compile(...), and call EMAIL.matcher(line) in the loop.",
+          "lines": [
+            10
+          ]
+        },
+        {
+          "id": "naming-magic",
+          "text": "f and p say nothing, and 1.18 is a magic number",
+          "why": "A reader cannot tell that this adds 18% GST. Name the method priceWithGst, the parameter price and the rate a constant (GST_RATE), so a rate change happens in one place.",
+          "lines": [
+            18,
+            19
+          ]
+        },
+        {
+          "id": "not-immutable",
+          "text": "Basket claims to be unchangeable but keeps the caller's list and hands it out again",
+          "why": "final fields only fix the reference. main adds ravi@shop.in to lines after building the basket, and the basket sees it. Store List.copyOf(items) in the constructor and return the copy (or keep it unmodifiable).",
+          "lines": [
+            31,
+            32
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "double-backslash",
+          "text": "The backslashes in the pattern are doubled, which looks like a typo",
+          "why": "Inside a Java string \\\\w is needed to give the regex engine \\w. A single backslash would be an illegal escape."
+        },
+        {
+          "id": "find-loop",
+          "text": "The loop should use matches() instead of find()",
+          "why": "matches() only succeeds when the whole line is one email. find() locates each email inside the line, which is what the method wants."
+        },
+        {
+          "id": "final-class",
+          "text": "Basket should not be declared final",
+          "why": "final class stops subclasses from adding mutable behaviour, which supports immutability."
+        }
+      ],
+      "explain": "In helper code look for work repeated in a loop that could be done once, names and numbers that hide meaning, and classes that call themselves immutable without copying what they receive and return.",
+      "concepts": [
+        "compile Pattern once",
+        "clean code",
+        "immutability",
+        "reading code critically"
+      ]
+    }
+  ]
+}

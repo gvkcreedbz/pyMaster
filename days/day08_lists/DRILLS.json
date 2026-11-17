@@ -1,0 +1,251 @@
+{
+  "day": 8,
+  "drills": [
+    {
+      "id": "d08-parsons",
+      "type": "parsons",
+      "title": "Build a new list in a loop",
+      "viz": true,
+      "prompt": "Arrange and indent the lines so the program collects the numbers above 8 into a new list and prints it. Two lines do not belong.",
+      "lines": [
+        "numbers = [4, 9, 12, 7, 20]",
+        "big = []",
+        "for n in numbers:",
+        "if n > 8:",
+        "big.append(n)",
+        "print(\"Numbers above 8:\", big)"
+      ],
+      "indent": [
+        0,
+        0,
+        0,
+        1,
+        2,
+        0
+      ],
+      "alternatives": [
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5
+        ]
+      ],
+      "distractors": [
+        "big = big.append(n)",
+        "if n = 8:"
+      ],
+      "explain": "Start with an empty list, loop over the source list, test each item and append the ones that pass. The append line is indented twice: it belongs to the if, which belongs to the for. append changes the list in place and returns None, so big = big.append(n) would replace the list with None. A single = in a condition is a syntax error.",
+      "concepts": [
+        "append",
+        "building a new list",
+        "for loop with if"
+      ],
+      "output": "Numbers above 8: [9, 12, 20]"
+    },
+    {
+      "id": "d08-fill",
+      "type": "fill",
+      "title": "Grow and shrink the cart",
+      "viz": true,
+      "prompt": "Fill the four blanks with list methods so the program prints the goal output.",
+      "code": [
+        "cart = [\"milk\"]",
+        "cart.___(\"bread\")",
+        "cart.___([\"eggs\", \"jam\"])",
+        "cart.___(0, \"tea\")",
+        "last = cart.___()",
+        "print(cart, last)"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "append"
+          ],
+          "options": [
+            "append",
+            "add",
+            "extend"
+          ]
+        },
+        {
+          "answers": [
+            "extend"
+          ],
+          "options": [
+            "extend",
+            "append",
+            "insert"
+          ]
+        },
+        {
+          "answers": [
+            "insert"
+          ],
+          "options": [
+            "insert",
+            "append",
+            "extend"
+          ]
+        },
+        {
+          "answers": [
+            "pop"
+          ],
+          "options": [
+            "pop",
+            "remove",
+            "delete"
+          ]
+        }
+      ],
+      "explain": "append adds ONE item at the end, extend adds every item of another list, and insert(position, item) places an item at a chosen index. pop() removes the last item and hands it back, so you can keep it in a variable. append([\"eggs\", \"jam\"]) would put a whole list inside the cart as a single item.",
+      "concepts": [
+        "append vs extend",
+        "insert",
+        "pop"
+      ],
+      "output": "['tea', 'milk', 'bread', 'eggs'] jam"
+    },
+    {
+      "id": "d08-predict",
+      "type": "predict",
+      "title": "Two names, one list",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "a = [1, 2, 3]",
+        "b = a",
+        "b.append(4)",
+        "c = a.copy()",
+        "c.append(5)",
+        "print(a, c)",
+        "nums = [3, 1, 2]",
+        "print(sorted(nums), nums)",
+        "result = nums.sort()",
+        "print(result, nums)",
+        "x = [1, 2]",
+        "x.append([3, 4])",
+        "print(x, len(x))"
+      ],
+      "explain": "b = a copies nothing: both names point to the same list, so appending through b changes a. a.copy() makes a real, separate list. sorted() returns a new sorted list and leaves nums alone, while nums.sort() sorts in place and returns None. append adds ONE item, so the list [3, 4] becomes a single nested item and len(x) is 3.",
+      "concepts": [
+        "aliasing / copy",
+        "sorted vs sort",
+        "append vs extend"
+      ],
+      "expected": "[1, 2, 3, 4] [1, 2, 3, 4, 5]\n[1, 2, 3] [3, 1, 2]\nNone [1, 2, 3]\n[1, 2, [3, 4]] 3"
+    },
+    {
+      "id": "d08-bug",
+      "type": "bug",
+      "title": "The leaderboard that became None",
+      "viz": true,
+      "prompt": "The program should print the two best scores but crashes with a TypeError. Click the faulty line and choose the fix.",
+      "code": [
+        "scores = [72, 95, 88, 60]",
+        "scores = scores.sort(reverse=True)",
+        "print(\"Top 2:\", scores[:2])"
+      ],
+      "bug_lines": [
+        2
+      ],
+      "answer": 0,
+      "options": [
+        "scores.sort(reverse=True)",
+        "scores = scores.sorted(reverse=True)",
+        "scores = sort(scores, reverse=True)",
+        "scores = scores.reverse()"
+      ],
+      "fixed_code": [
+        "scores = [72, 95, 88, 60]",
+        "scores.sort(reverse=True)",
+        "print(\"Top 2:\", scores[:2])"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "TypeError: 'NoneType' object is not subscriptable"
+      },
+      "explain": "list.sort() sorts the list in place and returns None. Assigning that result back to scores replaces the list with None, so scores[:2] fails. Either call scores.sort(...) on its own line, or keep the returned list with scores = sorted(scores, reverse=True). The error message tells you the value was None.",
+      "concepts": [
+        "sort returns None",
+        "reading a traceback"
+      ],
+      "output": "Top 2: [95, 88]"
+    },
+    {
+      "id": "d08-review",
+      "type": "review",
+      "title": "Review the AI's score helpers",
+      "prompt": "Spec: remove_low returns the scores that are at least the cutoff, and best_two returns the two highest scores. Neither function may change the list it is given. An AI assistant wrote them. The code runs, but it has three problems. Tick them.",
+      "code": [
+        "def remove_low(scores, cutoff):",
+        "    for s in scores:",
+        "        if s < cutoff:",
+        "            scores.remove(s)",
+        "    return scores",
+        "",
+        "def best_two(scores):",
+        "    scores.sort(reverse=True)",
+        "    return scores[:2]",
+        "",
+        "marks = [40, 35, 90, 20, 75]",
+        "print(remove_low(marks, 50))",
+        "print(best_two(marks))"
+      ],
+      "issues": [
+        {
+          "id": "skips-items",
+          "text": "Removing items while looping over the same list skips elements, so 35 stays in the result",
+          "why": "When an item is removed the next one slides into its place and the loop moves past it. Build a new list of the items to keep instead of changing the list you are looping over.",
+          "lines": [
+            2,
+            4
+          ]
+        },
+        {
+          "id": "mutates-input",
+          "text": "remove_low changes the list that the caller passed in",
+          "why": "scores is the caller's own list (both names point to it), so remove() shortens marks as well. The spec says the input must stay unchanged: return a new list.",
+          "lines": [
+            4
+          ]
+        },
+        {
+          "id": "sort-in-place",
+          "text": "best_two reorders the caller's list because sort() works in place",
+          "why": "After the call, marks is sorted differently from before. Use sorted(scores, reverse=True)[:2], which makes a new list.",
+          "lines": [
+            8
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "slice-short-list",
+          "text": "scores[:2] raises an error if the list has fewer than 2 scores",
+          "why": "A slice never raises IndexError: it just returns what is there (a list with 0 or 1 items)."
+        },
+        {
+          "id": "sort-returns-none",
+          "text": "scores.sort(reverse=True) returns None, so scores[:2] fails",
+          "why": "The code does not use the return value of sort(). It sorts the list and then slices that same list, which works. The real problem is that the caller's list is changed."
+        },
+        {
+          "id": "remove-all-copies",
+          "text": "remove(s) deletes every copy of s, which is a bug",
+          "why": "remove deletes only the first match. The real problem is the loop skipping items."
+        }
+      ],
+      "explain": "Two list traps in one review: changing a list while looping over it, and changing a list that was passed in. When a function has a spec like \"must not change the input\", look for remove, append, sort and del applied to a parameter.",
+      "concepts": [
+        "mutating while looping",
+        "sort vs sorted",
+        "side effects on arguments",
+        "reading code critically"
+      ]
+    }
+  ]
+}

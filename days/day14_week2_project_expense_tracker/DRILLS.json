@@ -1,0 +1,254 @@
+{
+  "day": 14,
+  "drills": [
+    {
+      "id": "d14-parsons",
+      "type": "parsons",
+      "title": "Add an expense, but reject bad amounts",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them) so add_expense refuses an amount of 0 or less, and the program prints the two results and then how many expenses were saved. Two lines do not belong. The empty list can be created before or after the function.",
+      "lines": [
+        "def add_expense(expenses, category, amount):",
+        "if amount <= 0:",
+        "return False",
+        "expenses.append({\"category\": category, \"amount\": amount})",
+        "return True",
+        "expenses = []",
+        "print(add_expense(expenses, \"Food\", 250), add_expense(expenses, \"Fun\", -5))",
+        "print(len(expenses))"
+      ],
+      "indent": [
+        0,
+        1,
+        2,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "distractors": [
+        "if amount < 0:",
+        "expenses = expenses.append({\"category\": category, \"amount\": amount})"
+      ],
+      "alternatives": [
+        [
+          5,
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7
+        ]
+      ],
+      "explain": "A guard clause checks the bad case first and returns early, so the append only runs for valid amounts. The tracker rejects amounts that are 0 or less, so the test is <= 0 (a < 0 test would accept a zero expense). list.append changes the list in place and returns None, so assigning its result to a name would throw the list away. The function modifies the list it is given, which is why len(expenses) is 1 at the end.",
+      "concepts": [
+        "functions",
+        "validation",
+        "list.append"
+      ],
+      "output": "True False\n1"
+    },
+    {
+      "id": "d14-fill",
+      "type": "fill",
+      "title": "Totals per month",
+      "viz": true,
+      "prompt": "Fill the two blanks so the program adds up the expenses per month. The month is the first 7 characters of the date text.",
+      "code": [
+        "expenses = [",
+        "    {\"date\": \"2026-11-02\", \"amount\": 250.0},",
+        "    {\"date\": \"2026-11-09\", \"amount\": 480.0},",
+        "    {\"date\": \"2026-12-01\", \"amount\": 799.0},",
+        "]",
+        "by_month = {}",
+        "for e in expenses:",
+        "    month = e[\"date\"][___]",
+        "    by_month[month] = by_month.___(month, 0) + e[\"amount\"]",
+        "print(by_month)"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            ":7",
+            "0:7"
+          ],
+          "options": [
+            ":7",
+            "7",
+            ":4"
+          ]
+        },
+        {
+          "answers": [
+            "get"
+          ],
+          "options": [
+            "get", "find", "count"
+          ]
+        }
+      ],
+      "explain": "A slice [:7] keeps the first seven characters, so \"2026-11-02\" becomes \"2026-11\". The counting pattern is by_month.get(month, 0) + amount: get returns 0 the first time a month appears, so there is no KeyError. A dict has no find or count method that takes a default, so those would raise an AttributeError.",
+      "concepts": [
+        "slicing",
+        "counting pattern",
+        "dict.get"
+      ],
+      "output": "{'2026-11': 730.0, '2026-12': 799.0}"
+    },
+    {
+      "id": "d14-predict",
+      "type": "predict",
+      "title": "Budget status at the edges",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "budgets = {\"Food\": 1000, \"Travel\": 500, \"Fun\": 300}",
+        "spent = {\"Food\": 1000, \"Travel\": 400, \"Fun\": 350}",
+        "for category, limit in budgets.items():",
+        "    percent = spent[category] / limit * 100",
+        "    if spent[category] > limit:",
+        "        status = \"OVER\"",
+        "    elif percent >= 80:",
+        "        status = \"WARN\"",
+        "    else:",
+        "        status = \"OK\"",
+        "    print(f\"{category:<7}|{percent:>7.1f}% {status}\")"
+      ],
+      "explain": "Spending exactly the limit is not over it (1000 > 1000 is False), but 100% is at least 80, so Food is WARN. Travel is exactly 80.0%, and >= includes the boundary, so it is WARN as well. Fun is 116.7% and spent > limit, so OVER. In the f-string, :<7 pads the name on the right to 7 characters and :>7.1f right-aligns the number in 7 characters with one decimal.",
+      "concepts": [
+        "if / elif",
+        "boundaries (> vs >=)",
+        "f-string alignment"
+      ],
+      "expected": "Food   |  100.0% WARN\nTravel |   80.0% WARN\nFun    |  116.7% OVER"
+    },
+    {
+      "id": "d14-bug",
+      "type": "bug",
+      "title": "Totals per category",
+      "viz": true,
+      "prompt": "The program stops with a KeyError. Click the faulty line and choose the fix.",
+      "code": [
+        "expenses = [",
+        "    {\"category\": \"Food\", \"amount\": 250.0},",
+        "    {\"category\": \"Travel\", \"amount\": 120.5},",
+        "    {\"category\": \"Food\", \"amount\": 480.0},",
+        "]",
+        "by_category = {}",
+        "for e in expenses:",
+        "    by_category[e[\"category\"]] += e[\"amount\"]",
+        "print(by_category)"
+      ],
+      "bug_lines": [
+        8
+      ],
+      "answer": 0,
+      "options": [
+        "    by_category[e[\"category\"]] = by_category.get(e[\"category\"], 0) + e[\"amount\"]",
+        "    by_category[e[\"category\"]] = e[\"amount\"]",
+        "    by_category[e[\"category\"]] = by_category[e[\"category\"]] + e[\"amount\"]",
+        "    by_category.get(e[\"category\"], 0) += e[\"amount\"]"
+      ],
+      "fixed_code": [
+        "expenses = [",
+        "    {\"category\": \"Food\", \"amount\": 250.0},",
+        "    {\"category\": \"Travel\", \"amount\": 120.5},",
+        "    {\"category\": \"Food\", \"amount\": 480.0},",
+        "]",
+        "by_category = {}",
+        "for e in expenses:",
+        "    by_category[e[\"category\"]] = by_category.get(e[\"category\"], 0) + e[\"amount\"]",
+        "print(by_category)"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "KeyError: 'Food'"
+      },
+      "explain": "+= reads the current value first, and the key 'Food' does not exist yet in the empty dict, so Python raises KeyError. The counting pattern uses .get(key, 0) to start from 0 for a new key. Assigning only e[\"amount\"] runs but keeps just the last expense of each category, and the third option fails with the same KeyError because it also reads the missing key.",
+      "concepts": [
+        "KeyError",
+        "counting pattern",
+        "totals by category"
+      ],
+      "output": "{'Food': 730.0, 'Travel': 120.5}"
+    },
+    {
+      "id": "d14-review",
+      "type": "review",
+      "title": "Review the AI's expense functions",
+      "prompt": "An AI assistant wrote these tracker functions. They run, but tick the statements that point at real problems.",
+      "code": [
+        "expenses = []",
+        "",
+        "def add_expense(date, category, amount, note=\"\"):",
+        "    expenses.append({\"date\": date, \"category\": category, \"amount\": amount, \"note\": note})",
+        "",
+        "def monthly_totals():",
+        "    totals = {}",
+        "    for e in expenses:",
+        "        month = e[\"date\"][:7]",
+        "        totals[month] = totals.get(month, 0) + e[\"amount\"]",
+        "    return totals",
+        "",
+        "add_expense(\"2026-11-02\", \"Food\", 250.0, \"Lunch\")",
+        "add_expense(\"2026-11-03\", \"Travel\", -120.5, \"Metro\")",
+        "add_expense(\"2026-12-01\", \"Fun\", 0, \"Free movie\")",
+        "print(monthly_totals())"
+      ],
+      "issues": [
+        {
+          "id": "no-validation",
+          "text": "add_expense accepts negative and zero amounts, so they silently distort the totals",
+          "why": "The tracker is supposed to reject amount <= 0. Here -120.5 is subtracted from November. Check the amount first and return False (or raise an error) for bad input.",
+          "lines": [
+            3,
+            4,
+            14,
+            15
+          ]
+        },
+        {
+          "id": "hidden-global",
+          "text": "Both functions work on a global list instead of receiving it as a parameter",
+          "why": "Hidden shared state makes the functions hard to test and reuse: monthly_totals() gives different answers for the same call. Pass expenses in (add_expense(expenses, ...)) and return results.",
+          "lines": [
+            1,
+            4,
+            8
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "note-default",
+          "text": "note=\"\" is a mutable default argument, like items=[]",
+          "why": "The mutable-default trap is about lists, dicts and sets. A string cannot be changed in place, so \"\" is a safe default."
+        },
+        {
+          "id": "month-slice",
+          "text": "e[\"date\"][:7] is the wrong way to get the month",
+          "why": "Dates are written YYYY-MM-DD, so the first 7 characters are exactly the year and month, like \"2026-11\"."
+        },
+        {
+          "id": "get-default",
+          "text": "totals.get(month, 0) can hide missing months",
+          "why": "It is the standard counting pattern: a month seen for the first time starts at 0, which is exactly right."
+        },
+        {
+          "id": "no-return",
+          "text": "add_expense must return something",
+          "why": "A function that only changes data can return nothing. Returning True or False would be a nice way to report validation, but it is not required."
+        }
+      ],
+      "explain": "In a small program the data flow is the first thing to review: where does the list live, who changes it, and what stops bad values getting in? Code that runs and prints plausible totals can still be quietly wrong when input is not checked.",
+      "concepts": [
+        "validation",
+        "no hidden globals",
+        "reading code critically"
+      ]
+    }
+  ]
+}

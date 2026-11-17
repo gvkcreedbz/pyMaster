@@ -62,3 +62,4 @@ select.dr-blank { padding: 1px 2px; }
 .dr-fine { font-size: 12.5px; color: var(--muted); }
 .dr-hint { margin: 8px 0 0; font-size: 13.5px; color: var(--ink-2); }
 .dr-empty-day { padding: 30px; text-align: center; color: var(--muted); }
+.dr-opt .mono { white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -1,0 +1,274 @@
+{
+  "day": 11,
+  "drills": [
+    {
+      "id": "j11-parsons",
+      "type": "parsons",
+      "title": "Overloads that call each other",
+      "viz": true,
+      "prompt": "Arrange the lines into a billing program. The short total method fills in the missing tax and calls the long one. The two methods can go in either order. Two lines do not belong.",
+      "lines": [
+        "class Billing {",
+        "static double total(double price, int qty, int taxPercent) {",
+        "return price * qty * (1 + taxPercent / 100.0);",
+        "}",
+        "static double total(double price, int qty) {",
+        "return total(price, qty, 18);",
+        "}",
+        "public static void main(String[] args) {",
+        "System.out.println(total(100, 3));",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "return price * qty * (1 + taxPercent / 100);",
+        "static void total(double price, int qty) {"
+      ],
+      "alternatives": [
+        [
+          0,
+          4,
+          5,
+          6,
+          1,
+          2,
+          3,
+          7,
+          8,
+          9,
+          10
+        ]
+      ],
+      "explain": "Java has no default argument values, so you write overloads: same name, different parameters. The short version calls the long one with the missing value (18). Dividing by the int 100 would turn 18 / 100 into 0, and a void method cannot return the number the caller prints.",
+      "concepts": [
+        "overloading",
+        "return values",
+        "int vs double division"
+      ],
+      "output": "354.0"
+    },
+    {
+      "id": "j11-fill",
+      "type": "fill",
+      "title": "Average of any number of prices",
+      "viz": true,
+      "prompt": "Fill the blanks so the method accepts any number of arguments (even none) and the program prints the goal output.",
+      "code": [
+        "class Stats {",
+        "    static double average(int ___ numbers) {",
+        "        if (numbers.___ == 0) {",
+        "            return 0;",
+        "        }",
+        "        int sum = 0;",
+        "        for (int n : numbers) {",
+        "            sum += n;",
+        "        }",
+        "        ___ (double) sum / numbers.length;",
+        "    }",
+        "    public static void main(String[] args) {",
+        "        System.out.println(average(4, 8, 6) + \" \" + average());",
+        "    }",
+        "}"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "..."
+          ],
+          "options": [
+            "...",
+            "[]",
+            ".."
+          ]
+        },
+        {
+          "answers": [
+            "length"
+          ],
+          "options": [
+            "length",
+            "length()",
+            "size()"
+          ]
+        },
+        {
+          "answers": [
+            "return"
+          ],
+          "options": [
+            "return",
+            "print",
+            "give"
+          ]
+        }
+      ],
+      "explain": "int... numbers lets the caller pass any number of ints, and inside the method numbers is a plain int[]. An array has .length without parentheses (length() is for String, size() for lists). A method that must hand a value back needs return.",
+      "concepts": [
+        "varargs",
+        "array length",
+        "return"
+      ],
+      "output": "6.0 0.0"
+    },
+    {
+      "id": "j11-predict",
+      "type": "predict",
+      "title": "Who sees the change?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints.",
+      "code": [
+        "class Demo {",
+        "    static void raise(int price, int[] prices) {",
+        "        price = price + 50;",
+        "        prices[0] = prices[0] + 50;",
+        "    }",
+        "    public static void main(String[] args) {",
+        "        int price = 100;",
+        "        int[] prices = {100, 200};",
+        "        raise(price, prices);",
+        "        System.out.println(price + \" \" + prices[0] + \" \" + prices[1]);",
+        "    }",
+        "}"
+      ],
+      "explain": "Java passes a copy of each argument. The copy of the int is separate, so the caller's price stays 100. The copy of the array reference still points to the same array, so prices[0] really becomes 150. To protect the caller's data, build a copy first.",
+      "concepts": [
+        "pass by value",
+        "arrays are shared",
+        "scope"
+      ],
+      "expected": "100 150 200"
+    },
+    {
+      "id": "j11-bug",
+      "type": "bug",
+      "title": "Not every path returns",
+      "viz": true,
+      "prompt": "This program does not compile. Click the line that causes the problem, then choose the fix.",
+      "code": [
+        "class Fees {",
+        "    static int deliveryFee(int orderTotal) {",
+        "        if (orderTotal >= 500) {",
+        "            return 0;",
+        "        } else if (orderTotal < 500) {",
+        "            return 40;",
+        "        }",
+        "    }",
+        "    public static void main(String[] args) {",
+        "        System.out.println(deliveryFee(320));",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "class Fees {",
+        "    static int deliveryFee(int orderTotal) {",
+        "        if (orderTotal >= 500) {",
+        "            return 0;",
+        "        } else {",
+        "            return 40;",
+        "        }",
+        "    }",
+        "    public static void main(String[] args) {",
+        "        System.out.println(deliveryFee(320));",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        5
+      ],
+      "answer": 0,
+      "options": [
+        "} else {",
+        "} else if (orderTotal <= 500) {",
+        "} else if (orderTotal != 500) {"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "missing return statement"
+      },
+      "explain": "A non-void method must return on every path. The compiler does not work out that the two conditions cover all numbers, so it sees a way to fall off the end of the method. A plain else makes the last path certain. Another else if keeps the same gap.",
+      "concepts": [
+        "return on every path",
+        "compile errors"
+      ],
+      "output": "40"
+    },
+    {
+      "id": "j11-review",
+      "type": "review",
+      "title": "Review the AI's discount method",
+      "prompt": "An AI assistant wrote this billing code. It compiles and runs, but tick the real problems (there are two).",
+      "code": [
+        "import java.util.ArrayList;",
+        "import java.util.List;",
+        "",
+        "class Billing {",
+        "    static double applyDiscount(List<Double> prices, int percent) {",
+        "        double sum = 0;",
+        "        for (int i = 0; i < prices.size(); i++) {",
+        "            prices.set(i, prices.get(i) * (100 - percent) / 100);",
+        "            sum += prices.get(i);",
+        "        }",
+        "        System.out.println(\"Discounted total: \" + sum);",
+        "        return sum;",
+        "    }",
+        "    static double average(double... prices) {",
+        "        if (prices.length == 0) {",
+        "            return 0;",
+        "        }",
+        "        double sum = 0;",
+        "        for (double p : prices) {",
+        "            sum += p;",
+        "        }",
+        "        return sum / prices.length;",
+        "    }",
+        "    public static void main(String[] args) {",
+        "        List<Double> prices = new ArrayList<>(List.of(100.0, 200.0));",
+        "        double total = applyDiscount(prices, 10);",
+        "        System.out.println(prices + \" \" + total + \" \" + average());",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "changes-callers-list",
+          "text": "applyDiscount silently changes the caller's list",
+          "why": "The method receives the same list object, so prices.set(...) rewrites the caller's prices and main prints the discounted values by surprise. Build a new list (or only add up the discounted prices) and leave the argument alone.",
+          "lines": [
+            8
+          ]
+        },
+        {
+          "id": "prints-inside",
+          "text": "The calculation method also prints, so every caller gets output it did not ask for",
+          "why": "A method that calculates should only return the result. Printing inside makes it noisy and hard to test, and the caller can print the returned value if it wants to.",
+          "lines": [
+            11
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "int-division",
+          "text": "The discount formula divides by 100 as an int, so the decimals are lost",
+          "why": "prices.get(i) is a Double, so the multiplication and the division by 100 are done in double arithmetic."
+        },
+        {
+          "id": "empty-average",
+          "text": "average() with no arguments divides by zero",
+          "why": "The guard at the top returns 0 when prices.length is 0, so the division is never reached."
+        },
+        {
+          "id": "static-methods",
+          "text": "The methods must not be static because main calls them without an object",
+          "why": "Static methods belong to the class itself, which is exactly why main can call them directly at this stage."
+        }
+      ],
+      "explain": "Two habits to check in generated code: does a method change something its caller owns (lists and arrays are shared), and does a calculating method print instead of simply returning.",
+      "concepts": [
+        "side effects",
+        "return vs print",
+        "reviewing methods"
+      ]
+    }
+  ]
+}

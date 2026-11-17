@@ -1,0 +1,263 @@
+{
+  "day": 22,
+  "drills": [
+    {
+      "id": "j22-parsons",
+      "type": "parsons",
+      "title": "A generic method with a fallback",
+      "viz": true,
+      "prompt": "Arrange the lines into a program with a generic method firstOr that returns the first item of any list, or a fallback when the list is empty. Two lines do not belong.",
+      "lines": [
+        "import java.util.List;",
+        "class Menu {",
+        "static <T> T firstOr(List<T> items, T fallback) {",
+        "if (items.isEmpty()) {",
+        "return fallback;",
+        "}",
+        "return items.get(0);",
+        "}",
+        "public static void main(String[] args) {",
+        "System.out.println(firstOr(List.of(\"Chai\", \"Samosa\"), \"none\"));",
+        "System.out.println(firstOr(List.of(), \"none\"));",
+        "}",
+        "}"
+      ],
+      "distractors": [
+        "static T firstOr(List<T> items, T fallback) {",
+        "if (items == null) {"
+      ],
+      "explain": "A generic method declares its own type parameter before the return type: static <T> T. Without that <T> the compiler looks for a class named T and fails. The same method then works for List<String>, List<Integer> and anything else. Checking items == null would not help with an empty list: items.get(0) would throw IndexOutOfBoundsException.",
+      "concepts": [
+        "generic method",
+        "type parameter <T>",
+        "empty list"
+      ],
+      "output": "Chai\nnone"
+    },
+    {
+      "id": "j22-fill",
+      "type": "fill",
+      "title": "Functions as values",
+      "viz": true,
+      "wrap": true,
+      "prompt": "Fill the blanks so the two Functions are glued together, and the Predicate answers two questions. Match the goal output.",
+      "code": [
+        "import java.util.function.Function;",
+        "import java.util.function.Predicate;",
+        "Function<Integer, Integer> addGst = price -> price * 118 / 100;",
+        "Function<Integer, String> label = price -> \"Rs \" + price;",
+        "Predicate<String> isLong = s -> s.length() > 5;",
+        "System.out.println(addGst.___(label).apply(100));",
+        "System.out.println(isLong.___(\"Masala chai\"));",
+        "System.out.println(isLong.___().test(\"Chai\"));"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "andThen"
+          ],
+          "options": [
+            "andThen",
+            "compose",
+            "then"
+          ]
+        },
+        {
+          "answers": [
+            "test"
+          ],
+          "options": [
+            "test",
+            "apply",
+            "accept"
+          ]
+        },
+        {
+          "answers": [
+            "negate"
+          ],
+          "options": [
+            "negate",
+            "not",
+            "invert"
+          ]
+        }
+      ],
+      "explain": "Each functional interface has one method with its own name: Function uses apply, Predicate uses test. andThen runs addGst first and passes its result to label (compose would run them the other way round, and the types would not fit). negate flips a Predicate, so \"Chai\" (4 letters) is \"not long\" and gives true.",
+      "concepts": [
+        "Function",
+        "Predicate",
+        "andThen",
+        "negate"
+      ],
+      "output": "Rs 118\ntrue\ntrue"
+    },
+    {
+      "id": "j22-predict",
+      "type": "predict",
+      "title": "orElse or orElseGet?",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "import java.util.Optional;",
+        "",
+        "class Lookup {",
+        "    static String fallback() {",
+        "        System.out.println(\"fallback called\");",
+        "        return \"none\";",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        Optional<String> found = Optional.of(\"Chai\");",
+        "        Optional<String> missing = Optional.empty();",
+        "        System.out.println(found.orElse(fallback()));",
+        "        System.out.println(found.orElseGet(() -> fallback()));",
+        "        System.out.println(missing.orElseGet(() -> fallback()));",
+        "    }",
+        "}"
+      ],
+      "explain": "orElse(fallback()) is an ordinary method call: Java evaluates the argument before orElse even looks at the box, so fallback runs although the box holds Chai. orElseGet takes a Supplier (the lambda) and only runs it when the box is empty. For a cheap constant orElse is fine; for a database call or a log line use orElseGet.",
+      "concepts": [
+        "Optional.orElse",
+        "Optional.orElseGet",
+        "Supplier",
+        "eager evaluation"
+      ],
+      "expected": "fallback called\nChai\nChai\nfallback called\nnone"
+    },
+    {
+      "id": "j22-bug",
+      "type": "bug",
+      "title": "Opening an empty Optional",
+      "viz": true,
+      "prompt": "The shop has no pizza, and the program crashes instead of printing a default price. Click the faulty line, then choose the fix.",
+      "code": [
+        "import java.util.Map;",
+        "import java.util.Optional;",
+        "",
+        "class Prices {",
+        "    public static void main(String[] args) {",
+        "        Map<String, Integer> prices = Map.of(\"Chai\", 20);",
+        "        Optional<Integer> price = Optional.ofNullable(prices.get(\"Pizza\"));",
+        "        System.out.println(\"Pizza: \" + price.get());",
+        "    }",
+        "}"
+      ],
+      "fixed_code": [
+        "import java.util.Map;",
+        "import java.util.Optional;",
+        "",
+        "class Prices {",
+        "    public static void main(String[] args) {",
+        "        Map<String, Integer> prices = Map.of(\"Chai\", 20);",
+        "        Optional<Integer> price = Optional.ofNullable(prices.get(\"Pizza\"));",
+        "        System.out.println(\"Pizza: \" + price.orElse(0));",
+        "    }",
+        "}"
+      ],
+      "bug_lines": [
+        8
+      ],
+      "answer": 0,
+      "options": [
+        "System.out.println(\"Pizza: \" + price.orElse(0));",
+        "System.out.println(\"Pizza: \" + price.orElseThrow());",
+        "System.out.println(\"Pizza: \" + price.isPresent());",
+        "System.out.println(\"Pizza: \" + price.getOrElse(0));"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "NoSuchElementException"
+      },
+      "explain": "get() on an empty Optional throws NoSuchElementException, which brings back the surprise that Optional was meant to remove. orElse(0) gives a fallback, so the empty case is handled in one place. orElseThrow() with no argument throws the same exception, isPresent() returns a boolean rather than the price, and getOrElse does not exist (Scala has it).",
+      "concepts": [
+        "Optional.get",
+        "Optional.orElse",
+        "NoSuchElementException"
+      ],
+      "output": "Pizza: 0"
+    },
+    {
+      "id": "j22-review",
+      "type": "review",
+      "title": "Review the AI's Catalog",
+      "prompt": "An AI assistant wrote this catalog lookup. It compiles and runs, but tick the real problems (there are three).",
+      "code": [
+        "import java.util.Map;",
+        "import java.util.Optional;",
+        "",
+        "class Catalog {",
+        "    private final Map<String, Integer> prices = Map.of(\"Chai\", 20, \"Samosa\", 15);",
+        "",
+        "    Optional<Integer> priceOf(String item) {",
+        "        return Optional.of(prices.get(item));",
+        "    }",
+        "",
+        "    static int loadDefaultPrice() {",
+        "        System.out.println(\"loading default price...\");",
+        "        return 10;",
+        "    }",
+        "",
+        "    int priceOrDefault(String item) {",
+        "        return Optional.ofNullable(prices.get(item)).orElse(loadDefaultPrice());",
+        "    }",
+        "",
+        "    public static void main(String[] args) {",
+        "        Catalog catalog = new Catalog();",
+        "        int chai = catalog.priceOf(\"Chai\").get();",
+        "        System.out.println(chai + \" \" + catalog.priceOrDefault(\"Samosa\"));",
+        "    }",
+        "}"
+      ],
+      "issues": [
+        {
+          "id": "of-null",
+          "text": "priceOf uses Optional.of with a value that may be null",
+          "why": "Optional.of(null) throws NullPointerException, so priceOf(\"Pizza\") crashes instead of returning an empty Optional, and the Optional return type promises something the code does not do. Use Optional.ofNullable.",
+          "lines": [
+            8
+          ]
+        },
+        {
+          "id": "eager-orelse",
+          "text": "orElse(loadDefaultPrice()) runs the default loader even when the price exists",
+          "why": "The argument of orElse is always evaluated. The output shows loading default price... although Samosa is in the map. Use orElseGet(Catalog::loadDefaultPrice) so the method runs only for a missing item.",
+          "lines": [
+            17
+          ]
+        },
+        {
+          "id": "blind-get",
+          "text": "main calls get() on the Optional without handling the empty case",
+          "why": "get() throws NoSuchElementException on an empty box, so the caller is back to guessing. Use orElse, orElseThrow with a clear message, or ifPresent.",
+          "lines": [
+            22
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "optional-return",
+          "text": "priceOf should return null for unknown items instead of an Optional",
+          "why": "Returning Optional from a method that might find nothing is the recommended style. It forces the caller to think about the empty case."
+        },
+        {
+          "id": "static-prices",
+          "text": "prices should be a static field",
+          "why": "A per-object field is fine here. static would only matter if every Catalog had to share one map."
+        },
+        {
+          "id": "int-unboxing",
+          "text": "int chai = ...get() is a type error because get() returns an Integer",
+          "why": "Java unboxes an Integer to an int automatically. It would only be dangerous for a null value."
+        }
+      ],
+      "explain": "With Optional, check how it is created (of vs ofNullable), how the fallback is supplied (orElse evaluates eagerly, orElseGet lazily) and how it is opened (get() without a check defeats the purpose).",
+      "concepts": [
+        "Optional",
+        "orElse vs orElseGet",
+        "reading code critically"
+      ]
+    }
+  ]
+}

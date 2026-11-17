@@ -1,0 +1,211 @@
+{
+  "day": 11,
+  "drills": [
+    {
+      "id": "d11-parsons",
+      "type": "parsons",
+      "title": "A tax function with a default",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them with the arrow buttons) so the program prints the price with the default 18% tax, then with 5% tax. Two lines do not belong.",
+      "lines": [
+        "def add_tax(amount, tax_percent=18):",
+        "return amount * (1 + tax_percent / 100)",
+        "print(add_tax(1000))",
+        "print(add_tax(1000, tax_percent=5))"
+      ],
+      "indent": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "distractors": [
+        "def add_tax(tax_percent=18, amount):",
+        "print(amount * (1 + tax_percent / 100))"
+      ],
+      "explain": "The body of a function is indented under its def line, and the function must be defined before it is called. A parameter with a default (tax_percent=18) is optional and must come after the parameters without one, so the first distractor is a SyntaxError. return hands the value back to the caller; a print inside the function would show a number but give the caller nothing to use.",
+      "concepts": [
+        "def and return",
+        "default arguments",
+        "keyword arguments"
+      ],
+      "output": "1180.0\n1050.0"
+    },
+    {
+      "id": "d11-fill",
+      "type": "fill",
+      "title": "Collect many arguments",
+      "viz": true,
+      "prompt": "Fill the two blanks so the functions accept any number of values: one takes loose numbers, the other takes name=value pairs.",
+      "code": [
+        "def average(___numbers):",
+        "    return sum(numbers) / len(numbers)",
+        "",
+        "def show(___fields):",
+        "    for key, value in fields.items():",
+        "        print(key, \"=\", value)",
+        "",
+        "print(average(4, 8, 6))",
+        "show(name=\"Aarav\", city=\"Pune\")"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "*"
+          ],
+          "options": [
+            "*",
+            "**"
+          ]
+        },
+        {
+          "answers": [
+            "**"
+          ],
+          "options": [
+            "**",
+            "*"
+          ]
+        }
+      ],
+      "explain": "*numbers packs all the positional arguments into a tuple, so sum() and len() work on it. **fields packs all the keyword arguments into a dict, which is why fields.items() works. With the stars swapped, average(4, 8, 6) would get a dict and show(name=...) would be rejected because it only accepts positional values.",
+      "concepts": [
+        "*args",
+        "**kwargs"
+      ],
+      "output": "6.0\nname = Aarav\ncity = Pune"
+    },
+    {
+      "id": "d11-predict",
+      "type": "predict",
+      "title": "The shared default list",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "def add_item(item, items=[]):",
+        "    items.append(item)",
+        "    return items",
+        "",
+        "print(add_item(\"tea\"))",
+        "print(add_item(\"coffee\"))",
+        "print(add_item(\"lassi\", []))",
+        "print(add_item(\"snack\"))"
+      ],
+      "explain": "A default value is created once, when def runs, not on every call. Every call that leaves items out reuses that one list, so it keeps growing. Passing your own list (the lassi call) leaves the shared one untouched. The safe pattern is items=None and then creating a new list inside the function.",
+      "concepts": [
+        "mutable default trap",
+        "default arguments"
+      ],
+      "expected": "['tea']\n['tea', 'coffee']\n['lassi']\n['tea', 'coffee', 'snack']"
+    },
+    {
+      "id": "d11-bug",
+      "type": "bug",
+      "title": "Printed, not returned",
+      "viz": true,
+      "prompt": "The program shows the taxed price but then crashes with a TypeError. Click the faulty line and choose the fix.",
+      "code": [
+        "def add_tax(amount, tax_percent=18):",
+        "    print(amount * (1 + tax_percent / 100))",
+        "",
+        "total = add_tax(1000) + 50",
+        "print(\"Total with delivery:\", total)"
+      ],
+      "bug_lines": [
+        2
+      ],
+      "answer": 0,
+      "options": [
+        "    return amount * (1 + tax_percent / 100)",
+        "    return print(amount * (1 + tax_percent / 100))",
+        "    amount * (1 + tax_percent / 100)",
+        "    amount = amount * (1 + tax_percent / 100)"
+      ],
+      "fixed_code": [
+        "def add_tax(amount, tax_percent=18):",
+        "    return amount * (1 + tax_percent / 100)",
+        "",
+        "total = add_tax(1000) + 50",
+        "print(\"Total with delivery:\", total)"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "TypeError"
+      },
+      "explain": "print only shows a value on the screen. A function with no return gives back None, so add_tax(1000) + 50 tries to add a number to None. return hands the value back so the caller can keep calculating with it. Look for this whenever a result comes out as None.",
+      "concepts": [
+        "return vs print",
+        "None"
+      ],
+      "output": "Total with delivery: 1230.0"
+    },
+    {
+      "id": "d11-review",
+      "type": "review",
+      "title": "Review the AI's coupon function",
+      "prompt": "An AI assistant wrote this coupon function. It runs, but tick the statements that point at real problems.",
+      "code": [
+        "def apply_coupon(amount, code, used_codes=[]):",
+        "    \"\"\"Return the amount after applying a coupon code once.\"\"\"",
+        "    discounts = {\"SAVE10\": 10, \"SAVE20\": 20}",
+        "    if code in used_codes:",
+        "        return amount",
+        "    used_codes.append(code)",
+        "    percent = discounts.get(code, 0)",
+        "    print(\"Discount:\", percent)",
+        "    return amount - amount * percent / 100",
+        "",
+        "print(apply_coupon(1000, \"SAVE10\"))",
+        "print(apply_coupon(2000, \"SAVE10\"))"
+      ],
+      "issues": [
+        {
+          "id": "mutable-default",
+          "text": "used_codes=[] is one shared list, so coupons stay 'used' across unrelated orders",
+          "why": "The default list is created once and reused by every call. The second order here loses its discount because the first order used SAVE10. Use used_codes=None and create the list inside the function.",
+          "lines": [
+            1,
+            4,
+            6
+          ]
+        },
+        {
+          "id": "print-inside",
+          "text": "The function prints the discount as well as returning the amount",
+          "why": "A function should do one job. The print is a side effect that the caller cannot switch off or test. Return the values and let the caller decide what to show.",
+          "lines": [
+            8
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "get-default",
+          "text": "discounts.get(code, 0) hides unknown coupon codes",
+          "why": "Here the 0 means 'no discount', which is the intended behaviour for an unknown code. The call does not crash."
+        },
+        {
+          "id": "dict-inside",
+          "text": "The discounts dict must be defined outside the function",
+          "why": "A small local table is fine. It is rebuilt on every call, which costs almost nothing, and it keeps the function self-contained."
+        },
+        {
+          "id": "early-return",
+          "text": "Having two return statements is not allowed",
+          "why": "A function can return from several places. The first return that runs ends the function. This one is a clear guard."
+        },
+        {
+          "id": "precedence",
+          "text": "amount - amount * percent / 100 subtracts before it multiplies",
+          "why": "* and / are done before -, so this subtracts the discount from the amount, exactly as intended."
+        }
+      ],
+      "explain": "When you review a function, read its signature first: a [] or {} default is a red flag. Then ask whether it returns its result or just shows it. A function that hides state in a default argument gives different answers for the same inputs, which makes it hard to test.",
+      "concepts": [
+        "mutable default trap",
+        "good function habits",
+        "reading code critically"
+      ]
+    }
+  ]
+}

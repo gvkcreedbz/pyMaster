@@ -16,6 +16,8 @@ Double-click **`start_app.bat java`** in the project root (or `start_app.bat` an
 - **`Ctrl+P` search.** A command palette (also `/`): full-text search across every lesson, quiz, concept and guide, plus quick actions (resume, theme, settings…).
 - **Smart review.** The home page shows a spaced-review card: quiz questions you missed (back after 1 day, or 3 if "partly") and exercises you failed most.
 - **🧩 Blueprints.** Real-time-style mini-systems with architecture / sequence / state diagrams, the Java features each one uses (mapped to course days), runnable code and a catalog of reusable patterns. Open it from the drawer or go to `#/blueprints`.
+- **🧩 Drills (new exercise types).** Every day has a **Drills** tab with five short exercises besides writing code: **arrange** the lines (braces included, some lines are traps), **fill the blanks**, **predict the output**, **find the bug** and **review AI-written code**. 150 drills for the course; every program was compiled and run with the real JDK, so the answers are never guesses. Open it from a day's tab bar or go to `#/day/N/drills`.
+- **⭐ XP, levels and badges (optional)** and **💾 backups** work exactly as in the Python course (see the root `README.md`).
 - **No day is ever locked.** Finish a day in 40 minutes, spend three days on one topic, or vanish for a week: the portal welcomes you back with a recap.
 - **It tracks, quietly:** active time per day, compile/run results, hints/solutions used, quiz self-ratings and the questions you ask the tutor. Everything stays in the portal's data folder on your computer.
 - **Tutor:** works out of the box; for open-ended answers click ⚙ and paste a Cursor / Anthropic / OpenAI key, or set `CURSOR_API_KEY`.

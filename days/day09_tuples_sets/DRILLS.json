@@ -1,0 +1,308 @@
+{
+  "day": 9,
+  "drills": [
+    {
+      "id": "d09-parsons",
+      "type": "parsons",
+      "title": "Remove duplicate tags, keep the order",
+      "viz": true,
+      "prompt": "Arrange and indent the lines so the program removes repeated tags but keeps the first occurrence of each in its original order. Two lines do not belong.",
+      "lines": [
+        "tags = [\"python\", \"code\", \"python\", \"ai\"]",
+        "seen = set()",
+        "unique = []",
+        "for tag in tags:",
+        "if tag not in seen:",
+        "seen.add(tag)",
+        "unique.append(tag)",
+        "print(unique)"
+      ],
+      "indent": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        0
+      ],
+      "alternatives": [
+        [
+          0,
+          2,
+          1,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        [
+          1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        [
+          1,
+          2,
+          0,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        [
+          2,
+          0,
+          1,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        [
+          2,
+          1,
+          0,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        [
+          0,
+          2,
+          1,
+          3,
+          4,
+          6,
+          5,
+          7
+        ]
+      ],
+      "distractors": [
+        "seen = {}",
+        "seen.append(tag)"
+      ],
+      "explain": "The set seen remembers what has already been met, because a membership test (in) on a set is fast. The list unique collects each tag the first time it appears, so the order is kept (list(set(tags)) would lose it). An empty set is set(), never {}: braces make an empty dict, which has no add. Sets have add, lists have append.",
+      "concepts": [
+        "set()",
+        "add vs append",
+        "de-duplicate keeping order"
+      ],
+      "output": "['python', 'code', 'ai']"
+    },
+    {
+      "id": "d09-fill",
+      "type": "fill",
+      "title": "Venn diagram operators",
+      "viz": true,
+      "prompt": "Fill each blank with the set operator that answers the question in the comment, so the program prints the goal output.",
+      "code": [
+        "mine = {\"A\", \"B\", \"C\"}",
+        "hers = {\"B\", \"C\", \"D\"}",
+        "print(sorted(mine ___ hers))  # mutual friends",
+        "print(sorted(mine ___ hers))  # only mine",
+        "print(sorted(mine ___ hers))  # everyone",
+        "print(sorted(mine ___ hers))  # in exactly one of the lists"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "&"
+          ],
+          "options": [
+            "&",
+            "|",
+            "-",
+            "^"
+          ]
+        },
+        {
+          "answers": [
+            "-"
+          ],
+          "options": [
+            "-",
+            "&",
+            "|",
+            "^"
+          ]
+        },
+        {
+          "answers": [
+            "|"
+          ],
+          "options": [
+            "|",
+            "&",
+            "-",
+            "^"
+          ]
+        },
+        {
+          "answers": [
+            "^"
+          ],
+          "options": [
+            "^",
+            "&",
+            "|",
+            "-"
+          ]
+        }
+      ],
+      "explain": "& (intersection) keeps what is in both sets. - (difference) keeps what is only in the left set. | (union) keeps everything. ^ (symmetric difference) keeps what is in exactly one set. Drawing two overlapping circles and shading the region you need tells you which operator to use. sorted() turns the unordered result into a list in a fixed order.",
+      "concepts": [
+        "set operators",
+        "intersection / union / difference"
+      ],
+      "output": "['B', 'C']\n['A']\n['A', 'B', 'C', 'D']\n['A', 'D']"
+    },
+    {
+      "id": "d09-predict",
+      "type": "predict",
+      "title": "Sets, tuples and swaps",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "a, b = 1, 2",
+        "a, b = b, a",
+        "print(a, b)",
+        "visits = [\"aarav\", \"diya\", \"aarav\", \"kabir\", \"diya\"]",
+        "print(len(visits), len(set(visits)))",
+        "print(type({}), type(set()))",
+        "print(type((\"a\")), type((\"a\",)))",
+        "print({1, 2, 3} & {2, 3, 4}, {1, 2, 3} - {2, 3, 4})"
+      ],
+      "explain": "a, b = b, a swaps two variables without a temporary. A set keeps one copy of each value, so 5 visits are 3 unique visitors. {} makes an empty dict, an empty set needs set(). Brackets alone do not make a tuple: (\"a\") is just text, the comma makes (\"a\",) a tuple. Intersection keeps {2, 3}; difference keeps {1}.",
+      "concepts": [
+        "swap",
+        "unique count",
+        "{} is a dict",
+        "one-item tuple",
+        "set operators"
+      ],
+      "expected": "2 1\n5 3\n<class 'dict'> <class 'set'>\n<class 'str'> <class 'tuple'>\n{2, 3} {1}"
+    },
+    {
+      "id": "d09-bug",
+      "type": "bug",
+      "title": "The unique-visitor counter that cannot add",
+      "viz": true,
+      "prompt": "The program should count the unique visitors, but it crashes with an AttributeError. Click the faulty line and choose the fix.",
+      "code": [
+        "visitors = {}",
+        "for name in [\"aarav\", \"diya\", \"aarav\"]:",
+        "    visitors.add(name)",
+        "print(\"Unique visitors:\", len(visitors))"
+      ],
+      "bug_lines": [
+        1
+      ],
+      "answer": 0,
+      "options": [
+        "visitors = set()",
+        "visitors = set",
+        "visitors = []",
+        "visitors = ()"
+      ],
+      "fixed_code": [
+        "visitors = set()",
+        "for name in [\"aarav\", \"diya\", \"aarav\"]:",
+        "    visitors.add(name)",
+        "print(\"Unique visitors:\", len(visitors))"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "AttributeError: 'dict' object has no attribute 'add'"
+      },
+      "explain": "Empty curly braces create an empty dictionary, not an empty set, so there is no add method. The only way to make an empty set is set(). Without the brackets, set is the type itself (not an empty set), and lists and tuples have no add either. The error message names the real type of the value: read it.",
+      "concepts": [
+        "{} is an empty dict",
+        "set()",
+        "reading a traceback"
+      ],
+      "output": "Unique visitors: 2"
+    },
+    {
+      "id": "d09-review",
+      "type": "review",
+      "title": "Review the AI's friend helpers",
+      "prompt": "Spec: mutual_friends returns the names in both lists, sorted alphabetically. suggest returns people from the others list who are not me and not already my friends. unique_in_order removes repeats but keeps the first occurrence of each in the original order. An AI assistant wrote these helpers. They run, but three break the spec. Tick them.",
+      "code": [
+        "def mutual_friends(a, b):",
+        "    return list(set(a) & set(b))",
+        "",
+        "def suggest(me, my_friends, others):",
+        "    return list(set(others) - set(my_friends))",
+        "",
+        "def unique_in_order(items):",
+        "    return list(set(items))",
+        "",
+        "print(mutual_friends([\"Diya\", \"Kabir\", \"Meera\"], [\"Meera\", \"Sana\", \"Kabir\"]))",
+        "print(suggest(\"Aarav\", [\"Diya\", \"Kabir\"], [\"Kabir\", \"Sana\", \"Aarav\"]))",
+        "print(unique_in_order([\"a\", \"b\", \"a\", \"c\", \"b\"]))"
+      ],
+      "issues": [
+        {
+          "id": "not-sorted",
+          "text": "mutual_friends is not sorted: a set has no order, so the list can come out in any order",
+          "why": "list(set(...)) keeps whatever internal order the set has, and text values can come out in a different order from one run to the next. The spec wants sorted(set(a) & set(b)).",
+          "lines": [
+            2
+          ]
+        },
+        {
+          "id": "suggests-me",
+          "text": "suggest can recommend the user to themselves: the me parameter is never used",
+          "why": "Aarav appears in the others list and nothing removes him. Subtract {me} as well: set(others) - set(my_friends) - {me}.",
+          "lines": [
+            5
+          ]
+        },
+        {
+          "id": "order-lost",
+          "text": "unique_in_order loses the original order because sets are unordered",
+          "why": "list(set(items)) removes duplicates but forgets the order. Loop over the items and keep a seen set, appending an item to the result only the first time it is seen.",
+          "lines": [
+            8
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "difference-direction",
+          "text": "set(others) - set(my_friends) is backwards and should be set(my_friends) - set(others)",
+          "why": "The direction is right: the left set is what we keep from, so this gives people in others who are not already my friends. Reversing it would give my friends who are missing from others."
+        },
+        {
+          "id": "duplicates-in-input",
+          "text": "mutual_friends returns repeated names if an input list has duplicates",
+          "why": "Converting to a set removes duplicates first, so every name appears at most once."
+        },
+        {
+          "id": "set-and-wrong",
+          "text": "& is the wrong operator for names that are in both lists",
+          "why": "& is the intersection: the items found in both sets, which is exactly the mutual friends."
+        }
+      ],
+      "explain": "Sets give you uniqueness and Venn-style questions, not order. When a spec talks about order or about excluding a specific value, check the sorted() call and every name the function receives: an unused parameter (me) is a strong hint that something is missing.",
+      "concepts": [
+        "sets are unordered",
+        "set difference",
+        "unused parameter",
+        "reading code critically"
+      ]
+    }
+  ]
+}

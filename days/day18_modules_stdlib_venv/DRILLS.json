@@ -1,0 +1,233 @@
+{
+  "day": 18,
+  "drills": [
+    {
+      "id": "d18-parsons",
+      "type": "parsons",
+      "title": "A countdown that is also a module",
+      "viz": true,
+      "prompt": "Arrange the lines (and indent them) so the file prints the days left to Christmas and could also be imported by another file without printing anything. Two lines do not belong.",
+      "lines": [
+        "from datetime import date",
+        "def days_left(today, event):",
+        "return (event - today).days",
+        "def main():",
+        "print(\"Days to Christmas:\", days_left(date(2026, 11, 16), date(2026, 12, 25)))",
+        "if __name__ == \"__main__\":",
+        "main()"
+      ],
+      "indent": [
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1
+      ],
+      "distractors": [
+        "return (today - event).days",
+        "if __name__ == __main__:"
+      ],
+      "explain": "The import comes first, then the helper function, then main(). The block under if __name__ == \"__main__\": runs only when the file is run directly, not when another file imports it, so the file works as a script and as a module. The event minus today gives the days still to come (39); today minus event would give -39. In the guard, \"__main__\" must be a string: without the quotes Python looks for a variable of that name.",
+      "concepts": [
+        "import",
+        "if __name__ == \"__main__\"",
+        "datetime.date"
+      ],
+      "output": "Days to Christmas: 39"
+    },
+    {
+      "id": "d18-fill",
+      "type": "fill",
+      "title": "Group the menu by name length",
+      "viz": true,
+      "prompt": "Fill the three blanks so the program groups the menu words by their length, without checking whether each key exists first.",
+      "code": [
+        "from collections import ___",
+        "groups = defaultdict(___)",
+        "for word in [\"tea\", \"chai\", \"coffee\", \"milk\", \"pop\"]:",
+        "    groups[len(word)].___(word)",
+        "print(dict(groups))"
+      ],
+      "blanks": [
+        {
+          "answers": [
+            "defaultdict"
+          ],
+          "options": [
+            "defaultdict",
+            "Counter",
+            "deque"
+          ]
+        },
+        {
+          "answers": [
+            "list"
+          ],
+          "options": [
+            "list",
+            "set",
+            "[]"
+          ]
+        },
+        {
+          "answers": [
+            "append"
+          ],
+          "options": [
+            "append",
+            "add",
+            "extend"
+          ]
+        }
+      ],
+      "explain": "defaultdict(list) creates an empty list the first time a missing key is used, so groups[4].append(...) never raises a KeyError. The argument is the function that makes the default value (list, not a ready-made []), and the value is a list, so it has append (add belongs to sets). extend(word) would add the letters one by one instead of the whole word.",
+      "concepts": [
+        "collections",
+        "defaultdict",
+        "from ... import"
+      ],
+      "output": "{3: ['tea', 'pop'], 4: ['chai', 'milk'], 6: ['coffee']}"
+    },
+    {
+      "id": "d18-predict",
+      "type": "predict",
+      "title": "Looking up a missing Counter key",
+      "viz": true,
+      "prompt": "Read the code and type exactly what it prints, one line per line of output.",
+      "code": [
+        "from collections import Counter",
+        "",
+        "orders = [\"tea\", \"chai\", \"tea\", \"coffee\", \"chai\", \"tea\"]",
+        "counts = Counter(orders)",
+        "print(counts.most_common(2))",
+        "print(counts[\"juice\"])",
+        "print(len(counts))"
+      ],
+      "explain": "most_common(2) lists the two highest counts as (item, count) tuples. Looking up a key that was never counted gives 0 instead of a KeyError, and that lookup does not add the key, so the Counter still holds only 3 different items.",
+      "concepts": [
+        "collections",
+        "Counter",
+        "most_common"
+      ],
+      "expected": "[('tea', 3), ('chai', 2)]\n0\n3"
+    },
+    {
+      "id": "d18-bug",
+      "type": "bug",
+      "title": "A date in the wrong order",
+      "viz": true,
+      "prompt": "The deadline countdown stops with a ValueError. Click the line that causes it, then choose the right fix.",
+      "code": [
+        "from datetime import date",
+        "today = date(2026, 11, 16)",
+        "deadline = date.fromisoformat(\"25-12-2026\")",
+        "print(\"Days left:\", (deadline - today).days)"
+      ],
+      "bug_lines": [
+        3
+      ],
+      "answer": 0,
+      "options": [
+        "deadline = date.fromisoformat(\"2026-12-25\")",
+        "deadline = date.fromisoformat(\"2026/12/25\")",
+        "deadline = date.fromisoformat(\"25 Dec 2026\")",
+        "deadline = date.fromisoformat(25-12-2026)"
+      ],
+      "fixed_code": [
+        "from datetime import date",
+        "today = date(2026, 11, 16)",
+        "deadline = date.fromisoformat(\"2026-12-25\")",
+        "print(\"Days left:\", (deadline - today).days)"
+      ],
+      "buggy_runs": {
+        "fails": true,
+        "contains": "ValueError"
+      },
+      "explain": "date.fromisoformat only understands the ISO layout YYYY-MM-DD (year first, dashes). Day-first text, slashes or month names raise a ValueError. When your input comes in another layout, convert it to ISO first or parse it with strptime.",
+      "concepts": [
+        "datetime.date",
+        "fromisoformat",
+        "ValueError"
+      ],
+      "output": "Days left: 39"
+    },
+    {
+      "id": "d18-review",
+      "type": "review",
+      "title": "Review the AI's reminder helpers",
+      "prompt": "An AI assistant wrote this small reminder module. It runs, but tick the statements that point at real problems.",
+      "code": [
+        "import json, sys, datetime",
+        "from collections import *",
+        "",
+        "def count_orders(orders):",
+        "    counts = {}",
+        "    for item in orders:",
+        "        if item in counts:",
+        "            counts[item] += 1",
+        "        else:",
+        "            counts[item] = 1",
+        "    return counts",
+        "",
+        "def days_left(deadline_text):",
+        "    deadline = datetime.date.fromisoformat(deadline_text)",
+        "    return (deadline - datetime.date(2026, 11, 16)).days",
+        "",
+        "print(count_orders([\"tea\", \"chai\", \"tea\"]))",
+        "print(days_left(\"2026-12-25\"))"
+      ],
+      "issues": [
+        {
+          "id": "star-import",
+          "text": "from collections import * pulls in every name from the module, and none of them is used",
+          "why": "A star import hides where names come from and can overwrite names you defined. Import only what you use, for example from collections import Counter.",
+          "lines": [
+            2
+          ]
+        },
+        {
+          "id": "unused-imports",
+          "text": "json and sys are imported but never used, and three modules share one import line",
+          "why": "Unused imports are clutter and make readers hunt for code that does not exist. Keep one import per line (standard library first) and delete what you do not use.",
+          "lines": [
+            1
+          ]
+        },
+        {
+          "id": "no-main-guard",
+          "text": "The two print calls at the bottom run whenever another file imports this module",
+          "why": "Importing the module would print the orders and the countdown as a side effect. Put the demo code in main() and call it under if __name__ == \"__main__\":.",
+          "lines": [
+            17,
+            18
+          ]
+        }
+      ],
+      "non_issues": [
+        {
+          "id": "manual-count-wrong",
+          "text": "The counting loop gives wrong totals and must be replaced",
+          "why": "The loop is correct: it adds 1 to a known key or creates the key with 1. Counter would be shorter, but nothing is broken."
+        },
+        {
+          "id": "datetime-style",
+          "text": "import datetime followed by datetime.date(...) is not allowed",
+          "why": "Importing the whole module and writing datetime.date is normal. It keeps the module name visible at every use."
+        },
+        {
+          "id": "days-attribute",
+          "text": "Subtracting two dates gives a number, so .days is an error",
+          "why": "The difference of two dates is a timedelta object. Its .days attribute is the whole number of days, which is what the function wants."
+        }
+      ],
+      "explain": "When you review code that imports things, ask: is every import used, is it clear where each name comes from, and does importing the file cause side effects? The counting loop is longer than Counter but correct, so leave it alone unless someone asks for a shorter version.",
+      "concepts": [
+        "import",
+        "if __name__ == \"__main__\"",
+        "reading code critically"
+      ]
+    }
+  ]
+}
