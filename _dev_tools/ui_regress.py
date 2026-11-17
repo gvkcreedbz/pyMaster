@@ -21,6 +21,7 @@ QUICK = "--quick" in sys.argv
 BASE = ARGS[0] if ARGS else "http://127.0.0.1:8777"
 CHROME = os.path.expandvars(r"%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe")
 PORT = 9344
+BP_IDS = [b["id"] for b in json.load(urllib.request.urlopen(BASE + "/api/blueprints", timeout=20))["items"]]   # ids differ per track
 problems: list[str] = []
 checks = 0
 
@@ -149,7 +150,7 @@ async def main():
                 await visit("#/library", f"[{w}] library")
                 await visit("#/library/README.md", f"[{w}] library doc")
                 await visit("#/blueprints", f"[{w}] blueprints", 0.6)
-                for bid in ("live-order-tracker", "ticket-triage-pipeline", "site-watcher", "patterns"):
+                for bid in (*BP_IDS, "patterns"):
                     await visit(f"#/blueprints/{bid}", f"[{w}] blueprint {bid}", 1.0)
                     if w == 1440 and bid != "patterns":
                         await asyncio.sleep(2.0)             # let Mermaid draw
@@ -159,7 +160,7 @@ async def main():
                         check(f"[{w}] {bid}: every diagram rendered", d["blocks"] > 0 and d["svgs"] == d["blocks"] and d["syntax"] == 0, str(d))
                         check(f"[{w}] {bid}: diagram render produced no errors", not p.drain_problems())
                 for t in ("code", "run"):
-                    await visit(f"#/blueprints/live-order-tracker/{t}", f"[{w}] blueprint tab {t}", 0.6)
+                    await visit(f"#/blueprints/{BP_IDS[0]}/{t}", f"[{w}] blueprint tab {t}", 0.6)
                 # bad routes should land somewhere sane, not blow up
                 await visit("#/nonsense", f"[{w}] unknown route", 0.8)
                 await visit("#/day/99/learn", f"[{w}] day 99", 0.6, need_view=False)

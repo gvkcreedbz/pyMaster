@@ -133,7 +133,7 @@ def test_retry_only_retries_transient_errors(pipe):
             raise pipe.TransientError("503")
         return "ok"
 
-    assert flaky() == "ok" and calls["n"] == 3 and len(waits) == 2 and waits[1] > waits[0] * 1.5
+    assert flaky() == "ok" and calls["n"] == 3 and len(waits) == 2 and 0.1 <= waits[0] < 0.2 and 0.2 <= waits[1] < 0.3 and waits[1] > waits[0]
 
     @pipe.retry(times=3, sleep=waits.append)
     def broken():
