@@ -1,0 +1,13 @@
+/* Backups & restore dialog (extras/backup.js) */
+.bk-btn { font-size: 16px; }
+.bk-top { margin: 14px 0 8px; flex-wrap: wrap; }
+.bk-dir { word-break: break-all; }
+.bk-list { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius-s); overflow: hidden; max-height: 46vh; overflow-y: auto; background: var(--panel-2); }
+.bk-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.bk-row:last-child { border-bottom: 0; }
+.bk-main { flex: 1; min-width: 180px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.bk-acts { display: flex; gap: 6px; }
+.bk-acts a.btn { text-decoration: none; }
+.bk-confirm { flex-basis: 100%; background: var(--warn-soft); border: 1px solid var(--line-2); border-radius: var(--radius-s); padding: 10px 12px; }
+.bk-confirm p { margin: 0 0 8px; font-size: 13px; color: var(--ink); }
+.bk-empty { padding: 18px; text-align: center; margin: 0; }
