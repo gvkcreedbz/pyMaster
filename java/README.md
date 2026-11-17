@@ -7,9 +7,9 @@ The Java twin of the [Python course](../README.md). Same strict, hands-on, 2-hou
 > **Already know the Python course?** Great: every Java day names what is *different from Python* (types, braces, semicolons, `==` vs `.equals`). You can do both courses side by side.
 
 ## ✦ Java Master — the learning portal (optional, recommended)
-Double-click **`run_java_portal.bat`** in the project root (needs the JDK from [`SETUP.md`](SETUP.md) and Python for the portal server). It opens a calm local web app at <http://127.0.0.1:8766> with all 30 days, an in-browser editor that compiles, runs and auto-checks your code, quizzes, notes and a **three-pane workspace**.
+Double-click **`start_app.bat java`** in the project root (or `start_app.bat` and press 2). On a PC with nothing installed it downloads a private Python and a private JDK 21 the first time, no admin rights needed (details in the root `README.md`). `run_java_portal.bat` still works if you installed the JDK and Python yourself ([`SETUP.md`](SETUP.md)). It opens a calm local web app at <http://127.0.0.1:8766> with all 30 days, an in-browser editor that compiles, runs and auto-checks your code, quizzes, notes and a **three-pane workspace**.
 
-> Want the Python course open too? Double-click **`run_all.bat`**: it starts *Py Master* (<http://127.0.0.1:8765>) **and** *Java Master* (<http://127.0.0.1:8766>) at the same time. Both keep their progress separately.
+> Want the Python course open too? Double-click **`start_app.bat both`** (or the older `run_all.bat`): it starts *Py Master* (<http://127.0.0.1:8765>) **and** *Java Master* (<http://127.0.0.1:8766>) at the same time. Both keep their progress separately.
 
 - **Three-pane workspace.** Left 50 % — the lesson (code-along, exercises, quiz). Right 50 % — a playground that stays put, so you never re-copy code (press **▶ Try** on any code block). Bottom — the AI assistant (click the ask-bar or press `Ctrl+K` to open it as a third pane). Drag the gutters to resize (double-click to reset); pop a pane out into its own window with ⧉.
 - **👁 Visualizer.** Step through Java code line by line: local variables on the **stack**, objects on the **heap**, and arrows that show when two variables point at the *same* object — the single best way to understand references, `String` vs `StringBuilder`, and `==` vs `.equals`.

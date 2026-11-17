@@ -5,8 +5,42 @@ A strict, hands-on, 2-hours-a-day programme. You learn by **running real example
 > **Goal:** above-intermediate Python for **data/AI** *and* **automation/backend** work — and the ability to understand almost any beginner-to-intermediate code you meet.
 > **Schedule:** Day 1 = **Mon 16 Nov 2026**, Day 30 = **Tue 15 Dec 2026** (change the start date in the tracker's *Settings* sheet).
 
+## ⚡ Run it on any Windows PC (no VS Code, no Python, no Java needed)
+
+**Double-click `start_app.bat`** in this folder. That's it.
+
+| You double-click | What starts | Open |
+|---|---|---|
+| `start_app.bat` | asks: Python course, Java course, or both | (it tells you) |
+| `start_app.bat py` | **Py Master**, the Python course | <http://127.0.0.1:8765> |
+| `start_app.bat java` | **Java Master**, the Java course | <http://127.0.0.1:8766> |
+| `start_app.bat both` | both courses side by side | both links above |
+
+(From a terminal: `start_app.bat java`. Add `--no-browser` if you do not want the browser to open by itself.)
+
+**The first run sets itself up, once.** It needs the internet and a few minutes, needs **no administrator rights**, and puts everything inside this folder:
+
+- no suitable Python on the PC → it downloads a private Python 3.13 into `.tools\py` and installs the app's packages;
+- Java course chosen and no Java 21 on the PC → it downloads a private JDK 21 into `.tools\jdk21` (about 190 MB) and the small JUnit / SQLite helper libraries into `java\lib`;
+- if something is interrupted (for example the connection drops), just double-click again: it carries on where it stopped.
+
+After that it starts in a few seconds, **even offline**. Keep the black window open while you learn; close it, or press `Ctrl+C`, to stop. Your progress is saved on that computer in `portal\data\` (Python course) and `portal\data-java\` (Java course), and the portal also keeps automatic daily backups in a `backups` folder inside each of them (use the 💾 button in the top bar to restore).
+
+**Moving to another computer?** Copy this whole folder (or clone the repository) and double-click `start_app.bat`. To bring your progress along, also copy `portal\data` and `portal\data-java`. You can skip the `.tools` folder: it is rebuilt automatically, but copying it saves the downloads.
+
+If something goes wrong:
+
+| Problem | Fix |
+|---|---|
+| "Setup could not finish" | There is no internet right now. Connect, then double-click again. |
+| The window closes at once | Open *Command Prompt*, go to this folder with `cd`, run `start_app.bat` and read the message it prints before it stops. No administrator rights are needed. |
+| "address already in use" / the page does not load | The course is already running in another window (the launcher then just opens it), or another program uses port 8765 / 8766. Close the other window. |
+| Antivirus or a company PC blocks the downloads | Install Python 3.11+ (and, for Java, a JDK 21) yourself with `SETUP.md`, then run `start_app.bat` again: it uses what is installed. |
+| You want to start over | Delete the `.tools` folder (and `.venv-portal` if it exists), then double-click again. Your progress in `portal\data*` is not touched. |
+
+Developers can also run `python -m portal [--track java] [--port N] [--no-browser]`, or `pip install -e .` and then `pymaster` / `javamaster`.
 ## ✦ Py Master — the learning portal (optional, recommended)
-Double-click **`run_portal.bat`** (needs Python from `SETUP.md`). It opens a calm local web app at <http://127.0.0.1:8765> with all 30 days, an in-browser editor that runs and auto-checks your code, quizzes, notes, and a **three-pane workspace**:
+Double-click **`start_app.bat`** (see above; `run_portal.bat` still works if you already installed Python). It opens a calm local web app at <http://127.0.0.1:8765> with all 30 days, an in-browser editor that runs and auto-checks your code, quizzes, notes, and a **three-pane workspace**:
 - **Left 50 % — the lesson** (code-along, exercises, quiz). **Right 50 % — a playground** that stays put, so you never re-copy code. Press **▶ Try** on any code block to drop it into the playground.
 - **Bottom — the AI assistant** (a slim ask-bar; click it or press `Ctrl+K` to open it as a third pane): "I understood the code, but where would it be used?"
 - **Resize** by dragging the gutters (double-click a gutter to reset). **Pop a pane out** into its own window with ⧉, or drag its tab out of the browser like a Chrome tab (drop it on the other pane to swap sides; ⇲ docks it back). Windows stay in sync and the clock keeps counting.
@@ -20,7 +54,7 @@ Double-click **`run_portal.bat`** (needs Python from `SETUP.md`). It opens a cal
 - **Tutor:** works out of the box (built-in knowledge of "where / how is this used?"). For open-ended answers click ⚙ and paste a Cursor / Anthropic / OpenAI key, or set `CURSOR_API_KEY`.
 
 ## ▶ Start here (3 steps)
-1. **Install Python** → follow [`SETUP.md`](SETUP.md) (≈ 30 min, once).
+1. **Start the app** → double-click `start_app.bat` (sets itself up on the first run; nothing to install by hand). Prefer working in an editor with plain files? Then install Python with [`SETUP.md`](SETUP.md) (≈ 30 min, once).
 2. **Read the plan** → [`00_GAME_PLAN.md`](00_GAME_PLAN.md) (10 min): timeline, rules, what to do when you fall behind.
 3. **Open Day 1** → [`days/day01_hello_python/LESSON.md`](days/day01_hello_python/LESSON.md), and open [`tracker/PROGRESS_TRACKER.xlsx`](tracker/PROGRESS_TRACKER.xlsx) next to it.
 

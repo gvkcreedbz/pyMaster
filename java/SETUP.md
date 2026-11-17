@@ -97,7 +97,7 @@ Nothing else to install, no Maven, no internet needed afterwards.
 - **Git**: `winget install Git.Git` (needed on Day 24), then `git --version`.
 - **SQLite Viewer** extension in Cursor (Day 28) to peek inside `.db` files.
 - Show UTF-8 properly in the terminal if you see strange symbols: `chcp 65001` — and see the encoding row below.
-- The **learning portal**: double-click `run_java_portal.bat` in the project root → <http://127.0.0.1:8766>. It needs Python (see the root `SETUP.md`) only to run the portal server; your Java code is compiled by your JDK. The first run builds a private environment (a few minutes, once). `run_all.bat` starts the Python and the Java portal together.
+- The **learning portal**: double-click `start_app.bat java` in the project root (it fetches a private Python and JDK 21 by itself on a PC that has none; no admin rights). The older `run_java_portal.bat` → <http://127.0.0.1:8766>. It needs Python (see the root `SETUP.md`) only to run the portal server; your Java code is compiled by your JDK. The first run builds a private environment (a few minutes, once). `run_all.bat` starts the Python and the Java portal together.
 
 ## Troubleshooting
 | Problem | Fix |
