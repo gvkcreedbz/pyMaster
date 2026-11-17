@@ -18,6 +18,9 @@ function codeTools(runner, cm, dayNo) {
 const celebrated = new Set();
 const LEVEL = { 1: 'Beginner', 2: 'Intermediate', 3: 'Challenge' };
 const TABS = [['learn', 'Learn'], ['along', 'Code along'], ['practice', 'Practice'], ['quiz', 'Quiz'], ['notes', 'Notes']];
+/** Extensions add day tabs here: { id, label, show(day) -> bool, count(day) -> string, render(body, day, label) }. */
+const extraTabs = [];
+export function registerDayTab(t) { extraTabs.push(t); }
 
 export async function renderDay(root, n, tab = 'learn') {
   if (cur.n !== n) {
@@ -32,9 +35,11 @@ export async function renderDay(root, n, tab = 'learn') {
 }
 
 function shell(root, d, tab) {
-  const tabs = [...TABS, ...(d.extras.length ? [['extras', d.extras[0].replace(/\.md$/, '').replace(/_/g, ' ').toLowerCase().replace(/^./, c => c.toUpperCase())]] : [])];
+  const addon = extraTabs.filter(t => { try { return t.show(d); } catch { return false; } });
+  const tabs = [...TABS, ...addon.map(t => [t.id, t.label]), ...(d.extras.length ? [['extras', d.extras[0].replace(/\.md$/, '').replace(/_/g, ' ').toLowerCase().replace(/^./, c => c.toUpperCase())]] : [])];
   const p = d.progress;
   const count = { practice: `${p.ex_passed}/${p.ex_total}`, quiz: `${p.quiz_rated}/${p.quiz_total}` };
+  for (const t of addon) { try { count[t.id] = t.count?.(d) || ''; } catch { /* a broken extension never breaks the page */ } }
   const wk = S.overview.weeks.find(w => w.n === d.week);
   root.innerHTML = `<div class="fade-in">
     <div class="dayhead">
@@ -70,7 +75,9 @@ function shell(root, d, tab) {
   };
   const body = $('#tabbody', root);
   const label = `Day ${d.n} · ${d.title}`;
-  ({ learn, along, practice, quiz, notes, extras })[tab](body, d, label);
+  const ext = extraTabs.find(t => t.id === tab);
+  if (ext && addon.includes(ext)) ext.render(body, d, label);
+  else (({ learn, along, practice, quiz, notes, extras })[tab] || learn)(body, d, label);
 }
 
 // ---- Learn --------------------------------------------------------------------------------------

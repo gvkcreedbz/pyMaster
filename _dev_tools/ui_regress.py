@@ -83,7 +83,17 @@ class Page:
         return out
 
 
+def warm_up():
+    """A cold server takes seconds to answer its first requests (fresh work folders, first imports); do that before the sweep."""
+    for path in ("/api/track", "/api/overview", "/api/day/1", "/api/extras", "/api/blueprints"):
+        try:
+            urllib.request.urlopen(BASE + path, timeout=90).read()
+        except Exception:  # noqa: BLE001
+            pass
+
+
 async def main():
+    warm_up()
     prof = tempfile.mkdtemp(prefix="pm_regress_")
     proc = subprocess.Popen([CHROME, "--headless=new", "--disable-gpu", f"--remote-debugging-port={PORT}",
                              f"--user-data-dir={prof}", "--window-size=1440,900", "about:blank"],
@@ -144,7 +154,7 @@ async def main():
                 days = range(1, 31) if w == 1440 else (1, 8, 14, 22, 28, 30)
                 tabs = ("learn", "along", "practice", "quiz", "notes") if w == 1440 and not QUICK else ("learn", "practice")
                 for d in days:
-                    for t in tabs:
+                    for t in tabs + (("drills",) if d <= 3 else ()):                   # drills exist for days 1-3 so far
                         await visit(f"#/day/{d}/{t}", f"[{w}] day {d}/{t}", 0.25)
                 await visit("#/insights", f"[{w}] insights", 0.8)
                 await visit("#/library", f"[{w}] library")

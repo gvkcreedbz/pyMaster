@@ -7,7 +7,7 @@ import * as playground from './playground.js';
 import { openVisualizer } from './visualizer.js';
 import { redrawAll } from './diagram.js';
 import { renderHome } from './home.js';
-import { renderDay, resetDay } from './day.js';
+import { renderDay, resetDay, registerDayTab } from './day.js';
 import { renderLibrary } from './misc.js';
 import { renderInsights } from './insights.js';
 import { renderBlueprints } from './blueprints.js';
@@ -241,11 +241,12 @@ async function loadExtras() {
     const r = await api('/extras'); list = r.js || [];
     for (const href of r.css || []) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '/static/css/extras/' + href; document.head.appendChild(l); }
   } catch { return; }
-  const ctx = { api, $, $$, esc, md, enhance, toast, modal, store, TRK, S, hooks, layout, tutor, openVisualizer, openSettings, openPalette, PANE };
+  const ctx = { api, $, $$, esc, md, enhance, toast, modal, store, TRK, S, hooks, layout, tutor, openVisualizer, openSettings, openPalette, registerDayTab, PANE };
   for (const name of list) {
     try { const m = await import('/static/js/extras/' + name); await m.init?.(ctx); }
     catch (e) { console.warn('extension ' + name + ' failed', e); }       // a broken extension never stops the app
   }
+  if (list.length && (!PANE || PANE === 'lesson') && S.area === 'day') route();   // the first render happened before the extensions added their day tabs
 }
 // ---- boot -----------------------------------------------------------------------------------------------
 (async function boot() {

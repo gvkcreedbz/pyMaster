@@ -78,7 +78,8 @@ public class DrillRunner {
                     Thread t = new Thread(() -> {
                         try {
                             Method main = Class.forName(cls, true, cl).getMethod("main", String[].class);
-                            main.invoke(null, (Object) new String[0]);
+                            main.setAccessible(true);                      // snippets are often package-private classes
+            main.invoke(null, (Object) new String[0]);
                         } catch (InvocationTargetException e) {
                             Throwable c = e.getCause();
                             ps.print("Exception in thread \"main\" ");
